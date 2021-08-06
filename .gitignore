@@ -6,3 +6,7 @@ dist
 package-lock.json
 /.env
 /.env.defaults
+server/dist
+server/test/coverage
+server/log
+.eslintcache
