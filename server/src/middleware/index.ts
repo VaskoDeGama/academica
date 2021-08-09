@@ -4,6 +4,7 @@ import { FinalMiddleware } from './final-middleware'
 import { HttpLogger } from './http-logger'
 import { BodyParser } from './body-parser'
 import { HttpContext } from './http-context'
+import { UrlEncoder } from './url-encoder'
 
 export {
   SetMetrics,
@@ -11,5 +12,6 @@ export {
   FinalMiddleware,
   HttpLogger,
   BodyParser,
-  HttpContext
+  HttpContext,
+  UrlEncoder
 }

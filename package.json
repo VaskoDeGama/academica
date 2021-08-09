@@ -2,16 +2,16 @@
   "name": "academica1812",
   "version": "0.0.1",
   "description": "project",
-  "prestart": "npm run build",
-  "prebuild": "npm run lint",
-  "main": "server/dist/index.js",
+  "main": "dist/server/src/index.js",
   "scripts": {
-    "server": "node .",
+    "prestart": "npm run build",
+    "prebuild": "npm run lint",
+    "start": "NODE_ENV=production node .",
     "build": "tsc",
     "test:unit": "jest --config=jest.config.js --collect-coverage",
     "server:watch": "ts-node-dev --respawn --transpile-only server/src/index.ts",
-    "lint:fix": "eslint --cache --ext .ts . --fix",
-    "lint": "eslint --cache --ext .ts ."
+    "lint:fix": "eslint --ext .ts . --fix",
+    "lint": "eslint --ext .ts ."
   },
   "author": "VaskaDaGama (karmenyuk@yandex.ru)",
   "license": "ISC",

@@ -14,6 +14,7 @@ export class UserController {
   @Post('/users/:id')
   @OnUndefined(400)
   postOne (@Param('id') id: number, @Body() body: ReqBody) {
+    console.log('Received', body)
     return {
       userId: id,
       created: true

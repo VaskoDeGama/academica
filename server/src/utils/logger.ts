@@ -1,5 +1,5 @@
 import httpContext from 'express-http-context'
-import { NextFunction, Request, Response } from 'express'
+import { Request, Response } from 'express'
 const loggerConfig = {
   appenders: {
     access: {

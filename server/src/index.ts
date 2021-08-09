@@ -1,23 +1,31 @@
 import swaggerUi from 'swagger-ui-express'
-import dotenv from 'dotenv'
+import config from 'config'
 
 import { configure, getLogger } from 'log4js'
 import { loggerConfig } from './utils/logger'
 import * as swaggerDocument from '../swagger/openapi.json'
 import { createExpressServer } from 'routing-controllers'
-import { GlobalErrorHandler, SetMetrics, FinalMiddleware, HttpLogger, BodyParser, HttpContext } from './middleware'
+import {
+  GlobalErrorHandler,
+  SetMetrics,
+  FinalMiddleware,
+  HttpLogger,
+  BodyParser,
+  HttpContext,
+  UrlEncoder
+} from './middleware'
 import { UserController } from './controllers'
 
 configure(loggerConfig)
 const log = getLogger('Server')
 
-dotenv.config()
-const port = process.env.PORT
+const port = config.get('Server.port')
+console.log(config)
 
 const app = createExpressServer({
   cors: true,
   controllers: [UserController],
-  middlewares: [BodyParser, HttpContext, SetMetrics, HttpLogger, FinalMiddleware, GlobalErrorHandler],
+  middlewares: [BodyParser, UrlEncoder, HttpContext, SetMetrics, HttpLogger, FinalMiddleware, GlobalErrorHandler],
   defaultErrorHandler: false
 })
 app.disable('x-powered-by')
