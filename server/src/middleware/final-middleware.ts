@@ -8,10 +8,10 @@ const log = getLogger('app')
 export class FinalMiddleware implements ExpressMiddlewareInterface {
   use (req: Request, res: Response, next: NextFunction): void {
     if (!res.headersSent) {
+      log.error('FinalMiddleware reached, ending response.', { id: req.path, type: 'route' })
       res.status(404)
       res.send(new NotFoundError('Route not found'))
     }
-    log.error('FinalMiddleware reached, ending response.', { id: req.path, type: 'route' })
     res.end()
   }
 }
