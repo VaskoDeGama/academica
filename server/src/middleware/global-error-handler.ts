@@ -10,9 +10,9 @@ interface HttpErrorWithStatus extends HttpError {
 
 @Middleware({ type: 'after' })
 export class GlobalErrorHandler implements ExpressErrorMiddlewareInterface {
-  error (error: HttpErrorWithStatus, request: Request, response: Response, next: () => NextFunction) {
+  error (error: HttpErrorWithStatus, req: Request, res: Response, next: () => NextFunction) {
     log.error(error)
-    response.status(error.httpCode || error.status).json(error)
+    res.status(error.httpCode || error.status).json(error)
     next()
   }
 }

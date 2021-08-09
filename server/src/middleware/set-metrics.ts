@@ -8,7 +8,7 @@ const log = getLogger('Request')
 
 @Middleware({ type: 'before' })
 export class SetMetrics implements ExpressMiddlewareInterface {
-  use (request: Request, response: Response, next?: NextFunction): void {
+  use (req: Request, res: Response, next?: NextFunction): void {
     const traceId = uuid()
     httpContext.set('reqStartTime', Date.now())
     httpContext.set('traceId', traceId)
