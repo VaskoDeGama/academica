@@ -32,6 +32,20 @@ describe('UserController', () => {
     console.log(res)
     expect(res).toBeDefined()
   })
+  it('postOne with validations', done => {
+    request(server)
+      .post('/users/1')
+      .send({
+        city: 'SPb',
+        country: 'kek'
+      } as ReqBody)
+      .expect(200)
+      .end((err, res) => {
+        if (err) throw new Error(JSON.stringify(res.body))
+
+        done()
+      })
+  })
 
   it('postOne with failed validations', done => {
     request(server)
