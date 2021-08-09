@@ -1,8 +1,8 @@
-import { Controller, Get, OnUndefined, Param, Post, Body } from 'routing-controllers'
+import { JsonController, Get, OnUndefined, Param, Post, Body } from 'routing-controllers'
 import 'reflect-metadata'
 import { ReqBody } from '../models'
 
-@Controller()
+@JsonController()
 export class UserController {
   @Get('/users/:id')
   getOne (@Param('id') id: number) {
@@ -12,7 +12,7 @@ export class UserController {
   }
 
   @Post('/users/:id')
-  @OnUndefined(204)
+  @OnUndefined(400)
   postOne (@Param('id') id: number, @Body() body: ReqBody) {
     return {
       userId: id,

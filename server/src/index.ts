@@ -5,11 +5,11 @@ import express from 'express'
 import dotenv from 'dotenv'
 import cors from 'cors'
 
-import { configure, getLogger, connectLogger } from 'log4js'
-import { loggerConfig, httpFormatter } from './utils/logger'
+import { configure, getLogger } from 'log4js'
+import { loggerConfig } from './utils/logger'
 import * as swaggerDocument from '../swagger/openapi.json'
 import { useExpressServer } from 'routing-controllers'
-import { GlobalErrorHandler, setTraceId } from './middleware'
+import { GlobalErrorHandler, SetMetrics, FinalMiddleware, HttpLogger } from './middleware'
 import { UserController } from './controllers'
 
 configure(loggerConfig)
@@ -19,22 +19,17 @@ dotenv.config()
 const port = process.env.PORT
 
 const app = express()
-const httpLogger = connectLogger(getLogger('Request'), {
-  level: 'INFO',
-  format: (req, res, format) => httpFormatter(req, res, format)
-})
+app.disable('x-powered-by')
 app.use(cors())
 app.use(bodyParser.json())
 app.use(httpContext.middleware)
-app.use(setTraceId)
+
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
-app.disable('x-powered-by')
 useExpressServer(app, {
   controllers: [UserController],
-  middlewares: [GlobalErrorHandler],
+  middlewares: [SetMetrics, HttpLogger, FinalMiddleware, GlobalErrorHandler],
   defaultErrorHandler: false
 })
-app.use(httpLogger)
 
 app.listen(port, () => log.info(`Express server listening on port: ${port}, with pid: ${process.pid}`))

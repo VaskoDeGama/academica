@@ -1,7 +1,11 @@
-import { setTraceId } from './set-trace-id'
+import { SetMetrics } from './set-metrics'
 import { GlobalErrorHandler } from './global-error-handler'
+import { FinalMiddleware } from './final-middleware'
+import { HttpLogger } from './http-logger'
 
 export {
-  setTraceId,
-  GlobalErrorHandler
+  SetMetrics,
+  GlobalErrorHandler,
+  FinalMiddleware,
+  HttpLogger
 }
