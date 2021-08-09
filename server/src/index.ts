@@ -9,8 +9,7 @@ import { configure, getLogger, connectLogger } from 'log4js'
 import { loggerConfig, httpFormatter } from './utils/logger'
 import * as swaggerDocument from '../swagger/openapi.json'
 import { useExpressServer } from 'routing-controllers'
-
-import { GlobalErrorHandler } from './middleware'
+import { GlobalErrorHandler, setTraceId } from './middleware'
 import { UserController } from './controllers'
 
 configure(loggerConfig)
@@ -27,6 +26,7 @@ const httpLogger = connectLogger(getLogger('Request'), {
 app.use(cors())
 app.use(bodyParser.json())
 app.use(httpContext.middleware)
+app.use(setTraceId)
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
 app.disable('x-powered-by')
