@@ -10,3 +10,4 @@ server/dist
 server/test/coverage
 server/log
 .eslintcache
+/log/

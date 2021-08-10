@@ -2,14 +2,14 @@
   "name": "academica1812",
   "version": "0.0.1",
   "description": "project",
-  "main": "dist/server/src/index.js",
+  "main": "dist/server/index.js",
   "scripts": {
     "prestart": "npm run build",
     "prebuild": "npm run lint",
     "start": "NODE_ENV=production node .",
-    "build": "tsc",
+    "build": "webpack",
     "test:unit": "jest --config=jest.config.js --collect-coverage",
-    "server:watch": "ts-node-dev --respawn --transpile-only server/src/index.ts",
+    "dev": "ts-node-dev --respawn --transpile-only server/src/index.ts",
     "lint:fix": "eslint --ext .ts . --fix",
     "lint": "eslint --ext .ts ."
   },
@@ -30,12 +30,17 @@
     "jest": "^27.0.6",
     "supertest": "^6.1.4",
     "ts-jest": "^27.0.4",
+    "ts-loader": "^9.2.5",
     "ts-node-dev": "^1.1.8",
-    "typescript": "^4.3.5"
+    "typescript": "^4.3.5",
+    "webpack": "^5.49.0",
+    "webpack-cli": "^4.7.2",
+    "webpack-node-externals": "^3.0.0"
   },
   "dependencies": {
     "@types/config": "^0.0.39",
     "@types/cors": "^2.8.12",
+    "@types/uuid": "^8.3.1",
     "body-parser": "^1.19.0",
     "class-transformer": "^0.3.1",
     "class-validator": "^0.12.2",
@@ -44,13 +49,11 @@
     "debug": "^2.6.9",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
-    "express-cluster": "^0.0.5",
     "express-http-context": "^1.2.4",
     "log4js": "^6.3.0",
     "multer": "^1.4.2",
     "reflect-metadata": "^0.1.13",
     "routing-controllers": "^0.9.0",
-    "swagger-ui-express": "^4.1.6",
     "uuid": "^8.3.2"
   }
 }

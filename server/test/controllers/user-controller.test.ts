@@ -1,26 +1,20 @@
 import { ReqBody } from '../../src/models'
 import { UserController } from '../../src/controllers'
 import request from 'supertest'
-import express from 'express'
-import bodyParser from 'body-parser'
-import { useExpressServer } from 'routing-controllers'
-import { GlobalErrorHandler } from '../../src/middleware'
+import { Server } from 'http'
+import app from './../../src/app'
+import config from 'config'
 
 describe('UserController', () => {
-  afterEach(() => {
+  beforeEach(() => {
     jest.restoreAllMocks()
   })
 
-  let server
+  let server : Server = null
 
-  beforeAll(async () => {
-    server = express()
-    server.use(bodyParser.json())
-    useExpressServer(server, {
-      controllers: [UserController],
-      middlewares: [GlobalErrorHandler],
-      defaultErrorHandler: false
-    })
+  beforeEach(async () => {
+    const port = config.get('Server.port')
+    server = app.listen(port, () => console.info(`Express server listening on port: ${port}, with pid: ${process.pid}`))
   })
 
   it('postOne', () => {
@@ -32,6 +26,7 @@ describe('UserController', () => {
     console.log(res)
     expect(res).toBeDefined()
   })
+
   it('postOne with validations', done => {
     request(server)
       .post('/users/1')

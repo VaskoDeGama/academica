@@ -1,17 +1,17 @@
-import httpContext from 'express-http-context'
+import * as httpContext from 'express-http-context'
 import { Request, Response } from 'express'
 const loggerConfig = {
   appenders: {
     access: {
       type: 'dateFile',
-      filename: './server/log/access.log',
+      filename: './log/access.log',
       pattern: '-yyyy-MM-dd',
       keepFileExt: true,
       category: 'http'
     },
     app: {
       type: 'dateFile',
-      filename: './server/log/app.log',
+      filename: './log/app.log',
       pattern: '-yyyy-MM-dd',
       keepFileExt: true,
       maxLogSize: 10485760,
@@ -21,7 +21,7 @@ const loggerConfig = {
       type: 'dateFile',
       pattern: '-yyyy-MM-dd',
       keepFileExt: true,
-      filename: './server/log/errors.log'
+      filename: './log/errors.log'
     },
     errors: {
       type: 'logLevelFilter',
@@ -43,10 +43,10 @@ const loggerConfig = {
  *
  * @param {Request} req
  * @param {Response} res
- * @param {NextFunction} format
+ * @param {function} format
  * @return {string}
  */
-function httpFormatter (req: Request, res: Response, format) : string {
+function httpFormatter (req: Request, res: Response, format: (msg: string) => string) : string {
   const startTime = httpContext.get('reqStartTime')
   const traceId = httpContext.get('traceId')
   return format(`#${traceId}: :method :url | processed for: ${Date.now() - startTime}ms | ${JSON.stringify(req.body)}`)
