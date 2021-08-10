@@ -6,13 +6,17 @@ import app from './../../src/app'
 import config from 'config'
 
 describe('UserController', () => {
-  beforeEach(() => {
+  afterEach(() => {
     jest.restoreAllMocks()
   })
 
   let server : Server = null
 
-  beforeEach(async () => {
+  afterAll(() => {
+    server.close()
+  })
+
+  beforeAll(() => {
     const port = config.get('Server.port')
     server = app.listen(port, () => console.info(`Express server listening on port: ${port}, with pid: ${process.pid}`))
   })

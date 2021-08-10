@@ -5,10 +5,10 @@
   "main": "dist/server/index.js",
   "scripts": {
     "prestart": "npm run build",
-    "prebuild": "npm run lint",
+    "prebuild": "npm run lint && npm run test",
     "start": "NODE_ENV=production node .",
     "build": "webpack",
-    "test:unit": "jest --config=jest.config.js --collect-coverage",
+    "test": "jest --config=jest.config.js --collect-coverage",
     "dev": "ts-node-dev --respawn --transpile-only server/src/index.ts",
     "lint:fix": "eslint --ext .ts . --fix",
     "lint": "eslint --ext .ts ."
