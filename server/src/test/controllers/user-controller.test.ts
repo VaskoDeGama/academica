@@ -1,24 +1,40 @@
-import { ReqBody } from '../../src/models'
-import { UserController } from '../../src/controllers'
+import { GlobalErrorHandler } from '../../middleware/global-error-handler'
+import { FinalMiddleware } from '../../middleware/final-middleware'
+import { UserController } from '../../controllers/user-controller'
+import { SetMetrics } from '../../middleware/set-metrics'
+import { useExpressServer } from 'routing-controllers'
+import { loggerConfig } from '../../utils/logger'
+import { configure, getLogger } from 'log4js'
+import { ReqBody } from '../../models'
 import request from 'supertest'
-import { Server } from 'http'
-import app from './../../src/app'
 import config from 'config'
+import * as http from 'http'
+import app from '../../app'
 
 describe('UserController', () => {
   afterEach(() => {
     jest.restoreAllMocks()
   })
 
-  let server : Server = null
+  let server: http.Server = null
 
   afterAll(() => {
     server.close()
   })
 
   beforeAll(() => {
+    configure(loggerConfig)
     const port = config.get('Server.port')
-    server = app.listen(port, () => console.info(`Express server listening on port: ${port}, with pid: ${process.pid}`))
+    const log = getLogger('Server')
+
+    useExpressServer(app, {
+      cors: true,
+      defaultErrorHandler: false,
+      controllers: [UserController],
+      middlewares: [SetMetrics, FinalMiddleware, GlobalErrorHandler]
+    })
+
+    server = app.listen(port, () => log.info(`Express server listening on port: ${port}, with pid: ${process.pid}`))
   })
 
   it('postOne', () => {
@@ -27,7 +43,6 @@ describe('UserController', () => {
       city: 'SPb'
     }
     const res = userController.postOne(1, testBody as ReqBody)
-    console.log(res)
     expect(res).toBeDefined()
   })
 

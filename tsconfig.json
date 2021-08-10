@@ -12,7 +12,7 @@
     "esModuleInterop": true
   },
   "exclude": [
-    "server/test/*",
+    "server/src/test/*",
     "node_modules",
     "build",
     "release",

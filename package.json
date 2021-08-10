@@ -8,7 +8,7 @@
     "prebuild": "npm run lint && npm run test",
     "start": "NODE_ENV=production node .",
     "build": "webpack",
-    "test": "jest --config=jest.config.js --collect-coverage",
+    "test": "jest --config=jest.config.js --detectOpenHandles --collect-coverage",
     "dev": "ts-node-dev --respawn --transpile-only server/src/index.ts",
     "lint:fix": "eslint --ext .ts . --fix",
     "lint": "eslint --ext .ts ."
@@ -54,6 +54,7 @@
     "express-http-context": "^1.2.4",
     "log4js": "^6.3.0",
     "multer": "^1.4.2",
+    "node-worker-threads-pool": "^1.5.0",
     "reflect-metadata": "^0.1.13",
     "routing-controllers": "^0.9.0",
     "uuid": "^8.3.2"
