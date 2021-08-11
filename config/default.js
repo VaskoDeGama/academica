@@ -9,5 +9,5 @@ module.exports = {
   DataBase: {
     url: process.env.DB_URL
   },
-  Logger: logger
+  Logger: logger.default
 }

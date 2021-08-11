@@ -4,9 +4,8 @@ import { configure, connectLogger, getLogger } from 'log4js'
 import config from 'config'
 
 const loggerConfig : string = config.get('Logger')
-
 configure(loggerConfig)
-export const logger = getLogger('Server')
+const logger = getLogger('Server')
 
 /**
  *
@@ -21,7 +20,7 @@ function httpFormatter (req: Request, res: Response, format: (msg: string) => st
   return format(`#${traceId}: :method :url | processed for: ${Date.now() - startTime}ms | ${JSON.stringify(req.body)}`)
 }
 
-export function setupLogging (app : express.Express) {
+function setupLogging (app : express.Express) {
   setupExpress(app)
 }
 
@@ -31,4 +30,9 @@ function setupExpress (app: express.Express) {
     format: (req, res, format) => httpFormatter(req, res, format)
   })
   app.use(httpLogger)
+}
+
+export {
+  logger,
+  setupLogging
 }

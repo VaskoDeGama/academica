@@ -5,8 +5,8 @@ import { middleware as httpContext } from 'express-http-context'
 import { logger, setupLogging } from './logger'
 import config from 'config'
 import * as http from 'http'
-import { userController } from './../controllers'
 import { setMetrics, globalErrorHandler, finalMiddleware } from '../middleware'
+import { pingRouter } from '../routes'
 
 export class ExpressServer {
     app: express.Express
@@ -14,6 +14,7 @@ export class ExpressServer {
 
     constructor () {
       this.app = express()
+      setupLogging(this.app)
 
       this.app.disable('x-powered-by')
       this.app.use(cors())
@@ -22,9 +23,8 @@ export class ExpressServer {
       this.app.use(httpContext)
       this.app.use(setMetrics)
 
-      this.app.get('/users/:id', userController.getOne)
+      this.app.use(pingRouter)
 
-      setupLogging(this.app)
       this.app.use(finalMiddleware)
       this.app.use(globalErrorHandler)
     }
