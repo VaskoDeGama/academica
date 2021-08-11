@@ -6,7 +6,7 @@ import { logger, setupLogging } from './logger'
 import config from 'config'
 import * as http from 'http'
 import { setMetrics, globalErrorHandler, finalMiddleware } from '../middleware'
-import { pingRouter } from '../routes'
+import { pingRouter, apiRouter } from '../routes'
 
 export class ExpressServer {
     app: express.Express
@@ -24,6 +24,7 @@ export class ExpressServer {
       this.app.use(setMetrics)
 
       this.app.use(pingRouter)
+      this.app.use('/api', apiRouter)
 
       this.app.use(finalMiddleware)
       this.app.use(globalErrorHandler)
