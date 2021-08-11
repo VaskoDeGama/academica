@@ -1,4 +1,4 @@
-import { JsonController, Get, OnUndefined, Param, Post, Body } from 'routing-controllers'
+import { Body, Get, JsonController, OnUndefined, Param, Post } from 'routing-controllers'
 import 'reflect-metadata'
 import { ReqBody } from '../models'
 

@@ -19,6 +19,7 @@
         "vue",
         "@typescript-eslint"
     ],
+    "ignorePatterns": ["config/*.js"],
     "rules": {
         "semi": ["error", "never"],
         "@typescript-eslint/explicit-module-boundary-types": ["off"],

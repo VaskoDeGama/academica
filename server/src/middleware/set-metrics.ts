@@ -3,7 +3,8 @@ import httpContext from 'express-http-context'
 import { v4 as uuid } from 'uuid'
 import { getLogger } from 'log4js'
 
-import { Middleware, ExpressMiddlewareInterface } from 'routing-controllers'
+import { ExpressMiddlewareInterface, Middleware } from 'routing-controllers'
+
 const log = getLogger('Request')
 
 @Middleware({ type: 'before' })

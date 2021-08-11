@@ -1,22 +1,7 @@
-import { configure, getLogger } from 'log4js'
-import { loggerConfig } from './utils/logger'
-import config from 'config'
-import app from './app'
-import { useExpressServer } from 'routing-controllers'
-import { SetMetrics } from './middleware/set-metrics'
-import { FinalMiddleware } from './middleware/final-middleware'
-import { GlobalErrorHandler } from './middleware/global-error-handler'
-import { UserController } from './controllers/user-controller'
+import { Application } from './utils/application'
 
-configure(loggerConfig)
-const log = getLogger('Server')
-const port = config.get('Server.port')
+const app = new Application()
 
-useExpressServer(app, {
-  cors: true,
-  controllers: [UserController],
-  middlewares: [SetMetrics, FinalMiddleware, GlobalErrorHandler],
-  defaultErrorHandler: false
-})
+app.start()
 
-app.listen(port, () => log.info(`Express server listening on port: ${port}, with pid: ${process.pid}`))
+export default app

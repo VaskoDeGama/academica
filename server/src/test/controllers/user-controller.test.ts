@@ -1,15 +1,8 @@
-import { GlobalErrorHandler } from '../../middleware/global-error-handler'
-import { FinalMiddleware } from '../../middleware/final-middleware'
 import { UserController } from '../../controllers/user-controller'
-import { SetMetrics } from '../../middleware/set-metrics'
-import { useExpressServer } from 'routing-controllers'
-import { loggerConfig } from '../../utils/logger'
-import { configure, getLogger } from 'log4js'
 import { ReqBody } from '../../models'
 import request from 'supertest'
-import config from 'config'
+import { Application } from '../../utils/application'
 import * as http from 'http'
-import app from '../../app'
 
 describe('UserController', () => {
   afterEach(() => {
@@ -23,18 +16,8 @@ describe('UserController', () => {
   })
 
   beforeAll(() => {
-    configure(loggerConfig)
-    const port = config.get('Server.port')
-    const log = getLogger('Server')
-
-    useExpressServer(app, {
-      cors: true,
-      defaultErrorHandler: false,
-      controllers: [UserController],
-      middlewares: [SetMetrics, FinalMiddleware, GlobalErrorHandler]
-    })
-
-    server = app.listen(port, () => log.info(`Express server listening on port: ${port}, with pid: ${process.pid}`))
+    const app = new Application().start()
+    server = app.server
   })
 
   it('postOne', () => {

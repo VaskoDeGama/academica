@@ -1,4 +1,4 @@
-import { Middleware, ExpressMiddlewareInterface, NotFoundError } from 'routing-controllers'
+import { ExpressMiddlewareInterface, Middleware, NotFoundError } from 'routing-controllers'
 import { Request, Response } from 'express'
 import { getLogger } from 'log4js'
 
