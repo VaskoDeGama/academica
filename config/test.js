@@ -6,5 +6,8 @@ module.exports = {
     port: 3001,
     secret: process.env.SECRET_KEY
   },
+  DataBase: {
+    url: process.env.DB_URL
+  },
   Logger: logger
 }

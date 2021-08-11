@@ -1,23 +1,17 @@
-import { Body, Get, JsonController, OnUndefined, Param, Post } from 'routing-controllers'
-import 'reflect-metadata'
-import { ReqBody } from '../models'
+import { UserService } from '../services/user-service'
+import { Request, Response, NextFunction } from 'express'
 
-@JsonController()
-export class UserController {
-  @Get('/users/:id')
-  getOne (@Param('id') id: number) {
-    return {
-      userId: id
-    }
-  }
+class UserController {
+  private userService: UserService = new UserService()
 
-  @Post('/users/:id')
-  @OnUndefined(400)
-  postOne (@Param('id') id: number, @Body() body: ReqBody) {
-    return {
-      body,
-      userId: id,
-      created: true
-    }
+  getOne (req:Request, res: Response, next: NextFunction) {
+    console.log(req.params)
+    res.status(200).json({
+      userId: req.params
+    })
+
+    next()
   }
 }
+
+export default new UserController()

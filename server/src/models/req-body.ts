@@ -2,8 +2,8 @@ import { IsDefined } from 'class-validator'
 
 export default class ReqBody {
     @IsDefined()
-    country: string;
+    country: string
 
     @IsDefined()
-    city: string;
+    city: string
 }

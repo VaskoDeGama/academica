@@ -1,6 +1,6 @@
-import { Application } from './utils/application'
+import { ExpressServer } from './utils/express-server'
 
-const app = new Application()
+const app = new ExpressServer()
 
 app.start()
 
