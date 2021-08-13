@@ -4,7 +4,8 @@ const httpContext = require('express-http-context')
 
 const loggerConfig = config.get('Logger')
 configure(loggerConfig)
-const logger = getLogger('Server')
+const servLog = getLogger('Server')
+const reqLog = getLogger('Request')
 
 /**
  *
@@ -28,6 +29,18 @@ function setupExpress (app) {
     format: (req, res, format) => httpFormatter(req, res, format)
   })
   app.use(httpLogger)
+
+  Object.defineProperty(app, 'reqLog', {
+    configurable: true,
+    enumerable: true,
+    get: () => reqLog
+  })
+
+  Object.defineProperty(app, 'servLog', {
+    configurable: true,
+    enumerable: true,
+    get: () => servLog
+  })
 }
 
 /**
@@ -38,6 +51,7 @@ function setupLogging (app) {
 }
 
 module.exports = {
-  logger,
+  reqLog,
+  servLog,
   setupLogging
 }
