@@ -2,6 +2,8 @@
 
 const { model, Schema } = require('mongoose')
 
+// TODO: ERROR CATCHER
+
 /**
  * @class
  * @classdesc BaseRepository
