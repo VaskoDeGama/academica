@@ -1,3 +1,5 @@
+'use strict'
+
 const cors = require('cors')
 const config = require('config')
 const express = require('express')

@@ -1,3 +1,4 @@
+'use strict'
 
 const globalErrorHandler = function (error, req, res, next) {
   req.app.servLog.error(error)

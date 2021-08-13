@@ -1,3 +1,5 @@
+'use strict'
+
 const { configure, connectLogger, getLogger } = require('log4js')
 const config = require('config')
 const httpContext = require('express-http-context')
@@ -11,8 +13,8 @@ const reqLog = getLogger('Request')
  *
  * @param {Request} req
  * @param {Response} res
- * @param {function} format
- * @return {string}
+ * @param {Function} format
+ * @returns {string}
  */
 function httpFormatter (req, res, format) {
   const startTime = httpContext.get('reqStartTime')

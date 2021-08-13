@@ -1,5 +1,19 @@
+'use strict'
+
 const { model, Schema } = require('mongoose')
 
+/**
+ * @class
+ * @classdesc BaseRepository
+ * @name BaseRepository
+ * @property {Function} findAll {@link findAll}
+ * @property {Function} findById {@link findById}
+ * @property {Function} save {@link save}
+ * @property {Function} findManyById {@link findManyById}
+ * @property {Function} findManyByQuery {@link findManyByQuery}
+ * @property {Function} removeById {@link removeById}
+ * @property {Function} removeManyByQuery {@link removeManyByQuery}
+ */
 class BaseRepository {
   /**
    *
@@ -14,24 +28,28 @@ class BaseRepository {
 
   /**
    * Get all from collection
-   * @return {Promise<object[]>}
+   *
+   * @returns {Promise<object[]>}
    */
   findAll () {
     return this._model.find()
   }
 
   /**
+   * Get one by id
    *
    * @param {string} id
-   * @return {Promise<object|null>}
+   * @returns {Promise<object|null>}
    */
   findById (id) {
     return this._model.findById(id)
   }
 
   /**
+   * Save one to db
+   *
    * @param {object} doc
-   * @return {Promise<object>}
+   * @returns {Promise<object>}
    */
   save (doc) {
     const instance = new this._model(doc)
@@ -39,8 +57,10 @@ class BaseRepository {
   }
 
   /**
+   * Get many by ids
+   *
    * @param {string[]} ids
-   * @return {Promise<object[]>}
+   * @returns {Promise<object[]>}
    */
   async findManyById (ids) {
     const query = { _id: { $in: ids } }
@@ -48,11 +68,33 @@ class BaseRepository {
   }
 
   /**
+   * Get many by query
+   *
    * @param {object} query
-   * @return {Promise<object[]>}
+   * @returns {Promise<object[]>}
    */
   async findManyByQuery (query) {
     return this._model.find(query)
+  }
+
+  /**
+   * Remove one by id
+   *
+   * @param {string} id
+   * @returns {Promise<object[]>}
+   */
+  async removeById (id) {
+    return this._model.deleteOne({ _id: id })
+  }
+
+  /**
+   * Remove many by query
+   *
+   * @param {object} query
+   * @returns {Promise<object[]>}
+   */
+  async removeManyByQuery (query) {
+    return this._model.deleteMany(query)
   }
 }
 

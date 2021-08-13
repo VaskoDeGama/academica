@@ -1,3 +1,5 @@
+'use strict'
+
 const getDatabaseClient = require('../../configs/db-connect')
 const config = require('config')
 const BaseRepository = require('../../repositories/base-repository')
@@ -114,5 +116,54 @@ describe('Base repo test', () => {
     expect(Array.isArray(usersFromDb)).toBeTruthy()
     expect(usersFromDb[0].role).toBe('teacher')
     expect(usersFromDb.length).toBe(3)
+  })
+
+  it('removeById', async () => {
+    const id = new mongo.Types.ObjectId()
+    const hasBeforeCreate = !!await repo.findById(id.toString())
+
+    expect(hasBeforeCreate).toBeFalsy()
+
+    await repo.save({
+      _id: id,
+      username: 'username',
+      password: 'password'
+    })
+
+    const hasAfterCreate = !!await repo.findById(id.toString())
+    expect(hasAfterCreate).toBeTruthy()
+    const res = await repo.removeById(id.toString())
+
+    expect(res.deletedCount).toBe(1)
+
+    const hasAfterDelete = !!await repo.findById(id.toString())
+    expect(hasAfterDelete).toBeFalsy()
+  })
+
+  it('removeByIds', async () => {
+    const length = 10
+    for (let i = 0; i < length; i += 1) {
+      if ([2, 4, 8].includes(i)) {
+        await repo.save({
+          username: `username${i}`,
+          password: `password${i}`,
+          role: 'teacher'
+        })
+      } else {
+        await repo.save({
+          username: `username${i}`,
+          password: `password${i}`
+        })
+      }
+    }
+
+    const res = await repo.removeManyByQuery({
+      role: 'student'
+    })
+
+    const documents = await repo.findAll()
+
+    expect(res.deletedCount).toBe(7)
+    expect(documents.length).toBe(3)
   })
 })

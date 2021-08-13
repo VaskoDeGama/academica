@@ -1,10 +1,11 @@
+'use strict'
 const mongoose = require('mongoose')
 
 /**
  *
  * @param {string} connString
  * @param {string} dbName
- * @return {Promise<Error|Mongoose>}
+ * @returns {Promise<Error|Mongoose>}
  */
 async function getDatabaseClient (connString, dbName) {
   return new Promise((resolve, reject) => {

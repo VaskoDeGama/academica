@@ -1,3 +1,5 @@
+'use strict'
+
 const httpContext = require('express-http-context')
 
 const finalMiddleware = function (req, res) {

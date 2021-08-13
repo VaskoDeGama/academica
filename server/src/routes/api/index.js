@@ -1,3 +1,5 @@
+'use strict'
+
 const usersRouter = require('./users.js')
 const express = require('express')
 

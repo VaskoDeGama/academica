@@ -1,3 +1,5 @@
+'use strict'
+
 const ExpressServer = require('./configs/express-server')
 
 const app = new ExpressServer()
