@@ -8,7 +8,7 @@ module.exports = {
   },
   DataBase: {
     url: process.env.DB_URL,
-    dbName: 'test'
+    dbName: 'prodBase'
   },
   Logger: logger.production
 

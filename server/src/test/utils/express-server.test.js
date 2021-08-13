@@ -31,6 +31,7 @@ describe('Base server test', () => {
         expect(response.body.isOnline).toBeTruthy()
         expect(typeof response.body.timing).toBe('number')
         expect(response.body.timing).toBeLessThan(10)
+        expect(response.body.dbState).toBe('connected')
         done()
       })
   })

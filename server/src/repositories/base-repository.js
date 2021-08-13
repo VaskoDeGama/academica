@@ -1,44 +1,58 @@
 const { model, Schema } = require('mongoose')
 
 class BaseRepository {
+  /**
+   *
+   * @param {string} name
+   * @param {object} schemaDefinition
+   */
   constructor (name, schemaDefinition) {
     this._name = name
-    const schema = new Schema(schemaDefinition, { collection: this._name, timestamps: true })
+    const schema = new Schema(schemaDefinition, { collection: this._name, timestamps: true, id: false })
     this._model = model(this._name, schema)
   }
 
-  async findAll () {
-    const res = await this._model.find()
-    return res.map((r) => this._readMapper(r))
+  /**
+   * Get all from collection
+   * @return {Promise<object[]>}
+   */
+  findAll () {
+    return this._model.find()
   }
 
-  async findById (id) {
-    const res = await this._model.findById(id)
-    return this._readMapper(res)
+  /**
+   *
+   * @param {string} id
+   * @return {Promise<object|null>}
+   */
+  findById (id) {
+    return this._model.findById(id)
   }
 
-  async save (doc) {
+  /**
+   * @param {object} doc
+   * @return {Promise<object>}
+   */
+  save (doc) {
     const instance = new this._model(doc)
-    const res = await instance.save()
-    return this._readMapper(res)
+    return instance.save()
   }
 
+  /**
+   * @param {string[]} ids
+   * @return {Promise<object[]>}
+   */
   async findManyById (ids) {
     const query = { _id: { $in: ids } }
-    const res = await this._model.find(query)
-    return res.map((r) => this._readMapper(r))
+    return this._model.find(query)
   }
 
+  /**
+   * @param {object} query
+   * @return {Promise<object[]>}
+   */
   async findManyByQuery (query) {
-    const res = await this._model.find(query)
-    return res.map((r) => this._readMapper(r))
-  }
-
-  _readMapper (model) {
-    const obj = model.toJSON()
-    Object.defineProperty(obj, 'id', Object.getOwnPropertyDescriptor(obj, '_id'))
-    delete obj._id
-    return obj
+    return this._model.find(query)
   }
 }
 
