@@ -1,14 +1,15 @@
-import { ExpressServer } from '../../utils/express-server'
-import request from 'supertest'
+const request = require('supertest')
+const ExpressServer = require('../../configs/express-server')
 
 describe('Base server test', () => {
-  let app: ExpressServer = null
-  beforeAll(() => {
-    app = new ExpressServer().start()
+  let app = null
+  beforeAll(async () => {
+    app = new ExpressServer()
+    await app.start()
   })
 
-  afterAll(() => {
-    app.stop()
+  afterAll(async () => {
+    await app.stop()
   })
 
   it('server defined', () => {
@@ -16,13 +17,11 @@ describe('Base server test', () => {
   })
 
   it('port is 3001', () => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     const { port } = app.server.address() || {}
     expect(port).toBe(3001)
   })
 
-  it('ping', (done) => {
+  it('ping', done => {
     request(app.server)
       .get('/')
       .expect('Content-Type', /json/)

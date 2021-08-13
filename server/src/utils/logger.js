@@ -1,9 +1,8 @@
-import * as httpContext from 'express-http-context'
-import express, { Request, Response } from 'express'
-import { configure, connectLogger, getLogger } from 'log4js'
-import config from 'config'
+const { configure, connectLogger, getLogger } = require('log4js')
+const config = require('config')
+const httpContext = require('express-http-context')
 
-const loggerConfig : string = config.get('Logger')
+const loggerConfig = config.get('Logger')
 configure(loggerConfig)
 const logger = getLogger('Server')
 
@@ -14,17 +13,16 @@ const logger = getLogger('Server')
  * @param {function} format
  * @return {string}
  */
-function httpFormatter (req: Request, res: Response, format: (msg: string) => string) : string {
+function httpFormatter (req, res, format) {
   const startTime = httpContext.get('reqStartTime')
   const traceId = httpContext.get('traceId')
   return format(`#${traceId}: :method :url | processed for: ${Date.now() - startTime}ms | ${JSON.stringify(req.body)}`)
 }
 
-function setupLogging (app : express.Express) {
-  setupExpress(app)
-}
-
-function setupExpress (app: express.Express) {
+/**
+ * @param {Express} app
+ */
+function setupExpress (app) {
   const httpLogger = connectLogger(getLogger('Request'), {
     level: 'INFO',
     format: (req, res, format) => httpFormatter(req, res, format)
@@ -32,7 +30,14 @@ function setupExpress (app: express.Express) {
   app.use(httpLogger)
 }
 
-export {
+/**
+ * @param {Express} app
+ */
+function setupLogging (app) {
+  setupExpress(app)
+}
+
+module.exports = {
   logger,
   setupLogging
 }

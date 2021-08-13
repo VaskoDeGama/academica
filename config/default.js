@@ -7,7 +7,8 @@ module.exports = {
     secret: process.env.SECRET_KEY
   },
   DataBase: {
-    url: process.env.DB_URL
+    url: process.env.DB_URL,
+    dbName: 'test'
   },
   Logger: logger.default
 }
