@@ -1,5 +1,7 @@
 'use strict'
 
+const DTO = require('../models/DTO')
+
 /**
  * @class
  * @classdesc BaseService
@@ -27,7 +29,12 @@ class BaseService {
    * @returns {Promise<object | null>}
    */
   async getById (id) {
-    return this._repo.findById(id)
+    try {
+      const data = await this._repo.findById(id)
+      return new DTO({ success: true, data })
+    } catch (error) {
+      return new DTO({ success: false, error })
+    }
   }
 
   /**
@@ -36,7 +43,12 @@ class BaseService {
    * @returns {Promise<object[]>}
    */
   async getAll () {
-    return this._repo.findAll()
+    try {
+      const data = await this._repo.findAll()
+      return new DTO({ success: true, data })
+    } catch (error) {
+      return new DTO({ success: false, error })
+    }
   }
 
   /**
@@ -46,7 +58,12 @@ class BaseService {
    * @returns {Promise<object>}
    */
   async createOne (doc) {
-    return this._repo.save(doc)
+    try {
+      const data = await this._repo.save(doc)
+      return new DTO({ success: true, data })
+    } catch (error) {
+      return new DTO({ success: false, error })
+    }
   }
 
   /**
@@ -56,7 +73,12 @@ class BaseService {
    * @returns {Promise<object>}
    */
   async deleteById (id) {
-    return this._repo.removeById(id)
+    try {
+      const data = await this._repo.removeById(id)
+      return new DTO({ success: true, data })
+    } catch (error) {
+      return new DTO({ success: false, error })
+    }
   }
 
   /**
@@ -66,7 +88,12 @@ class BaseService {
    * @returns {Promise<object[]>}
    */
   async getByIds (ids) {
-    return this._repo.findManyById(ids)
+    try {
+      const data = await this._repo.findManyById(ids)
+      return new DTO({ success: true, data })
+    } catch (error) {
+      return new DTO({ success: false, error })
+    }
   }
 }
 

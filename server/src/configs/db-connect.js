@@ -12,7 +12,8 @@ async function getDatabaseClient (connString, dbName) {
     mongoose.connect(connString, {
       dbName,
       useNewUrlParser: true,
-      useUnifiedTopology: true
+      useUnifiedTopology: true,
+      useCreateIndex: true
     }, error => {
       reject(error)
     })

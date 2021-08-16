@@ -2,8 +2,6 @@
 
 const { model, Schema } = require('mongoose')
 
-// TODO: ERROR CATCHER
-
 /**
  * @class
  * @classdesc BaseRepository
@@ -33,7 +31,7 @@ class BaseRepository {
    *
    * @returns {Promise<object[]>}
    */
-  findAll () {
+  async findAll () {
     return this._model.find()
   }
 
@@ -43,7 +41,7 @@ class BaseRepository {
    * @param {string} id
    * @returns {Promise<object|null>}
    */
-  findById (id) {
+  async findById (id) {
     return this._model.findById(id)
   }
 
@@ -53,7 +51,7 @@ class BaseRepository {
    * @param {object} doc
    * @returns {Promise<object>}
    */
-  save (doc) {
+  async save (doc) {
     const instance = new this._model(doc)
     return instance.save()
   }

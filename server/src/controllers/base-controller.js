@@ -15,12 +15,13 @@ class BaseController {
   }
 
   async getAll (req, res) {
-    await this._service.createOne({
-      username: 'kek',
-      password: 'jopa'
-    })
-    const data = await this._service.getAll()
-    return this.ok(res, data)
+    const dto = await this._service.getAll()
+    return dto.success ? this.ok(res, dto) : this.fail(req, res, dto.error[0])
+  }
+
+  async createOne (req, res) {
+    const dto = await this._service.createOne(req.body)
+    return dto.success ? this.ok(res, dto) : this.fail(req, res, dto.errors[0])
   }
 
   /**
@@ -121,13 +122,13 @@ class BaseController {
   /**
    * @param {Request} req
    * @param {Response} res
-   * @param  {Error|string} error
+   * @param  {Error|Error[]|string} errors
    * @returns {Request}
    */
-  fail (req, res, error) {
-    req.app.servLog.error(error)
-    const status = error.httpCode || error.status || 500
-    return res.status(status).json({ success: false, status, error: error.message || error })
+  fail (req, res, errors) {
+    req.app.servLog.error(errors)
+    const status = 500
+    return res.status(status).json({ success: false, status, errors })
   }
 }
 

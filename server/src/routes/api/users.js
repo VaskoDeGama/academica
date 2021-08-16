@@ -19,4 +19,12 @@ usersRouter.get('/', async (req, res, next) => {
   next()
 })
 
+/**
+ * Create one
+ */
+usersRouter.post('/', async (req, res, next) => {
+  await mockController.createOne(req, res)
+  next()
+})
+
 module.exports = usersRouter
