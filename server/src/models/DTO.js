@@ -41,17 +41,24 @@ class DTO {
     return this._success
   }
 
-  set data (value) {
-    this._data = value
-    this._success = true
-  }
-
-  get data () {
-    return this._data
+  set success (value) {
+    if (value) {
+      this.status = 200
+    }
+    this._success = value
   }
 
   set status (value) {
     this._status = value
+  }
+
+  set data (value) {
+    this._data = value
+    this.success = true
+  }
+
+  get data () {
+    return this._data
   }
 
   get status () {

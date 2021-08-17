@@ -22,7 +22,7 @@ class BaseRepository {
    */
   constructor (name, schemaDefinition) {
     this._name = name
-    const schema = new Schema(schemaDefinition, { collection: this._name, timestamps: true, id: false })
+    const schema = new Schema(schemaDefinition, { collection: this._name, timestamps: true })
     this._model = model(this._name, schema)
   }
 

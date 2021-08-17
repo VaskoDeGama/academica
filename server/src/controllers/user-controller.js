@@ -29,6 +29,7 @@ class UserController extends BaseController {
   async getById (req, res) {
     const dto = new DTO(req)
     const resultDTO = await this._service.getUserById(dto)
+
     if (dto.success) {
       return this.ok(res, resultDTO)
     }
