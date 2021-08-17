@@ -14,11 +14,34 @@ class BaseController {
     this._service = service
   }
 
+  /**
+   *
+   * @param {Request} req
+   * @param {Response} res
+   * @returns {Promise<Response|Request>}
+   */
   async getAll (req, res) {
     const dto = await this._service.getAll()
     return dto.success ? this.ok(res, dto) : this.fail(req, res, dto.error[0])
   }
 
+  /**
+   *
+   * @param {Request} req
+   * @param {Response} res
+   * @returns {Promise<Response|Request>}
+   */
+  async getOneById (req, res) {
+    const dto = await this._service.getById(req.param.id)
+    return dto.success ? this.ok(res, dto) : this.fail(req, res, dto.error[0])
+  }
+
+  /**
+   *
+   * @param {Request} req
+   * @param {Response} res
+   * @returns {Promise<Response|Request>}
+   */
   async createOne (req, res) {
     const dto = await this._service.createOne(req.body)
     return dto.success ? this.ok(res, dto) : this.fail(req, res, dto.errors[0])

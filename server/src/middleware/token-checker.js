@@ -18,14 +18,15 @@ const tokenChecker = function (req, res, next) {
       console.log('Error', e.name, e.message)
 
       let message = 'Access denied.'
-      const error = e.name
+      let error = e.name
 
       if (e.name === 'TokenExpiredError') {
+        error = 'Unauthorized'
         message = 'Token expired'
       }
 
       if (e) {
-        res.status(403).json({
+        res.status(401).json({
           error,
           message
         })

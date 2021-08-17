@@ -13,18 +13,42 @@ const mockService = new BaseService(mockRepo)
 const mockController = new BaseController(mockService)
 
 /**
- * Get all users
+ * GetQuery
  */
-usersRouter.get('/', tokenChecker, async (req, res, next) => {
-  await mockController.getAll(req, res)
+usersRouter.get('/', async (req, res, next) => {
+  res.status(200).json({ endpoint: 'GetQuery' })
   next()
 })
 
 /**
- * Create one
+ * Create
  */
-usersRouter.post('/', tokenChecker, async (req, res, next) => {
-  await mockController.createOne(req, res)
+usersRouter.post('/', async (req, res, next) => {
+  res.status(200).json({ endpoint: 'Create' })
+  next()
+})
+
+/**
+ * Get
+ */
+usersRouter.get('/:id', async (req, res, next) => {
+  res.status(200).json({ endpoint: 'Get' })
+  next()
+})
+
+/**
+ * Update
+ */
+usersRouter.put('/:id', async (req, res, next) => {
+  res.status(200).json({ endpoint: 'Delete' })
+  next()
+})
+
+/**
+ * Delete
+ */
+usersRouter.delete('/:id', async (req, res, next) => {
+  res.status(200).json({ endpoint: 'Delete' })
   next()
 })
 
