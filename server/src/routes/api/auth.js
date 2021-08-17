@@ -43,7 +43,7 @@ authRouter.post('/login', async (req, res, next) => {
 /**
  * update Token
  */
-authRouter.post('/getToken', async (req, res, next) => {
+authRouter.get('/token', async (req, res, next) => {
   // TODO: валидациия
   const username = req.body.username
   // TODO: берем юзера с токеном  из бд
@@ -66,6 +66,17 @@ authRouter.post('/getToken', async (req, res, next) => {
 
   console.log(user, { secretRefresh, secret, tokenExp, refreshTokenExp })
 
+  next()
+})
+
+/**
+ * blacklist Token
+ */
+authRouter.get('/logout', async (req, res, next) => {
+  // TODO:  добавляем токен в блеклист с expire
+  res.status(2001).json({
+    message: 'Good logout'
+  })
   next()
 })
 
