@@ -22,6 +22,7 @@ class DTO {
   constructor (req) {
     this.reqId = httpContext.get('traceId')
     /** @type {boolean} - successful request or not */
+    this._status = 500
     this._success = false
     /** @type {DTOReq} - simplify req object */
     this.request = {
@@ -49,22 +50,33 @@ class DTO {
     return this._data
   }
 
+  set status (value) {
+    this._status = value
+  }
+
+  get status () {
+    return this._status
+  }
+
   /**
    *
    * @param {string|Error} error
+   * @param {number} [status=400]
    */
-  addError (error) {
+  addError (error, status = 500) {
+    this.status = status
     if (typeof error === 'string') {
       this.errors.push({ msg: error, type: 'Custom' })
+    } else {
+      this.errors.push({ error, msg: error.message, type: error.name })
     }
-
-    this.errors.push({ error, msg: error.message, type: error.name })
   }
 
   toJSON () {
     const result = {
       reqId: this.reqId,
-      success: this.success
+      success: this.success,
+      status: this.status
     }
 
     if (this.data) {

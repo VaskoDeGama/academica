@@ -112,13 +112,15 @@ class BaseController {
   /**
    * @param {Request} req
    * @param {Response} res
-   * @param  {Error|Error[]|string} errors
+   * @param {DTO} dto
    * @returns {Request}
    */
-  fail (req, res, errors) {
-    req.app.servLog.error(errors)
-    const status = 500
-    return res.status(status).json({ success: false, status, errors })
+  fail (req, res, dto) {
+    const status = dto.status || 500
+    if (status === 500) {
+      req.app.servLog.error(dto)
+    }
+    return res.status(status).json({ ...dto.toJSON() })
   }
 }
 

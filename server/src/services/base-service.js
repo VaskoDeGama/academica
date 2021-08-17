@@ -4,11 +4,7 @@
  * @class
  * @classdesc BaseService
  * @name BaseService
- * @property {Function} getById {@link getById}
  * @property {Function} getAll {@link getAll}
- * @property {Function} getByIds {@link getByIds}
- * @property {Function} createOne {@link createOne}
- * @property {Function} deleteById {@link deleteById}
  */
 class BaseService {
   /**

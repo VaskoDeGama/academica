@@ -28,7 +28,7 @@ usersRouter.post('/', async (req, res, next) => {
  * Get
  */
 usersRouter.get('/:id', async (req, res, next) => {
-  res.status(200).json({ endpoint: 'Get' })
+  await userController.getById(req, res)
   next()
 })
 
