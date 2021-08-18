@@ -14,10 +14,10 @@ class UserService extends BaseService {
   async getUserById (dto) {
     try {
       const { id } = dto.request.params
-      const result = isId(id) ? await this.repo.findById(id) : null
+      const user = isId(id) ? await this.repo.findById(id) : null
 
-      if (result) {
-        dto.data = result
+      if (user) {
+        dto.data = user
       } else {
         dto.addError('User not found', 404)
       }
@@ -35,9 +35,11 @@ class UserService extends BaseService {
    */
   async getUsersByIds (dto) {
     try {
-      const users = await this.repo.findManyById(dto.request.query.id)
+      const { id: ids = [] } = dto.request.query
 
-      if (users) {
+      const users = ids.every(isId) ? await this.repo.findManyById(dto.request.query.id) : null
+
+      if (users && users.length) {
         dto.data = {
           count: users.length,
           users
@@ -78,10 +80,15 @@ class UserService extends BaseService {
    */
   async getUsersByQuery (dto) {
     try {
-      const users = await this.repo.findManyByQuery(dto.request.query)
-      dto.data = {
-        count: users.length,
-        users
+      const validId = dto.request.query.id ? isId(dto.request.query.id) : true
+      const users = validId ? await this.repo.findManyByQuery(dto.request.query) : null
+      if (users && users.length) {
+        dto.data = {
+          count: users.length,
+          users
+        }
+      } else {
+        dto.addError('Users not found', 404)
       }
     } catch (error) {
       dto.addError(error)
