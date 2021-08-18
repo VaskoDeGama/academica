@@ -19,7 +19,7 @@ usersRouter.get('', async (req, res, next) => {
  * Create
  */
 usersRouter.post('', async (req, res, next) => {
-  res.status(200).json({ endpoint: 'Create' })
+  await userController.create(req, res)
   next()
 })
 

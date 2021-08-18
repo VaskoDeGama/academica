@@ -33,15 +33,15 @@ class DTO {
    * @param {Request} req
    */
   constructor (req) {
-    /** @type {string} - req id */
-    this.reqId = httpContext.get('traceId')
     /** @type {boolean} - successful request or not */
     this._status = 500
     this._success = false
-    /** @type {DTOReq} - simplify req object */
-    this.request = this.prepareRequestData(req)
     /** @type {any|null} data - query result */
     this._data = null
+    /** @type {DTOReq} - simplify req object */
+    this.request = this.prepareRequestData(req)
+    /** @type {string} - req id */
+    this.reqId = httpContext.get('traceId')
     /** @type {object[]} errors - query errors */
     this.errors = []
   }

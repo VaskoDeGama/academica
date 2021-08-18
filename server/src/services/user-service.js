@@ -18,11 +18,10 @@ class UserService extends BaseService {
       } else {
         dto.addError('User not found', 404)
       }
-
-      return dto
     } catch (error) {
-      return dto.addError(error)
+      dto.addError(error)
     }
+    return dto
   }
 
   /**
@@ -33,17 +32,20 @@ class UserService extends BaseService {
    */
   async getUsersByIds (dto) {
     try {
-      const result = await this.repo.findManyById(dto.request.query.id)
-      if (result) {
-        dto.data = result
+      const users = await this.repo.findManyById(dto.request.query.id)
+
+      if (users) {
+        dto.data = {
+          count: users.length,
+          users
+        }
       } else {
         dto.addError('Users not found', 404)
       }
-
-      return dto
     } catch (error) {
-      return dto.addError(error)
+      dto.addError(error)
     }
+    return dto
   }
 
   /**
@@ -54,11 +56,15 @@ class UserService extends BaseService {
    */
   async getAllUsers (dto) {
     try {
-      dto.data = await this.repo.findAll()
-      return dto
+      const users = await this.repo.findAll()
+      dto.data = {
+        count: users.length,
+        users
+      }
     } catch (error) {
-      return dto.addError(error)
+      dto.addError(error)
     }
+    return dto
   }
 
   /**
@@ -69,10 +75,43 @@ class UserService extends BaseService {
    */
   async getUsersByQuery (dto) {
     try {
-      dto.data = await this.repo.findManyByQuery(dto.request.query)
+      const users = await this.repo.findManyByQuery(dto.request.query)
+      dto.data = {
+        count: users.length,
+        users
+      }
+    } catch (error) {
+      dto.addError(error)
+    }
+    return dto
+  }
+
+  /**
+   * Create user
+   *
+   * @param {DTO} dto
+   * @returns {Promise<object>}
+   */
+  async createUser (dto) {
+    try {
+      const result = await this.repo.saveUser(dto.request.body)
+      dto.data = {
+        id: result.id
+      }
+      dto.status = 201
       return dto
     } catch (error) {
-      return dto.addError(error)
+      switch (error.code) {
+        case 11000: {
+          const field = Object.keys(error.keyValue)[0]
+          dto.addError(`A user with the same ${field} already exists.`, 409)
+          break
+        }
+        default: {
+          dto.addError(error)
+        }
+      }
+      return dto
     }
   }
 }

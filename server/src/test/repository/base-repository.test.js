@@ -18,7 +18,7 @@ describe('Base repo test', () => {
   })
 
   afterEach(async () => {
-    await repo._model.deleteMany()
+    await repo.model.deleteMany()
   })
 
   afterAll(async () => {

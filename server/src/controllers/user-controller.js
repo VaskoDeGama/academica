@@ -10,11 +10,23 @@ class UserController extends BaseController {
    * @param {Response} res
    * @returns {Promise<Response|Request>}
    */
-  async getByQuery (req, res) {
+  async create (req, res) {
     // TODO: валидация
     const dto = new DTO(req)
 
-    console.log(dto)
+    await this.service.createUser(dto)
+
+    return dto.success ? this.ok(res, dto) : this.fail({ req, res, dto })
+  }
+
+  /**
+   * @param {Request} req
+   * @param {Response} res
+   * @returns {Promise<Response|Request>}
+   */
+  async getByQuery (req, res) {
+    // TODO: валидация
+    const dto = new DTO(req)
 
     if (dto.request.hasQuery) {
       if (Array.isArray(dto.request.query.id)) {
@@ -26,7 +38,7 @@ class UserController extends BaseController {
       await this.service.getAllUsers(dto)
     }
 
-    return dto.success ? this.ok(res, dto) : this.fail(req, res, dto)
+    return dto.success ? this.ok(res, dto) : this.fail({ req, res, dto })
   }
 
   /**
@@ -37,8 +49,7 @@ class UserController extends BaseController {
   async getById (req, res) {
     const dto = new DTO(req)
     await this.service.getUserById(dto)
-
-    return dto.success ? this.ok(res, dto) : this.fail(req, res, dto)
+    return dto.success ? this.ok(res, dto) : this.fail({ req, res, dto })
   }
 }
 

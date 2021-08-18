@@ -1,25 +1,6 @@
 'use strict'
 
-/**
- * @typedef {object} Controller
- * @property {Service} service - an instance of Service
- * @property {Function} jsonResponse - {@link jsonResponse}
- * @property {Function} ok - {@link ok}
- * @property {Function} created - {@link created}
- * @property {Function} clientError - {@link clientError}
- * @property {Function} paymentRequired - {@link paymentRequired}
- * @property {Function} forbidden - {@link forbidden}
- * @property {Function} unauthorized - {@link unauthorized}
- * @property {Function} conflict - {@link conflict}
- * @property {Function} notFound - {@link notFound}
- * @property {Function} tooMany - {@link tooMany}
- * @property {Function} fail - {@link fail}
- */
-
 class BaseController {
-  /**
-   * @param {Service} service - an instance of service
-   */
   constructor (service) {
     this.service = service
   }
@@ -145,8 +126,8 @@ class BaseController {
    * @returns {Request}
    */
   fail ({ req, res, dto, code = 500, message = 'Bad request' }) {
-    if (dto.status === 500 || code === 500) {
-      req.app.servLog.error(dto || message)
+    if (dto.status === 500 || (!dto && code === 500)) {
+      req.app.servLog.error(dto.toJSON() || message)
     }
     return BaseController.jsonResponse({ res, dto, code, message })
   }
