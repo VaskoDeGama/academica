@@ -1,5 +1,6 @@
 'use strict'
 const httpContext = require('express-http-context')
+const isEmpty = require('./../utils/is-empty')
 
 /**
  * @typedef {object} DTOReq
@@ -7,6 +8,18 @@ const httpContext = require('express-http-context')
  * @property {object} query - query params from req strong
  * @property {object} params - params like :id
  * @property {object} body - body if post or put
+ * @property {boolean} hasQuery - true if query not empty
+ * @property {boolean} hasParams - true if params not empty
+ * @property {boolean} hasBody - true if body not empty
+ */
+
+/**
+ * @typedef {object} DTOObject
+ * @property {boolean} success - query result
+ * @property {string} reqId - query id
+ * @property {number} status - http code
+ * @property {any} [data] - result data
+ * @property {object[]} [errors] - query errors
  */
 
 /**
@@ -20,17 +33,13 @@ class DTO {
    * @param {Request} req
    */
   constructor (req) {
+    /** @type {string} - req id */
     this.reqId = httpContext.get('traceId')
     /** @type {boolean} - successful request or not */
     this._status = 500
     this._success = false
     /** @type {DTOReq} - simplify req object */
-    this.request = {
-      method: req.method,
-      query: req.query,
-      params: req.params,
-      body: req.body
-    }
+    this.request = this.prepareRequestData(req)
     /** @type {any|null} data - query result */
     this._data = null
     /** @type {object[]} errors - query errors */
@@ -67,6 +76,26 @@ class DTO {
 
   /**
    *
+   * @param {Request} req
+   * @returns {DTOReq}
+   */
+  prepareRequestData (req) {
+    const hasQuery = !isEmpty(req.query)
+    const hasParams = !isEmpty(req.params)
+    const hasBody = !isEmpty(req.body)
+    return {
+      method: req.method,
+      query: req.query,
+      params: req.params,
+      body: req.body,
+      hasQuery,
+      hasParams,
+      hasBody
+    }
+  }
+
+  /**
+   *
    * @param {string|Error} error
    * @param {number} [status=400]
    */
@@ -79,6 +108,10 @@ class DTO {
     }
   }
 
+  /**
+   *
+   * @returns {DTOObject}
+   */
   toJSON () {
     const result = {
       reqId: this.reqId,

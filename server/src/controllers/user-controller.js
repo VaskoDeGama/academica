@@ -10,15 +10,22 @@ class UserController extends BaseController {
    * @param {Response} res
    * @returns {Promise<Response|Request>}
    */
-  async getAll (req, res) {
+  async getByQuery (req, res) {
     // TODO: валидация
     const dto = new DTO(req)
-    const resultDTO = await this._service.getAll(dto)
-    if (dto.success) {
-      return this.ok(res, resultDTO)
+
+    if (dto.request.hasQuery) {
+      // TODO:  реализовать
+      await this._service.getUsersByQuery(dto)
+    } else {
+      await this._service.getAll(dto)
     }
 
-    return this.fail(req, res, resultDTO)
+    if (dto.success) {
+      return this.ok(res, dto)
+    }
+
+    return this.fail(req, res, dto)
   }
 
   /**

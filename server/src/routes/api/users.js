@@ -10,16 +10,15 @@ const userController = require('./../../controllers/user-controller')
 /**
  * GetQuery
  */
-usersRouter.get('/', async (req, res, next) => {
-  // res.status(200).json({ endpoint: 'GetQuery' })
-  await userController.getAll(req, res)
+usersRouter.get('', async (req, res, next) => {
+  await userController.getByQuery(req, res)
   next()
 })
 
 /**
  * Create
  */
-usersRouter.post('/', async (req, res, next) => {
+usersRouter.post('', async (req, res, next) => {
   res.status(200).json({ endpoint: 'Create' })
   next()
 })
