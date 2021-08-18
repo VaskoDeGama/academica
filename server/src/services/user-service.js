@@ -2,6 +2,7 @@
 
 const BaseService = require('./base-service')
 const userRepo = require('./../repositories/user-repository')
+const isId = require('../utils/is-id')
 
 class UserService extends BaseService {
   /**
@@ -12,7 +13,9 @@ class UserService extends BaseService {
    */
   async getUserById (dto) {
     try {
-      const result = await this.repo.findById(dto.request.params.id)
+      const { id } = dto.request.params
+      const result = isId(id) ? await this.repo.findById(id) : null
+
       if (result) {
         dto.data = result
       } else {
