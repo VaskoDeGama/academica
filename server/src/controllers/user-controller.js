@@ -14,18 +14,19 @@ class UserController extends BaseController {
     // TODO: валидация
     const dto = new DTO(req)
 
+    console.log(dto)
+
     if (dto.request.hasQuery) {
-      // TODO:  реализовать
-      await this._service.getUsersByQuery(dto)
+      if (Array.isArray(dto.request.query.id)) {
+        await this.service.getUsersByIds(dto)
+      } else {
+        await this.service.getUsersByQuery(dto)
+      }
     } else {
-      await this._service.getAll(dto)
+      await this.service.getAllUsers(dto)
     }
 
-    if (dto.success) {
-      return this.ok(res, dto)
-    }
-
-    return this.fail(req, res, dto)
+    return dto.success ? this.ok(res, dto) : this.fail(req, res, dto)
   }
 
   /**
@@ -35,13 +36,9 @@ class UserController extends BaseController {
    */
   async getById (req, res) {
     const dto = new DTO(req)
-    const resultDTO = await this._service.getUserById(dto)
+    await this.service.getUserById(dto)
 
-    if (dto.success) {
-      return this.ok(res, resultDTO)
-    }
-
-    return this.fail(req, res, resultDTO)
+    return dto.success ? this.ok(res, dto) : this.fail(req, res, dto)
   }
 }
 

@@ -1,33 +1,17 @@
 'use strict'
 
 /**
- * @class
- * @classdesc BaseService
- * @name BaseService
- * @property {Function} getAll {@link getAll}
+ * @typedef {object} Service
+ * @property {Repository} repo - {@link Repository}
  */
+
 class BaseService {
   /**
-   * @param {BaseRepository} repo - an instance of the Repository class
+   * @param {Repository} repo - an instance of Repository
    */
   constructor (repo) {
-    /** @param {BaseRepository} */
-    this._repo = repo
-  }
-
-  /**
-   * Get all records
-   *
-   * @param {DTO} dto
-   * @returns {Promise<object[]>}
-   */
-  async getAll (dto) {
-    try {
-      dto.data = await this._repo.findAll()
-      return dto
-    } catch (error) {
-      return dto.addError(error)
-    }
+    /** @param {Repository} */
+    this.repo = repo
   }
 }
 

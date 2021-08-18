@@ -3,9 +3,7 @@
 const { model, Schema } = require('mongoose')
 
 /**
- * @class
- * @classdesc BaseRepository
- * @name BaseRepository
+ * @typedef {object} Repository
  * @property {Function} findAll {@link findAll}
  * @property {Function} findById {@link findById}
  * @property {Function} save {@link save}
@@ -14,8 +12,10 @@ const { model, Schema } = require('mongoose')
  * @property {Function} removeById {@link removeById}
  * @property {Function} removeManyByQuery {@link removeManyByQuery}
  */
+
 class BaseRepository {
   /**
+   *ws
    *
    * @param {string} name
    * @param {object} schemaDefinition
@@ -74,7 +74,14 @@ class BaseRepository {
    * @returns {Promise<object[]>}
    */
   async findManyByQuery (query) {
-    return this._model.find(query)
+    const queryObject = Object.assign({}, query)
+
+    if (Reflect.has(queryObject, 'id')) {
+      queryObject._id = queryObject.id
+      delete queryObject.id
+    }
+
+    return this._model.find(queryObject)
   }
 
   /**

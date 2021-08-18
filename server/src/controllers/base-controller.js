@@ -1,40 +1,59 @@
 'use strict'
 
 /**
- * @classdesc BaseController
- * @name BaseController
- * @property {Function} jsonResponse {@link jsonResponse}
- * @class
+ * @typedef {object} Controller
+ * @property {Service} service - an instance of Service
+ * @property {Function} jsonResponse - {@link jsonResponse}
+ * @property {Function} ok - {@link ok}
+ * @property {Function} created - {@link created}
+ * @property {Function} clientError - {@link clientError}
+ * @property {Function} paymentRequired - {@link paymentRequired}
+ * @property {Function} forbidden - {@link forbidden}
+ * @property {Function} unauthorized - {@link unauthorized}
+ * @property {Function} conflict - {@link conflict}
+ * @property {Function} notFound - {@link notFound}
+ * @property {Function} tooMany - {@link tooMany}
+ * @property {Function} fail - {@link fail}
  */
+
 class BaseController {
   /**
-   * @param {BaseService} service
+   * @param {Service} service - an instance of service
    */
   constructor (service) {
-    this._service = service
+    this.service = service
   }
 
   /**
-   * @function
-   * @param {Response} res
-   * @param {number} code
-   * @param {string} message
+   * @static
+   * @param {object} o
+   * @param {Response} o.res
+   * @param {number} o.code
+   * @param {string} o.message
+   * @param {DTO} o.dto
    * @returns {Response}
    */
-  static jsonResponse (res, code, message) {
-    return res.status(code).json({ message })
+  static jsonResponse ({ res, dto, code, message }) {
+    if (dto) {
+      res.status(dto.status).json(dto)
+    } else if (message) {
+      res.status(code).json({ message })
+    } else {
+      res.status(code)
+    }
+    return res
   }
 
   /**
    * @param {Response} res
-   * @param {object} dto
+   * @param {object} [dto]
    * @returns {Response}
    */
   ok (res, dto) {
     if (dto) {
-      return res.status(200).json(dto)
+      return BaseController.jsonResponse({ res, dto })
     } else {
-      return res.status(200)
+      return BaseController.jsonResponse({ res, code: 200 })
     }
   }
 
@@ -43,84 +62,93 @@ class BaseController {
    * @returns {Response}
    */
   created (res) {
-    return res.status(201)
+    return BaseController.jsonResponse({ res, code: 201 })
   }
 
   /**
    * @param {Response} res
-   * @param  {string} message
+   * @param {DTO} [dto]
+   * @param  {string} [message='Unauthorized']
    * @returns {Response}
    */
-  clientError (res, message) {
-    return BaseController.jsonResponse(res, 400, message || 'Unauthorized')
+  clientError (res, dto, message = 'Unauthorized') {
+    return BaseController.jsonResponse({ res, dto, code: 400, message })
   }
 
   /**
    * @param {Response} res
-   * @param  {string} message
+   * @param {DTO} [dto]
+   * @param  {string} [message='Unauthorized']
    * @returns {Response}
    */
-  unauthorized (res, message) {
-    return BaseController.jsonResponse(res, 401, message || 'Unauthorized')
+  unauthorized (res, dto, message = 'Unauthorized') {
+    return BaseController.jsonResponse({ res, dto, code: 401, message })
   }
 
   /**
    * @param {Response} res
-   * @param  {string} message
+   * @param {DTO} [dto]
+   * @param  {string} [message='Payment required']
    * @returns {Response}
    */
-  paymentRequired (res, message) {
-    return BaseController.jsonResponse(res, 402, message || 'Payment required')
+  paymentRequired (res, dto, message = 'Payment required') {
+    return BaseController.jsonResponse({ res, dto, code: 403, message })
   }
 
   /**
    * @param {Response} res
-   * @param  {string} message
+   * @param {DTO} [dto]
+   * @param  {string} [message='Forbidden']
    * @returns {Response}
    */
-  forbidden (res, message) {
-    return BaseController.jsonResponse(res, 403, message || 'Forbidden')
+  forbidden (res, dto, message = 'Forbidden') {
+    return BaseController.jsonResponse({ res, dto, code: 403, message })
   }
 
   /**
    * @param {Response} res
-   * @param  {string} message
+   * @param {DTO} [dto]
+   * @param  {string} [message='Not found'']
    * @returns {Response}
    */
-  notFound (res, message) {
-    return BaseController.jsonResponse(res, 404, message || 'Not found')
+  notFound (res, dto, message = 'Not found') {
+    return BaseController.jsonResponse({ res, dto, code: 404, message })
   }
 
   /**
    * @param {Response} res
-   * @param  {string} message
+   * @param {DTO} [dto]
+   * @param  {string} [message='Conflict']
    * @returns {Response}
    */
-  conflict (res, message) {
-    return BaseController.jsonResponse(res, 409, message || 'Conflict')
+  conflict (res, dto, message = 'Conflict') {
+    return BaseController.jsonResponse({ res, dto, code: 409, message })
   }
 
   /**
    * @param {Response} res
-   * @param  {string} message
+   * @param {DTO} [dto]
+   * @param  {string} [message='Too many requests']
    * @returns {Response}
    */
-  tooMany (res, message) {
-    return BaseController.jsonResponse(res, 429, message || 'Too many requests')
+  tooMany (res, dto, message = 'Too many requests') {
+    return BaseController.jsonResponse({ res, dto, code: 429, message })
   }
 
   /**
-   * @param {Request} req
-   * @param {Response} res
-   * @param {DTO} dto
+   * @param {param} o
+   * @param {Request} o.req
+   * @param {Response} o.res
+   * @param {DTO} [o.dto]
+   * @param {number} [o.code=500]
+   * @param {string} [o.message='Bad request']
    * @returns {Request}
    */
-  fail (req, res, dto) {
-    const status = dto.status || 500
-    if (status === 500) {
-      req.app.servLog.error(dto)
+  fail ({ req, res, dto, code = 500, message = 'Bad request' }) {
+    if (dto.status === 500 || code === 500) {
+      req.app.servLog.error(dto || message)
     }
-    return res.status(status).json({ ...dto.toJSON() })
+    return BaseController.jsonResponse({ res, dto, code, message })
   }
 }
 
