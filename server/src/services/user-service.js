@@ -14,7 +14,7 @@ class UserService extends BaseService {
   async getUserById (dto) {
     try {
       const { id } = dto.request.params
-      const user = isId(id) ? await this.repo.findById(id) : null
+      const user = isId(id) ? await this.repo.findUserById(id) : null
 
       if (user) {
         dto.data = user
@@ -37,7 +37,7 @@ class UserService extends BaseService {
     try {
       const { id: ids = [] } = dto.request.query
 
-      const users = ids.every(isId) ? await this.repo.findManyById(dto.request.query.id) : null
+      const users = ids.every(isId) ? await this.repo.findUsersByIds(dto.request.query.id) : null
 
       if (users && users.length) {
         dto.data = {
@@ -61,7 +61,7 @@ class UserService extends BaseService {
    */
   async getAllUsers (dto) {
     try {
-      const users = await this.repo.findAll()
+      const users = await this.repo.getAllUsers()
       dto.data = {
         count: users.length,
         users
@@ -81,7 +81,7 @@ class UserService extends BaseService {
   async getUsersByQuery (dto) {
     try {
       const validId = dto.request.query.id ? isId(dto.request.query.id) : true
-      const users = validId ? await this.repo.findManyByQuery(dto.request.query) : null
+      const users = validId ? await this.repo.findUsersByQuery(dto.request.query) : null
       if (users && users.length) {
         dto.data = {
           count: users.length,

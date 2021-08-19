@@ -3,7 +3,7 @@
 const express = require('express')
 const usersRouter = express.Router()
 
-const tokenChecker = require('../../middleware/token-checker')
+// const tokenChecker = require('../../middleware/token-checker')
 
 const userController = require('./../../controllers/user-controller')
 

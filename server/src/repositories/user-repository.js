@@ -9,7 +9,7 @@ class UserRepository extends BaseRepository {
    *
    * @returns {Promise<object[]>}
    */
-  async findAll () {
+  async getAllUsers () {
     return this.model.find()
   }
 
@@ -19,7 +19,7 @@ class UserRepository extends BaseRepository {
    * @param {string} id
    * @returns {Promise<object|null>}
    */
-  async findById (id) {
+  async findUserById (id) {
     return this.model.findById(id)
   }
 
@@ -41,7 +41,7 @@ class UserRepository extends BaseRepository {
    * @param {string[]} ids
    * @returns {Promise<object[]>}
    */
-  async findManyById (ids) {
+  async findUsersByIds (ids) {
     const query = { _id: { $in: ids } }
     return this.model.find(query)
   }
@@ -52,7 +52,7 @@ class UserRepository extends BaseRepository {
    * @param {object} query
    * @returns {Promise<object[]>}
    */
-  async findManyByQuery (query) {
+  async findUsersByQuery (query) {
     const queryObject = Object.assign({}, query)
 
     if (Reflect.has(queryObject, 'id')) {
@@ -61,6 +61,26 @@ class UserRepository extends BaseRepository {
     }
 
     return this.model.find(queryObject)
+  }
+
+  /**
+   * Get many by query
+   *
+   * @param {string} id
+   * @returns {Promise<object>}
+   */
+  async removeUserById (id) {
+    return this.model.deleteOne({ _id: id })
+  }
+
+  /**
+   * Get many by query
+   *
+   * @param {object} query
+   * @returns {Promise<object>}
+   */
+  async removeUsersByIds (query) {
+    return this.model.deleteMany(query)
   }
 }
 
