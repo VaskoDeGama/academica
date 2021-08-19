@@ -117,6 +117,7 @@ class UserService extends BaseService {
           dto.addError(`A user with the same ${field} already exists.`, 409)
           break
         }
+        // TODO validation error
         default: {
           dto.addError(error)
         }

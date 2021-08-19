@@ -1,34 +1,26 @@
 'use strict'
 
-const getDatabaseClient = require('../../configs/db-connect')
-const config = require('config')
-const userRepo = require('../../repositories/user-repository')
+const MockRepo = require('../services/mock-repo.js')
+const mongoose = require('mongoose')
 
-describe('User repo test', () => {
-  let mongo = null
+describe('mock repo test', () => {
   let repo = null
   beforeAll(async () => {
-    const dbConfig = config.get('DataBase')
-    mongo = await getDatabaseClient(dbConfig.url, dbConfig.dbName)
-    repo = userRepo
+    repo = new MockRepo([], {
+      username: { unique: true, required: true },
+      password: {},
+      role: { default: 'student' }
+    })
   })
 
-  afterEach(async () => {
-    await repo.model.deleteMany()
-  })
-
-  afterAll(async () => {
-    await mongo.connection.close()
-  })
-
-  it('connected', () => {
-    expect(mongo.connection.readyState).toBe(1)
+  afterEach(() => {
+    repo.db = []
   })
 
   it('findById', async () => {
-    const id = new mongo.Types.ObjectId()
+    const id = new mongoose.Types.ObjectId()
     const mockUser = {
-      _id: id,
+      id,
       username: 'findById',
       password: 'findByIdpassword'
     }
@@ -41,14 +33,14 @@ describe('User repo test', () => {
   })
 
   it('saveUser', async () => {
-    const id = new mongo.Types.ObjectId()
+    const id = new mongoose.Types.ObjectId()
     const mockUser = {
-      _id: id,
+      id,
       username: 'test1',
       password: 'test1password'
     }
     const resp = await repo.saveUser(mockUser)
-    const userFromDb = await repo.findUserById(resp._id)
+    const userFromDb = await repo.findUserById(resp.id)
 
     expect(userFromDb.username).toBe(mockUser.username)
     expect(userFromDb.id).toBe(id.toString())
@@ -74,10 +66,10 @@ describe('User repo test', () => {
     const length = 10
     const ids = []
     for (let i = 0; i < length; i += 1) {
-      const id = new mongo.Types.ObjectId()
+      const id = new mongoose.Types.ObjectId()
       ids.push(id.toString())
       await repo.saveUser({
-        _id: id,
+        id,
         username: `username${i}`,
         password: `password${i}`
       })
@@ -116,13 +108,13 @@ describe('User repo test', () => {
   })
 
   it('removeById', async () => {
-    const id = new mongo.Types.ObjectId()
+    const id = new mongoose.Types.ObjectId()
     const hasBeforeCreate = !!await repo.findUserById(id.toString())
 
     expect(hasBeforeCreate).toBeFalsy()
 
     await repo.saveUser({
-      _id: id,
+      id,
       username: 'username',
       password: 'password'
     })

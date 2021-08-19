@@ -79,7 +79,7 @@ class UserRepository extends BaseRepository {
    * @param {object} query
    * @returns {Promise<object>}
    */
-  async removeUsersByIds (query) {
+  async removeUsersByQuery (query) {
     return this.model.deleteMany(query)
   }
 }
