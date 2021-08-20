@@ -15,7 +15,7 @@ class MockRepo {
    */
   async getAllUsers () {
     return new Promise((resolve, reject) => {
-      delay(100).then(() => resolve(this.db))
+      delay(10).then(() => resolve(this.db))
     })
   }
 
@@ -27,7 +27,7 @@ class MockRepo {
    */
   async findUserById (id) {
     return new Promise((resolve, reject) => {
-      delay(100).then(() => resolve(this.db.find(r => r.id === id) || null))
+      delay(10).then(() => resolve(this.db.find(r => r.id === id) || null))
     })
   }
 
@@ -39,7 +39,7 @@ class MockRepo {
    */
   async saveUser (doc) {
     return new Promise((resolve, reject) => {
-      delay(100).then(() => {
+      delay(10).then(() => {
         Object.keys(this.schema).forEach(key => {
           if (this.schema[key].required && !Reflect.has(doc, key)) {
             const error = new Error(`validation failed: ${key}: Path \`${key}\` is required.`)
@@ -84,7 +84,7 @@ class MockRepo {
    */
   async findUsersByIds (ids) {
     return new Promise((resolve, reject) => {
-      delay(100).then(() => {
+      delay(10).then(() => {
         resolve(this.db.filter(r => ids.includes(r.id)))
       })
     })
@@ -98,7 +98,7 @@ class MockRepo {
    */
   async findUsersByQuery (query) {
     return new Promise((resolve, reject) => {
-      delay(100).then(() => {
+      delay(10).then(() => {
         resolve(this.db.filter(r => {
           return Object.keys(query).every(key => r[key] === query[key])
         }))
@@ -114,7 +114,7 @@ class MockRepo {
    */
   async removeUserById (id) {
     return new Promise((resolve, reject) => {
-      delay(100).then(() => {
+      delay(10).then(() => {
         const index = this.db.findIndex(r => r.id === id)
         const result = {
           deletedCount: 0
@@ -135,8 +135,8 @@ class MockRepo {
    */
   async removeUsersByIds (ids) {
     return new Promise((resolve) => {
-      delay(100).then(() => {
-        const usersForDelete = this.db.filter(r => ids.include(r.id))
+      delay(10).then(() => {
+        const usersForDelete = this.db.filter(r => ids.includes(r.id))
         const result = {
           deletedCount: 0
         }
@@ -162,7 +162,7 @@ class MockRepo {
    */
   async removeUsersByQuery (query) {
     return new Promise((resolve) => {
-      delay(100).then(() => {
+      delay(10).then(() => {
         const usersForDelete = this.db.filter(r => {
           return Object.keys(query).every(key => r[key] === query[key])
         })

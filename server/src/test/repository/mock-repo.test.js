@@ -131,6 +131,36 @@ describe('mock repo test', () => {
 
   it('removeByIds', async () => {
     const length = 10
+    const ids = []
+    for (let i = 0; i < length; i += 1) {
+      if ([2, 4, 8].includes(i)) {
+        const id = new mongoose.Types.ObjectId()
+        await repo.saveUser({
+          id: id.toString(),
+          username: `username${i}`,
+          password: `password${i}`,
+          role: 'teacher'
+        })
+
+        ids.push(id.toString())
+      } else {
+        await repo.saveUser({
+          username: `username${i}`,
+          password: `password${i}`
+        })
+      }
+    }
+
+    const res = await repo.removeUsersByIds(ids)
+
+    const documents = await repo.getAllUsers()
+
+    expect(res.deletedCount).toBe(3)
+    expect(documents.length).toBe(7)
+  })
+
+  it('removeByQuery', async () => {
+    const length = 10
     for (let i = 0; i < length; i += 1) {
       if ([2, 4, 8].includes(i)) {
         await repo.saveUser({

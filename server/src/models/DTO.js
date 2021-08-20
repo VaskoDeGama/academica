@@ -41,7 +41,7 @@ class DTO {
     /** @type {DTOReq} - simplify req object */
     this.request = this.prepareRequestData(req)
     /** @type {string} - req id */
-    this.reqId = httpContext.get('traceId')
+    this.reqId = httpContext.get('traceId') || 'test'
     /** @type {object[]} errors - query errors */
     this.errors = []
   }
