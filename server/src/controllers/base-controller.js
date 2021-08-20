@@ -6,6 +6,35 @@ class BaseController {
   }
 
   /**
+   *
+   * @param {object} o
+   * @param {Request} o.req
+   * @param {Response} o.res
+   * @param {DTO} o.dto
+   * @param {number} o.code
+   * @param {string} o.message
+   * @returns {Response}
+   */
+  static setResponse ({ req, res, dto, code, message }) {
+    if (dto) {
+      return dto.success ? BaseController.ok(res, dto) : BaseController.fail({ req, res, dto })
+    }
+
+    switch (code) {
+      case 200: return BaseController.ok(res)
+      case 201: return BaseController.created(res)
+      case 400: return BaseController.clientError(res)
+      case 401: return BaseController.unauthorized(res)
+      case 402: return BaseController.paymentRequired(res)
+      case 403: return BaseController.forbidden(res)
+      case 404: return BaseController.notFound(res)
+      case 409: return BaseController.conflict(res)
+      case 429: return BaseController.tooMany(res)
+      default: return BaseController.fail({ req, res, code, message })
+    }
+  }
+
+  /**
    * @static
    * @param {object} o
    * @param {Response} o.res
@@ -30,7 +59,7 @@ class BaseController {
    * @param {object} [dto]
    * @returns {Response}
    */
-  ok (res, dto) {
+  static ok (res, dto) {
     if (dto) {
       return BaseController.jsonResponse({ res, dto })
     } else {
@@ -42,7 +71,7 @@ class BaseController {
    * @param {Response} res
    * @returns {Response}
    */
-  created (res) {
+  static created (res) {
     return BaseController.jsonResponse({ res, code: 201 })
   }
 
@@ -52,7 +81,7 @@ class BaseController {
    * @param  {string} [message='Unauthorized']
    * @returns {Response}
    */
-  clientError (res, dto, message = 'Unauthorized') {
+  static clientError (res, dto, message = 'Unauthorized') {
     return BaseController.jsonResponse({ res, dto, code: 400, message })
   }
 
@@ -62,7 +91,7 @@ class BaseController {
    * @param  {string} [message='Unauthorized']
    * @returns {Response}
    */
-  unauthorized (res, dto, message = 'Unauthorized') {
+  static unauthorized (res, dto, message = 'Unauthorized') {
     return BaseController.jsonResponse({ res, dto, code: 401, message })
   }
 
@@ -72,8 +101,8 @@ class BaseController {
    * @param  {string} [message='Payment required']
    * @returns {Response}
    */
-  paymentRequired (res, dto, message = 'Payment required') {
-    return BaseController.jsonResponse({ res, dto, code: 403, message })
+  static paymentRequired (res, dto, message = 'Payment required') {
+    return BaseController.jsonResponse({ res, dto, code: 402, message })
   }
 
   /**
@@ -82,7 +111,7 @@ class BaseController {
    * @param  {string} [message='Forbidden']
    * @returns {Response}
    */
-  forbidden (res, dto, message = 'Forbidden') {
+  static forbidden (res, dto, message = 'Forbidden') {
     return BaseController.jsonResponse({ res, dto, code: 403, message })
   }
 
@@ -92,7 +121,7 @@ class BaseController {
    * @param  {string} [message='Not found'']
    * @returns {Response}
    */
-  notFound (res, dto, message = 'Not found') {
+  static notFound (res, dto, message = 'Not found') {
     return BaseController.jsonResponse({ res, dto, code: 404, message })
   }
 
@@ -102,7 +131,7 @@ class BaseController {
    * @param  {string} [message='Conflict']
    * @returns {Response}
    */
-  conflict (res, dto, message = 'Conflict') {
+  static conflict (res, dto, message = 'Conflict') {
     return BaseController.jsonResponse({ res, dto, code: 409, message })
   }
 
@@ -112,7 +141,7 @@ class BaseController {
    * @param  {string} [message='Too many requests']
    * @returns {Response}
    */
-  tooMany (res, dto, message = 'Too many requests') {
+  static tooMany (res, dto, message = 'Too many requests') {
     return BaseController.jsonResponse({ res, dto, code: 429, message })
   }
 
@@ -125,7 +154,7 @@ class BaseController {
    * @param {string} [o.message='Bad request']
    * @returns {Request}
    */
-  fail ({ req, res, dto, code = 500, message = 'Bad request' }) {
+  static fail ({ req, res, dto, code = 500, message = 'Bad request' }) {
     if (dto.status === 500 || (!dto && code === 500)) {
       req.app.servLog.error(dto.toJSON() || message)
     }

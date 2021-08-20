@@ -13,7 +13,8 @@ async function getDatabaseClient (connString, dbName) {
       dbName,
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      useCreateIndex: true
+      useCreateIndex: true,
+      useFindAndModify: false
     }, error => {
       reject(error)
     })

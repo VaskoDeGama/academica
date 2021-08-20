@@ -1,6 +1,7 @@
 'use strict'
 const config = require('config')
 const jwt = require('jsonwebtoken')
+const BaseController = require('../controllers/base-controller')
 const { secret } = config.get('Server')
 
 const tokenChecker = function (req, res, next) {
@@ -17,26 +18,13 @@ const tokenChecker = function (req, res, next) {
     } catch (e) {
       console.log('Error', e.name, e.message)
 
-      let message = 'Access denied.'
-      let error = e.name
-
-      if (e.name === 'TokenExpiredError') {
-        error = 'Unauthorized'
-        message = 'Token expired'
-      }
-
       if (e) {
-        res.status(401).json({
-          error,
-          message
-        })
+        BaseController.setResponse({ req, res, code: 401 })
+        res.end()
       }
     }
   } else {
-    res.status(403).send({
-      error: '403 Forbidden',
-      message: 'Unauthorized access.'
-    })
+    BaseController.setResponse({ req, res, code: 403 })
     res.end()
   }
 }

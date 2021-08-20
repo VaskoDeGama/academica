@@ -182,6 +182,28 @@ class MockRepo {
       })
     })
   }
+
+  /**
+   *
+   * @param {string} id
+   * @param {object} update
+   * @returns {Promise<object>} - updated record
+   */
+  async findUserAndUpdate (id, update) {
+    return new Promise((resolve) => {
+      delay(10).then(() => {
+        const usersForUpdate = this.db.findIndex(r => r.id === id)
+
+        if (usersForUpdate === -1) {
+          resolve(null)
+        } else {
+          this.db[usersForUpdate] = Object.assign(this.db[usersForUpdate], update)
+
+          resolve(this.db[usersForUpdate])
+        }
+      })
+    })
+  }
 }
 
 module.exports = MockRepo

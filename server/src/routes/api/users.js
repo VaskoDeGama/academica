@@ -3,31 +3,29 @@
 const express = require('express')
 const usersRouter = express.Router()
 
-// const tokenChecker = require('../../middleware/token-checker')
-
 const userController = require('./../../controllers/user-controller')
-
-/**
- * GetQuery
- */
-usersRouter.get('', async (req, res, next) => {
-  await userController.getByQuery(req, res)
-  next()
-})
 
 /**
  * Create
  */
 usersRouter.post('', async (req, res, next) => {
-  await userController.create(req, res)
+  await userController.post(req, res)
   next()
 })
 
 /**
- * Get
+ * Get by id
  */
 usersRouter.get('/:id', async (req, res, next) => {
-  await userController.getById(req, res)
+  await userController.get(req, res)
+  next()
+})
+
+/**
+ * Get by query
+ */
+usersRouter.get('', async (req, res, next) => {
+  await userController.get(req, res)
   next()
 })
 
@@ -35,15 +33,23 @@ usersRouter.get('/:id', async (req, res, next) => {
  * Update
  */
 usersRouter.put('/:id', async (req, res, next) => {
-  res.status(200).json({ endpoint: 'Delete' })
+  res.status(200).json({ endpoint: 'Update' })
   next()
 })
 
 /**
- * Delete
+ * Delete by query
+ */
+usersRouter.delete('', async (req, res, next) => {
+  await userController.delete(req, res)
+  next()
+})
+
+/**
+ * Delete by id
  */
 usersRouter.delete('/:id', async (req, res, next) => {
-  res.status(200).json({ endpoint: 'Delete' })
+  await userController.delete(req, res)
   next()
 })
 

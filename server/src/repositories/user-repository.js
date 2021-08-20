@@ -24,6 +24,16 @@ class UserRepository extends BaseRepository {
   }
 
   /**
+   *
+   * @param {string} id
+   * @param {object} update
+   * @returns {Promise<object>}
+   */
+  async findUserAndUpdate (id, update) {
+    return this.model.findByIdAndUpdate(id, update, { new: true })
+  }
+
+  /**
    * Save one to db
    *
    * @param {object} doc

@@ -429,4 +429,62 @@ describe('User repo test', () => {
     expect(dto.status).toBe(404)
     expect(documents.length).toBe(10)
   })
+
+  it('update record', async () => {
+    const id = new mongoose.Types.ObjectId()
+
+    await userService.repo.saveUser({
+      id: id.toString(),
+      username: 'username',
+      password: 'password',
+      role: 'student'
+    })
+
+    const mockRequest = {
+      method: 'UPDATE',
+      params: { id: id.toString() },
+      query: {},
+      body: { role: 'teacher' }
+    }
+
+    const dto = new DTO(mockRequest)
+
+    await userService.updateUser(dto)
+
+    const user = await userService.repo.findUserById(id.toString())
+
+    expect(dto.success).toBeTruthy()
+    expect(dto.status).toBe(200)
+    expect(dto.data.id).toBe(id.toString())
+    expect(user.role).toBe('teacher')
+  })
+
+  it('404 if bad id record', async () => {
+    const id = new mongoose.Types.ObjectId()
+
+    await userService.repo.saveUser({
+      id: id.toString(),
+      username: 'username',
+      password: 'password',
+      role: 'student'
+    })
+
+    const mockRequest = {
+      method: 'UPDATE',
+      params: { id: 'bad id' },
+      query: {},
+      body: { role: 'teacher' }
+    }
+
+    const dto = new DTO(mockRequest)
+
+    await userService.updateUser(dto)
+
+    const user = await userService.repo.findUserById(id.toString())
+
+    expect(dto.success).toBeFalsy()
+    expect(dto.status).toBe(404)
+    expect(user.id).toBe(id.toString())
+    expect(user.role).toBe('student')
+  })
 })

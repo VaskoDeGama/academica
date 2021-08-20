@@ -163,4 +163,43 @@ describe('User repo test', () => {
     expect(res.deletedCount).toBe(7)
     expect(documents.length).toBe(3)
   })
+
+  it('update', async () => {
+    const id = new mongo.Types.ObjectId()
+    await repo.saveUser({
+      _id: id,
+      username: 'username',
+      password: 'password'
+    })
+
+    const res = await repo.findUserAndUpdate(id.toString(), {
+      role: 'teacher'
+    })
+
+    const user = await repo.findUserById(id.toString())
+
+    expect(res.id).toBe(id.toString())
+    expect(user.id).toBe(id.toString())
+    expect(user.role).toBe('teacher')
+  })
+
+  it('update not found', async () => {
+    const id = new mongo.Types.ObjectId()
+
+    await repo.saveUser({
+      _id: id.toString(),
+      username: 'username',
+      password: 'password'
+    })
+
+    const res = await repo.findUserAndUpdate(id.toString().split('').reverse().join(''), {
+      role: 'teacher'
+    })
+
+    const user = await repo.findUserById(id.toString())
+
+    expect(res).toBeNull()
+    expect(user.id).toBe(id.toString())
+    expect(user.role).toBe('student')
+  })
 })

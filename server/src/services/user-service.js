@@ -115,6 +115,29 @@ class UserService extends BaseService {
       return dto
     }
   }
+
+  /**
+   *
+   * @param {DTO} dto
+   * @returns {Promise<DTO>}
+   */
+  async updateUser (dto) {
+    try {
+      const { id } = dto.request.params
+      const result = isId(id) ? await this.repo.findUserAndUpdate(id, dto.request.body) : null
+
+      if (result && result.id === id) {
+        dto.data = {
+          id: result.id
+        }
+      } else {
+        dto.addError('Users not found', 404)
+      }
+    } catch (error) {
+      dto.addError(error)
+      return dto
+    }
+  }
 }
 
 module.exports = new UserService(userRepo)

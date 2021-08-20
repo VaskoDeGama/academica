@@ -8,48 +8,57 @@ class UserController extends BaseController {
   /**
    * @param {Request} req
    * @param {Response} res
-   * @returns {Promise<Response|Request>}
+   * @returns {Promise<Response>}
    */
-  async create (req, res) {
+  async post (req, res) {
     // TODO: валидация
     const dto = new DTO(req)
 
     await this.service.createUser(dto)
 
-    return dto.success ? this.ok(res, dto) : this.fail({ req, res, dto })
+    return BaseController.setResponse({ res, req, dto })
   }
 
   /**
    * @param {Request} req
    * @param {Response} res
-   * @returns {Promise<Response|Request>}
+   * @returns {Promise<Response>}
    */
-  async getByQuery (req, res) {
+  async get (req, res) {
     // TODO: валидация
     const dto = new DTO(req)
 
-    if (dto.request.hasQuery) {
-      if (Array.isArray(dto.request.query.id)) {
-        await this.service.getUsersByIds(dto)
-      } else {
-        await this.service.getUsersByQuery(dto)
-      }
-    } else {
-      await this.service.getAllUsers(dto)
-    }
+    await this.service.getUser(dto)
 
-    return dto.success ? this.ok(res, dto) : this.fail({ req, res, dto })
+    return BaseController.setResponse({ res, req, dto })
   }
 
   /**
    * @param {Request} req
    * @param {Response} res
-   * @returns {Promise<Response|Request>}
+   * @returns {Promise<Response>}
    */
-  async getById (req, res) {
+  async update (req, res) {
+    // TODO: валидация
     const dto = new DTO(req)
-    await this.service.getUserById(dto)
-    return dto.success ? this.ok(res, dto) : this.fail({ req, res, dto })
+
+    await this.service.updateUser(dto)
+
+    return BaseController.setResponse({ res, req, dto })
+  }
+
+  /**
+   * @param {Request} req
+   * @param {Response} res
+   * @returns {Promise<Response>}
+   */
+  async delete (req, res) {
+    // TODO: валидация
+    const dto = new DTO(req)
+
+    await this.service.removeUser(dto)
+
+    return BaseController.setResponse({ res, req, dto })
   }
 }
 
