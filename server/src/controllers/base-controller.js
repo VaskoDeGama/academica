@@ -10,7 +10,7 @@ class BaseController {
    * @param {object} o
    * @param {Request} o.req
    * @param {Response} o.res
-   * @param {DTO} o.dto
+   * @param {ResultDTO} o.dto
    * @param {number} o.code
    * @param {string} o.message
    * @returns {Response}
@@ -40,7 +40,7 @@ class BaseController {
    * @param {Response} o.res
    * @param {number} o.code
    * @param {string} o.message
-   * @param {DTO} o.dto
+   * @param {ResultDTO} o.dto
    * @returns {Response}
    */
   static jsonResponse ({ res, dto, code, message }) {
@@ -56,7 +56,7 @@ class BaseController {
 
   /**
    * @param {Response} res
-   * @param {object} [dto]
+   * @param {ResultDTO} [dto]
    * @returns {Response}
    */
   static ok (res, dto) {
@@ -77,7 +77,7 @@ class BaseController {
 
   /**
    * @param {Response} res
-   * @param {DTO} [dto]
+   * @param {ResultDTO} [dto]
    * @param  {string} [message='Unauthorized']
    * @returns {Response}
    */
@@ -87,7 +87,7 @@ class BaseController {
 
   /**
    * @param {Response} res
-   * @param {DTO} [dto]
+   * @param {ResultDTO} [dto]
    * @param  {string} [message='Unauthorized']
    * @returns {Response}
    */
@@ -97,7 +97,7 @@ class BaseController {
 
   /**
    * @param {Response} res
-   * @param {DTO} [dto]
+   * @param {ResultDTO} [dto]
    * @param  {string} [message='Payment required']
    * @returns {Response}
    */
@@ -107,7 +107,7 @@ class BaseController {
 
   /**
    * @param {Response} res
-   * @param {DTO} [dto]
+   * @param {ResultDTO} [dto]
    * @param  {string} [message='Forbidden']
    * @returns {Response}
    */
@@ -117,7 +117,7 @@ class BaseController {
 
   /**
    * @param {Response} res
-   * @param {DTO} [dto]
+   * @param {ResultDTO} [dto]
    * @param  {string} [message='Not found'']
    * @returns {Response}
    */
@@ -127,7 +127,7 @@ class BaseController {
 
   /**
    * @param {Response} res
-   * @param {DTO} [dto]
+   * @param {ResultDTO} [dto]
    * @param  {string} [message='Conflict']
    * @returns {Response}
    */
@@ -137,7 +137,7 @@ class BaseController {
 
   /**
    * @param {Response} res
-   * @param {DTO} [dto]
+   * @param {ResultDTO} [dto]
    * @param  {string} [message='Too many requests']
    * @returns {Response}
    */
@@ -149,7 +149,7 @@ class BaseController {
    * @param {param} o
    * @param {Request} o.req
    * @param {Response} o.res
-   * @param {DTO} [o.dto]
+   * @param {ResultDTO} [o.dto]
    * @param {number} [o.code=500]
    * @param {string} [o.message='Bad request']
    * @returns {Request}

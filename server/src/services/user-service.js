@@ -2,140 +2,175 @@
 
 const BaseService = require('./base-service')
 const userRepo = require('./../repositories/user-repository')
-const isId = require('../utils/is-id')
-const { query } = require('express')
+const ResultDTO = require('../models/result-dto')
 
 class UserService extends BaseService {
   /**
    *
-   * @param {DTO} dto
-   * @returns {Promise<DTO>}
+   * @param {RequestDTO} reqDTO
+   * @returns {Promise<ResultDTO>}
    */
-  async getUser (dto) {
+  async getUser (reqDTO) {
+    const resDTO = new ResultDTO(reqDTO)
+
     try {
-      let users = null
-      if (dto.request.hasParams) {
-        const { id } = dto.request.params
-        users = isId(id) ? await this.repo.findUserById(id) : null
-      } else if (dto.request.hasQuery) {
-        if (Reflect.has(dto.request.query, 'id') && Array.isArray(dto.request.query.id)) {
-          const { id: ids = [] } = dto.request.query
-          users = ids.every(isId) ? await this.repo.findUsersByIds(ids) : null
-        } else {
-          if (Reflect.has(dto.request.query, 'id')) {
-            const { id } = dto.request.query
-            users = isId(id) ? await this.repo.findUsersByQuery(dto.request.query) : null
-          } else {
-            users = await this.repo.findUsersByQuery(dto.request.query)
-          }
+      const { hasParams, hasQuery, query, params } = reqDTO
+
+      if (hasParams) {
+        const user = await this.repo.findUserById(params.id)
+
+        if (user) {
+          resDTO.data = user
+          return resDTO
         }
-      } else {
-        users = await this.repo.getAllUsers()
       }
 
-      if (Array.isArray(users) && users.length) {
-        dto.data = {
-          count: users.length,
-          users
+      if (hasQuery) {
+        if (Array.isArray(query.id)) {
+          const users = await this.repo.findUsersByIds(query.id)
+          if (Array.isArray(users) && users.length) {
+            resDTO.data = {
+              count: users.length,
+              users
+            }
+            return resDTO
+          }
         }
-      } else if (users && typeof users === 'object') {
-        dto.data = users
-      } else {
-        dto.addError('Users not found', 404)
+
+        const users = await this.repo.findUsersByQuery(reqDTO.query)
+        if (Array.isArray(users) && users.length) {
+          resDTO.data = {
+            count: users.length,
+            users
+          }
+
+          return resDTO
+        }
       }
-      return dto
+
+      // get all
+      const users = await this.repo.getAllUsers()
+
+      resDTO.data = {
+        count: users.length,
+        users
+      }
+
+      return resDTO
     } catch (error) {
-      dto.addError(error)
-      return dto
+      resDTO.addError(error)
+      return resDTO
     }
   }
 
   /**
    * Create user
    *
-   * @param {DTO} dto
-   * @returns {Promise<DTO>}
+   * @param {RequestDTO} reqDTO
+   * @returns {Promise<ResultDTO>}
    */
-  async createUser (dto) {
+  async createUser (reqDTO) {
+    const resDTO = new ResultDTO(reqDTO)
     try {
-      const result = await this.repo.saveUser(dto.request.body)
-      dto.data = {
+      const result = await this.repo.saveUser(reqDTO.body)
+      resDTO.data = {
         id: result.id
       }
-      dto.status = 201
-      return dto
+      resDTO.status = 201
+      return resDTO
     } catch (error) {
       switch (error.code) {
         case 11000: {
           const field = Object.keys(error.keyValue)[0]
-          dto.addError(`A user with the same ${field} already exists.`, 409)
+          resDTO.addError(`A user with the same ${field} already exists.`, 409)
           break
         }
 
         // TODO validation error
         default: {
-          dto.addError(error)
+          resDTO.addError(error)
         }
       }
-      return dto
+      return resDTO
     }
   }
 
   /**
    *
-   * @param {DTO} dto
-   * @returns {Promise<DTO>}
+   * @param {RequestDTO} reqDTO
+   * @returns {Promise<ResultDTO>}
    */
-  async removeUser (dto) {
+  async removeUser (reqDTO) {
+    const resDTO = new ResultDTO(reqDTO)
     try {
-      let result = null
-      if (dto.request.hasParams) {
-        const { id } = dto.request.params
-        result = isId(id) ? await this.repo.removeUserById(id) : null
-      } else if (dto.request.hasQuery) {
-        if (Reflect.has(dto.request.query, 'id') && Array.isArray(dto.request.query.id)) {
-          const { id: ids = [] } = dto.request.query
-          result = ids.every(isId) ? await this.repo.removeUsersByIds(ids) : null
+      const { hasParams, params, hasQuery, query } = reqDTO
+
+      if (hasParams) {
+        const result = await this.repo.removeUserById(params.id)
+        if (result && result.deletedCount) {
+          resDTO.data = {
+            deletedCount: result.deletedCount
+          }
+          return resDTO
+        }
+      }
+
+      if (hasQuery) {
+        const { id } = query
+
+        if (Array.isArray(id)) {
+          const result = await this.repo.removeUsersByIds(id)
+          if (result && result.deletedCount) {
+            resDTO.data = {
+              deletedCount: result.deletedCount
+            }
+            return resDTO
+          }
         } else {
-          result = await this.repo.removeUsersByQuery(dto.request.query)
+          const result = await this.repo.removeUsersByQuery(query)
+
+          if (result && result.deletedCount) {
+            resDTO.data = {
+              deletedCount: result.deletedCount
+            }
+            return resDTO
+          }
         }
       }
 
-      if (result && result.deletedCount) {
-        dto.data = {
-          deletedCount: result.deletedCount
-        }
-      } else {
-        dto.addError('Users not found', 404)
-      }
-
-      return dto
+      resDTO.addError('Users not found', 404)
+      return resDTO
     } catch (error) {
-      dto.addError(error)
-      return dto
+      resDTO.addError(error)
+      return resDTO
     }
   }
 
   /**
    *
-   * @param {DTO} dto
-   * @returns {Promise<DTO>}
+   * @param {RequestDTO} reqDTO
+   * @returns {Promise<ResultDTO>}
    */
-  async updateUser (dto) {
+  async updateUser (reqDTO) {
+    const resDTO = new ResultDTO(reqDTO)
     try {
-      const { id } = dto.request.params
-      const result = isId(id) ? await this.repo.findUserAndUpdate(id, dto.request.body) : null
+      const { hasParams, params, body } = reqDTO
+      if (hasParams) {
+        const result = await this.repo.findUserAndUpdate(params.id, body)
 
-      if (result && result.id === id) {
-        dto.data = {
-          id: result.id
+        if (result && result.id === params.id) {
+          resDTO.data = {
+            id: result.id
+          }
+          return resDTO
         }
-      } else {
-        dto.addError('Users not found', 404)
       }
+
+      resDTO.addError('Users not found', 404)
+      return resDTO
     } catch (error) {
-      dto.addError(error)
-      return dto
+      resDTO.addError(error)
+      return resDTO
     }
   }
 }

@@ -2,7 +2,7 @@
 
 const BaseController = require('./base-controller')
 const userService = require('../services/user-service')
-const DTO = require('../models/DTO')
+const RequestDTO = require('../models/request-dto')
 
 class UserController extends BaseController {
   /**
@@ -12,11 +12,11 @@ class UserController extends BaseController {
    */
   async post (req, res) {
     // TODO: валидация
-    const dto = new DTO(req)
+    const reqDTO = new RequestDTO(req)
 
-    await this.service.createUser(dto)
+    const resultDTO = await this.service.createUser(reqDTO)
 
-    return BaseController.setResponse({ res, req, dto })
+    return BaseController.setResponse({ res, req, resultDTO })
   }
 
   /**
@@ -26,11 +26,11 @@ class UserController extends BaseController {
    */
   async get (req, res) {
     // TODO: валидация
-    const dto = new DTO(req)
+    const reqDTO = new RequestDTO(req)
 
-    await this.service.getUser(dto)
+    const resultDTO = await this.service.getUser(reqDTO)
 
-    return BaseController.setResponse({ res, req, dto })
+    return BaseController.setResponse({ res, req, resultDTO })
   }
 
   /**
@@ -40,11 +40,11 @@ class UserController extends BaseController {
    */
   async update (req, res) {
     // TODO: валидация
-    const dto = new DTO(req)
+    const reqDTO = new RequestDTO(req)
 
-    await this.service.updateUser(dto)
+    const resultDTO = await this.service.updateUser(reqDTO)
 
-    return BaseController.setResponse({ res, req, dto })
+    return BaseController.setResponse({ res, req, resultDTO })
   }
 
   /**
@@ -54,11 +54,11 @@ class UserController extends BaseController {
    */
   async delete (req, res) {
     // TODO: валидация
-    const dto = new DTO(req)
+    const reqDTO = new RequestDTO(req)
 
-    await this.service.removeUser(dto)
+    const resultDTO = await this.service.removeUser(reqDTO)
 
-    return BaseController.setResponse({ res, req, dto })
+    return BaseController.setResponse({ res, req, resultDTO })
   }
 }
 

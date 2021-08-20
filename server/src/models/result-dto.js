@@ -1,20 +1,7 @@
 'use strict'
-const httpContext = require('express-http-context')
-const isEmpty = require('./../utils/is-empty')
 
 /**
- * @typedef {object} DTOReq
- * @property {string} method - req method
- * @property {object} query - query params from req strong
- * @property {object} params - params like :id
- * @property {object} body - body if post or put
- * @property {boolean} hasQuery - true if query not empty
- * @property {boolean} hasParams - true if params not empty
- * @property {boolean} hasBody - true if body not empty
- */
-
-/**
- * @typedef {object} DTOObject
+ * @typedef {object} ResultDTO
  * @property {boolean} success - query result
  * @property {string} reqId - query id
  * @property {number} status - http code
@@ -28,20 +15,19 @@ const isEmpty = require('./../utils/is-empty')
  * @class
  * @classdesc Data transfer object between levels within the system
  */
-class DTO {
+class ResultDto {
   /**
-   * @param {Request} req
+   * @param {RequestDTO} [reqDto]
    */
-  constructor (req) {
-    /** @type {boolean} - successful request or not */
+  constructor (reqDto) {
+    /** @type {number} - http status code */
     this._status = 500
+    /** @type {boolean} - successful request or not */
     this._success = false
     /** @type {any|null} data - query result */
     this._data = null
-    /** @type {DTOReq} - simplify req object */
-    this.request = this.prepareRequestData(req)
     /** @type {string} - req id */
-    this.reqId = httpContext.get('traceId') || 'test'
+    this.reqId = reqDto?.reqId || 'test'
     /** @type {object[]} errors - query errors */
     this.errors = []
   }
@@ -76,26 +62,6 @@ class DTO {
 
   /**
    *
-   * @param {Request} req
-   * @returns {DTOReq}
-   */
-  prepareRequestData (req) {
-    const hasQuery = !isEmpty(req.query)
-    const hasParams = !isEmpty(req.params)
-    const hasBody = !isEmpty(req.body)
-    return {
-      method: req.method,
-      query: req.query,
-      params: req.params,
-      body: req.body,
-      hasQuery,
-      hasParams,
-      hasBody
-    }
-  }
-
-  /**
-   *
    * @param {string|Error} error
    * @param {number} [status=400]
    */
@@ -110,7 +76,7 @@ class DTO {
 
   /**
    *
-   * @returns {DTOObject}
+   * @returns {ResultDTO}
    */
   toJSON () {
     const result = {
@@ -131,4 +97,4 @@ class DTO {
   }
 }
 
-module.exports = DTO
+module.exports = ResultDto

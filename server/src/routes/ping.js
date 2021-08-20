@@ -3,7 +3,7 @@
 const httpContext = require('express-http-context')
 const mongoose = require('mongoose')
 const express = require('express')
-const DTO = require('../models/DTO')
+const DTO = require('../models/result-dto')
 const BaseController = require('../controllers/base-controller')
 
 const pingRouter = express.Router()

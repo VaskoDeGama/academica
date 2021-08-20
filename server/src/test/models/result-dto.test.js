@@ -1,47 +1,39 @@
 'use strict'
 
-const DTO = require('./../../models/DTO')
+const ResultDTO = require('../../models/result-dto')
 
-const mockGETQuery = {
+const mocqRequstDTO = {
+  reqId: 'testReqId',
   method: 'GET',
   query: { id: ['611e6bbffc13ae5b8d000000', '611e6bbffc13ae5b8d000004'], role: 'teacher' },
   params: { },
-  body: {}
+  body: {},
+  hasQuery: true,
+  hasParams: false,
+  hasBody: false
+
 }
 
 describe('User repo test', () => {
   it('define', () => {
-    expect(DTO).toBeDefined()
+    expect(ResultDTO).toBeDefined()
   })
 
   it('class', () => {
-    expect(typeof DTO.constructor).toBe('function')
+    expect(typeof ResultDTO.constructor).toBe('function')
   })
 
   it('constructor test', () => {
-    const dto = new DTO(mockGETQuery)
+    const dto = new ResultDTO(mocqRequstDTO)
 
     expect(dto.status).toBe(500)
     expect(dto.data).toBe(null)
     expect(Array.isArray(dto.errors)).toBeTruthy()
-    expect(typeof dto.request).toBe('object')
-    expect(dto.reqId).toBe('test')
-  })
-
-  it('prepareRequest fn', () => {
-    const dto = new DTO(mockGETQuery)
-
-    expect(dto.request.hasQuery).toBeTruthy()
-    expect(dto.request.hasParams).toBeFalsy()
-    expect(dto.request.hasBody).toBeFalsy()
-    expect(dto.request.method).toBe('GET')
-    expect(dto.request.query).toStrictEqual(mockGETQuery.query)
-    expect(dto.request.params).toStrictEqual(mockGETQuery.params)
-    expect(dto.request.body).toStrictEqual(mockGETQuery.body)
+    expect(dto.reqId).toBe('testReqId')
   })
 
   it('to json', () => {
-    const dto = new DTO(mockGETQuery)
+    const dto = new ResultDTO()
     const obj = dto.toJSON()
 
     expect(typeof obj).toBe('object')
@@ -50,7 +42,7 @@ describe('User repo test', () => {
   })
 
   it('status setter', () => {
-    const dto = new DTO(mockGETQuery)
+    const dto = new ResultDTO()
 
     expect(dto.status).toBe(500)
     dto.data = 'kek'
@@ -58,7 +50,7 @@ describe('User repo test', () => {
   })
 
   it('success setter', () => {
-    const dto = new DTO(mockGETQuery)
+    const dto = new ResultDTO()
 
     expect(dto.success).toBe(false)
     dto.data = 'kek'
@@ -66,7 +58,7 @@ describe('User repo test', () => {
   })
 
   it('add Error', () => {
-    const dto = new DTO(mockGETQuery)
+    const dto = new ResultDTO()
 
     expect(dto.status).toBe(500)
     const error = new Error('Not found')

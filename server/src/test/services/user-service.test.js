@@ -2,8 +2,19 @@
 
 const userService = require('../../services/user-service')
 const MockRepo = require('./mock-repo')
-const DTO = require('../../models/DTO')
+const ResultDTO = require('../../models/result-dto')
 const mongoose = require('mongoose')
+
+const baseMockRequestDTO = {
+  reqId: 'TestID',
+  hasBody: false,
+  hasQuery: false,
+  hasParams: false,
+  query: {},
+  params: {},
+  body: {},
+  method: 'GET'
+}
 
 describe('UserService', () => {
   let service = null
@@ -16,86 +27,91 @@ describe('UserService', () => {
     })
   })
 
+  beforeEach(() => {
+    service.repo.db = []
+  })
   afterEach(() => {
     service.repo.db = []
   })
 
   it('createUser', async () => {
     const mockRequest = {
+      hasBody: true,
       method: 'POST',
       body: {
         username: 'test1',
         password: 'testPassword'
       }
     }
+    const mockRequestDTO = Object.assign(baseMockRequestDTO, mockRequest)
 
-    const dto = new DTO(mockRequest)
+    const resultDTO = await userService.createUser(mockRequestDTO)
 
-    expect(dto.status).toBe(500)
-
-    await userService.createUser(dto)
-    expect(dto instanceof DTO).toBeTruthy()
-    expect(dto.status).toBe(201)
-    expect(typeof dto.data.id).toBe('string')
-    expect(dto.data.id.length).toBe(24)
-    expect(typeof dto.success).toBeTruthy()
+    expect(resultDTO instanceof ResultDTO).toBeTruthy()
+    expect(resultDTO.status).toBe(201)
+    expect(typeof resultDTO.data.id).toBe('string')
+    expect(resultDTO.data.id.length).toBe(24)
+    expect(typeof resultDTO.success).toBeTruthy()
   })
 
   it('createUserError already exist', async () => {
     const mockRequest = {
+      hasBody: true,
       method: 'POST',
       body: {
         username: 'test1',
         password: 'testPassword'
       }
     }
+    const mockRequestDTO = Object.assign(baseMockRequestDTO, mockRequest)
 
-    await userService.createUser(new DTO(mockRequest))
+    await userService.createUser(mockRequestDTO)
 
-    const dto = new DTO(mockRequest)
-    await userService.createUser(dto)
+    const resultDTO = await userService.createUser(mockRequestDTO)
 
-    expect(dto instanceof DTO).toBeTruthy()
-    expect(dto.status).toBe(409)
-    expect(dto.success).toBeFalsy()
-    expect(Array.isArray(dto.errors)).toBeTruthy()
-    expect(dto.errors.length).toBe(1)
-    expect(dto.errors[0].type).toBe('Custom')
-    expect(dto.errors[0].msg).toBe('A user with the same username already exists.')
+    expect(resultDTO instanceof ResultDTO).toBeTruthy()
+    expect(resultDTO.status).toBe(409)
+    expect(resultDTO.success).toBeFalsy()
+    expect(Array.isArray(resultDTO.errors)).toBeTruthy()
+    expect(resultDTO.errors.length).toBe(1)
+    expect(resultDTO.errors[0].type).toBe('Custom')
+    expect(resultDTO.errors[0].msg).toBe('A user with the same username already exists.')
   })
 
   it('createUserError validation', async () => {
-    // TODO update test after implement
+    // TODO update test after implement validation
     const mockRequest = {
+      hasBody: true,
       method: 'POST',
       body: {
         password: 'testPassword'
       }
     }
 
-    await userService.createUser(new DTO(mockRequest))
+    const mockRequestDTO = Object.assign(baseMockRequestDTO, mockRequest)
+    const resultDTO = await userService.createUser(mockRequestDTO)
 
-    const dto = new DTO(mockRequest)
-    await userService.createUser(dto)
-
-    expect(dto instanceof DTO).toBeTruthy()
-    expect(dto.status).toBe(500)
-    expect(dto.success).toBeFalsy()
-    expect(Array.isArray(dto.errors)).toBeTruthy()
-    expect(dto.errors.length).toBe(1)
-    expect(dto.errors[0].type).toBe('ValidationError')
-    expect(dto.errors[0].msg).toBe('validation failed: username: Path `username` is required.')
-    expect(dto.errors.length).toBe(1)
+    expect(resultDTO instanceof ResultDTO).toBeTruthy()
+    expect(resultDTO.status).toBe(500)
+    expect(resultDTO.success).toBeFalsy()
+    expect(Array.isArray(resultDTO.errors)).toBeTruthy()
+    expect(resultDTO.errors.length).toBe(1)
+    expect(resultDTO.errors[0].type).toBe('ValidationError')
+    expect(resultDTO.errors[0].msg).toBe('validation failed: username: Path `username` is required.')
+    expect(resultDTO.errors.length).toBe(1)
   })
 
   it('findById', async () => {
     const id = new mongoose.Types.ObjectId()
     const mockRequest = {
+      hasParams: true,
       method: 'GET',
       params: {
         id: id.toString()
       }
     }
+
+    const mockRequestDTO = Object.assign(baseMockRequestDTO, mockRequest)
     const mockUser = {
       id: id.toString(),
       username: 'findById',
@@ -103,15 +119,14 @@ describe('UserService', () => {
     }
 
     await userService.repo.saveUser(mockUser)
-    const dto = new DTO(mockRequest)
-    await userService.getUser(dto)
+    const resultDTO = await userService.getUser(mockRequestDTO)
 
-    expect(dto.success).toBeTruthy()
-    expect(dto.status).toBe(200)
-    expect(dto.data.username).toBe('findById')
-    expect(dto.data.password).toBe('findByIdpassword')
-    expect(dto.data.role).toBe('student')
-    expect(dto.errors.length).toBe(0)
+    expect(resultDTO.success).toBeTruthy()
+    expect(resultDTO.status).toBe(200)
+    expect(resultDTO.data.username).toBe('findById')
+    expect(resultDTO.data.password).toBe('findByIdpassword')
+    expect(resultDTO.data.role).toBe('student')
+    expect(resultDTO.errors.length).toBe(0)
   })
 
   it('getAll', async () => {
@@ -128,15 +143,15 @@ describe('UserService', () => {
       query: {},
       body: {}
     }
-    const dto = new DTO(mockRequest)
+    const mockRequestDTO = Object.assign(baseMockRequestDTO, mockRequest)
 
-    await userService.getUser(dto)
+    const resultDTO = await userService.getUser(mockRequestDTO)
 
-    expect(dto.success).toBeTruthy()
-    expect(dto.status).toBe(200)
-    expect(Array.isArray(dto.data.users)).toBeTruthy()
-    expect(dto.data.count).toBe(length)
-    expect(dto.errors.length).toBe(0)
+    expect(resultDTO.success).toBeTruthy()
+    expect(resultDTO.status).toBe(200)
+    expect(Array.isArray(resultDTO.data.users)).toBeTruthy()
+    expect(resultDTO.data.count).toBe(length)
+    expect(resultDTO.errors.length).toBe(0)
   })
 
   it('findManyById', async () => {
@@ -155,21 +170,21 @@ describe('UserService', () => {
     const requestIds = ids.slice(0, length / 2)
 
     const mockRequest = {
+      hasQuery: true,
       method: 'GET',
       params: {},
       query: { id: requestIds },
       body: {}
     }
-    const dto = new DTO(mockRequest)
+    const mockRequestDTO = Object.assign(baseMockRequestDTO, mockRequest)
+    const resultDTO = await userService.getUser(mockRequestDTO)
 
-    await userService.getUser(dto)
-
-    expect(dto.success).toBeTruthy()
-    expect(dto.status).toBe(200)
-    expect(Array.isArray(dto.data.users)).toBeTruthy()
-    expect(dto.data.count).toBe(requestIds.length)
-    expect(dto.data.users.every(user => requestIds.includes(user.id))).toBeTruthy()
-    expect(dto.errors.length).toBe(0)
+    expect(resultDTO.success).toBeTruthy()
+    expect(resultDTO.status).toBe(200)
+    expect(Array.isArray(resultDTO.data.users)).toBeTruthy()
+    expect(resultDTO.data.count).toBe(requestIds.length)
+    expect(resultDTO.data.users.every(user => requestIds.includes(user.id))).toBeTruthy()
+    expect(resultDTO.errors.length).toBe(0)
   })
 
   it('findManyByQuery', async () => {
@@ -190,20 +205,21 @@ describe('UserService', () => {
     }
 
     const mockRequest = {
+      hasQuery: true,
       method: 'GET',
       params: {},
       query: { role: 'teacher' },
       body: {}
     }
-    const dto = new DTO(mockRequest)
+    const mockRequestDTO = Object.assign(baseMockRequestDTO, mockRequest)
 
-    await userService.getUser(dto)
+    const resultDTO = await userService.getUser(mockRequestDTO)
 
-    expect(dto.success).toBeTruthy()
-    expect(dto.status).toBe(200)
-    expect(dto.data.count).toBe(3)
-    expect(dto.data.users.length).toBe(3)
-    expect(dto.data.users.every(user => mockRequest.query.role === user.role)).toBeTruthy()
+    expect(resultDTO.success).toBeTruthy()
+    expect(resultDTO.status).toBe(200)
+    expect(resultDTO.data.count).toBe(3)
+    expect(resultDTO.data.users.length).toBe(3)
+    expect(resultDTO.data.users.every(user => mockRequest.query.role === user.role)).toBeTruthy()
   })
 
   it('findManyByQuery with id', async () => {
@@ -231,54 +247,21 @@ describe('UserService', () => {
     }
 
     const mockRequest = {
+      hasQuery: true,
       method: 'GET',
       params: {},
       query: { role: 'teacher', id: needId },
       body: {}
     }
-    const dto = new DTO(mockRequest)
 
-    await userService.getUser(dto)
-    expect(dto.success).toBeTruthy()
-    expect(dto.status).toBe(200)
-    expect(dto.data.count).toBe(1)
-    expect(dto.data.users.length).toBe(1)
-    expect(dto.data.users.every(user => mockRequest.query.id === user.id)).toBeTruthy()
-  })
+    const mockRequestDTO = Object.assign(baseMockRequestDTO, mockRequest)
+    const resultDTO = await userService.getUser(mockRequestDTO)
 
-  it('findManyByQuery bad id', async () => {
-    const length = 10
-    for (let i = 0; i < length; i += 1) {
-      if ([2, 4, 8].includes(i)) {
-        const id = new mongoose.Types.ObjectId()
-        await userService.repo.saveUser({
-          id: id.toString(),
-          username: `username${i}`,
-          password: `password${i}`,
-          role: 'teacher'
-        })
-      } else {
-        await userService.repo.saveUser({
-          username: `username${i}`,
-          password: `password${i}`
-        })
-      }
-    }
-
-    const mockRequest = {
-      method: 'GET',
-      params: {},
-      query: { role: 'teacher', id: 'bad id' },
-      body: {}
-    }
-    const dto = new DTO(mockRequest)
-    await userService.getUser(dto)
-
-    expect(dto.success).toBeFalsy()
-    expect(dto.status).toBe(404)
-    expect(dto.data).toBe(null)
-    expect(dto.errors[0].msg).toBe('Users not found')
-    expect(dto.errors[0].type).toBe('Custom')
+    expect(resultDTO.success).toBeTruthy()
+    expect(resultDTO.status).toBe(200)
+    expect(resultDTO.data.count).toBe(1)
+    expect(resultDTO.data.users.length).toBe(1)
+    expect(resultDTO.data.users.every(user => mockRequest.query.id === user.id)).toBeTruthy()
   })
 
   it('removeById', async () => {
@@ -297,21 +280,21 @@ describe('UserService', () => {
     expect(hasAfterCreate).toBeTruthy()
 
     const mockRequest = {
+      hasParams: true,
       method: 'DELETE',
       params: { id: id.toString() },
       query: { },
       body: {}
     }
 
-    const dto = new DTO(mockRequest)
-
-    await userService.removeUser(dto)
+    const mockRequestDTO = Object.assign(baseMockRequestDTO, mockRequest)
+    const resultDTO = await userService.removeUser(mockRequestDTO)
 
     const hasAfterDelete = !!await userService.repo.findUserById(id.toString())
     expect(hasAfterDelete).toBeFalsy()
-    expect(dto.success).toBeTruthy()
-    expect(dto.status).toBe(200)
-    expect(dto.data.deletedCount).toBe(1)
+    expect(resultDTO.success).toBeTruthy()
+    expect(resultDTO.status).toBe(200)
+    expect(resultDTO.data.deletedCount).toBe(1)
   })
 
   it('removeByIds', async () => {
@@ -337,21 +320,21 @@ describe('UserService', () => {
     }
 
     const mockRequest = {
+      hasQuery: true,
       method: 'DELETE',
       params: { },
       query: { id: needIds },
       body: {}
     }
 
-    const dto = new DTO(mockRequest)
-
-    await userService.removeUser(dto)
+    const mockRequestDTO = Object.assign(baseMockRequestDTO, mockRequest)
+    const resultDTO = await userService.removeUser(mockRequestDTO)
 
     const documents = await userService.repo.getAllUsers()
 
-    expect(dto.success).toBeTruthy()
-    expect(dto.status).toBe(200)
-    expect(dto.data.deletedCount).toBe(3)
+    expect(resultDTO.success).toBeTruthy()
+    expect(resultDTO.status).toBe(200)
+    expect(resultDTO.data.deletedCount).toBe(3)
     expect(documents.length).toBe(7)
   })
 
@@ -375,59 +358,52 @@ describe('UserService', () => {
     }
 
     const mockRequest = {
+      hasQuery: true,
       method: 'DELETE',
       params: { },
       query: { role: 'student' },
       body: {}
     }
 
-    const dto = new DTO(mockRequest)
-
-    await userService.removeUser(dto)
+    const mockRequestDTO = Object.assign(baseMockRequestDTO, mockRequest)
+    const resultDTO = await userService.removeUser(mockRequestDTO)
 
     const documents = await userService.repo.getAllUsers()
 
-    expect(dto.success).toBeTruthy()
-    expect(dto.status).toBe(200)
-    expect(dto.data.deletedCount).toBe(7)
+    expect(resultDTO.success).toBeTruthy()
+    expect(resultDTO.status).toBe(200)
+    expect(resultDTO.data.deletedCount).toBe(7)
     expect(documents.length).toBe(3)
   })
 
   it('nothing if empty query ', async () => {
     const length = 10
     for (let i = 0; i < length; i += 1) {
-      if ([2, 4, 8].includes(i)) {
-        const id = new mongoose.Types.ObjectId()
-        await userService.repo.saveUser({
-          id: id.toString(),
-          username: `username${i}`,
-          password: `password${i}`,
-          role: 'teacher'
-        })
-      } else {
-        await userService.repo.saveUser({
-          username: `username${i}`,
-          password: `password${i}`
-        })
-      }
+      await userService.repo.saveUser({
+        username: `username${i}`,
+        password: `password${i}`
+      })
     }
 
     const mockRequest = {
+      hasBody: false,
+      hasParams: false,
+      hasQuery: false,
       method: 'DELETE',
       params: {},
       query: {},
       body: {}
     }
 
-    const dto = new DTO(mockRequest)
-
-    await userService.removeUser(dto)
-
+    const beforeDocuments = await userService.repo.getAllUsers()
+    const mockRequestDTO = Object.assign(baseMockRequestDTO, mockRequest)
+    const resultDTO = await userService.removeUser(mockRequestDTO)
     const documents = await userService.repo.getAllUsers()
 
-    expect(dto.success).toBeFalsy()
-    expect(dto.status).toBe(404)
-    expect(documents.length).toBe(10)
+    expect(resultDTO.success).toBeFalsy()
+    expect(resultDTO.status).toBe(404)
+    expect(documents.length).toBe(length)
+    expect(beforeDocuments.length).toBe(length)
   })
 
   it('update record', async () => {
@@ -441,21 +417,22 @@ describe('UserService', () => {
     })
 
     const mockRequest = {
+      hasParams: true,
+      hasBody: true,
       method: 'UPDATE',
       params: { id: id.toString() },
       query: {},
       body: { role: 'teacher' }
     }
 
-    const dto = new DTO(mockRequest)
-
-    await userService.updateUser(dto)
+    const mockRequestDTO = Object.assign(baseMockRequestDTO, mockRequest)
+    const resultDTO = await userService.updateUser(mockRequestDTO)
 
     const user = await userService.repo.findUserById(id.toString())
 
-    expect(dto.success).toBeTruthy()
-    expect(dto.status).toBe(200)
-    expect(dto.data.id).toBe(id.toString())
+    expect(resultDTO.success).toBeTruthy()
+    expect(resultDTO.status).toBe(200)
+    expect(resultDTO.data.id).toBe(id.toString())
     expect(user.role).toBe('teacher')
   })
 
@@ -470,20 +447,20 @@ describe('UserService', () => {
     })
 
     const mockRequest = {
+      hasParams: true,
+      hasBody: true,
       method: 'UPDATE',
       params: { id: 'bad id' },
       query: {},
       body: { role: 'teacher' }
     }
-
-    const dto = new DTO(mockRequest)
-
-    await userService.updateUser(dto)
+    const mockRequestDTO = Object.assign(baseMockRequestDTO, mockRequest)
+    const resultDTO = await userService.updateUser(mockRequestDTO)
 
     const user = await userService.repo.findUserById(id.toString())
 
-    expect(dto.success).toBeFalsy()
-    expect(dto.status).toBe(404)
+    expect(resultDTO.success).toBeFalsy()
+    expect(resultDTO.status).toBe(404)
     expect(user.id).toBe(id.toString())
     expect(user.role).toBe('student')
   })
