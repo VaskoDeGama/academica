@@ -81,7 +81,7 @@ class BaseController {
    * @param  {string} [message='Unauthorized']
    * @returns {Response}
    */
-  static clientError (res, dto, message = 'Unauthorized') {
+  static clientError (res, dto, message = 'Bad Request') {
     return BaseController.jsonResponse({ res, dto, code: 400, message })
   }
 
@@ -154,9 +154,9 @@ class BaseController {
    * @param {string} [o.message='Bad request']
    * @returns {Request}
    */
-  static fail ({ req, res, dto, code = 500, message = 'Bad request' }) {
-    if (dto.status === 500 || (!dto && code === 500)) {
-      req.app.servLog.error(dto.toJSON() || message)
+  static fail ({ req, res, dto, code = 500, message = 'Internal Server Error' }) {
+    if (dto?.status === 500 || (!dto && code === 500)) {
+      req.app.servLog.error(dto?.toJSON() || message)
     }
     return BaseController.jsonResponse({ res, dto, code, message })
   }

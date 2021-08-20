@@ -4,7 +4,7 @@ const getDatabaseClient = require('../../configs/db-connect')
 const config = require('config')
 const userRepo = require('../../repositories/user-repository')
 
-describe('User repo test', () => {
+describe('UserRepository', () => {
   let mongo = null
   let repo = null
   beforeAll(async () => {

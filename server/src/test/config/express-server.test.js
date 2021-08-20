@@ -1,7 +1,7 @@
 const request = require('supertest')
 const ExpressServer = require('../../configs/express-server')
 
-describe('Base server test', () => {
+describe('ExpressServer', () => {
   let app = null
   beforeAll(async () => {
     app = new ExpressServer()
@@ -32,6 +32,17 @@ describe('Base server test', () => {
         expect(typeof response.body.timing).toBe('number')
         expect(response.body.timing).toBeLessThan(10)
         expect(response.body.dbState).toBe('connected')
+        done()
+      })
+  })
+
+  it('bad route', done => {
+    request(app.server)
+      .get('/dasdasda/asdasda')
+      .expect('Content-Type', /json/)
+      .expect(404)
+      .then(response => {
+        expect(response.body.message).toBe('Not found')
         done()
       })
   })

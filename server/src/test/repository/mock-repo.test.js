@@ -3,7 +3,7 @@
 const MockRepo = require('../services/mock-repo.js')
 const mongoose = require('mongoose')
 
-describe('mock repo test', () => {
+describe('MockRepository', () => {
   let repo = null
   beforeAll(async () => {
     repo = new MockRepo([], {

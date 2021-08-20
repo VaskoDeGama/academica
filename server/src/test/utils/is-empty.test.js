@@ -2,7 +2,7 @@
 
 const isEmpty = require('./../../utils/is-empty')
 
-describe('User repo test', () => {
+describe('IsEmpty', () => {
   it('define', () => {
     expect(isEmpty).toBeDefined()
   })

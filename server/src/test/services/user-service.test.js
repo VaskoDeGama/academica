@@ -5,7 +5,7 @@ const MockRepo = require('./mock-repo')
 const DTO = require('../../models/DTO')
 const mongoose = require('mongoose')
 
-describe('User repo test', () => {
+describe('UserService', () => {
   let service = null
   beforeAll(async () => {
     service = userService
