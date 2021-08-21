@@ -97,7 +97,7 @@ class MockRepo {
    * @returns {Promise<object[]>}
    */
   async findUsersByQuery (query) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       delay(10).then(() => {
         resolve(this.db.filter(r => {
           return Object.keys(query).every(key => r[key] === query[key])

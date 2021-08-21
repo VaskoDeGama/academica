@@ -45,8 +45,8 @@ module.exports = {
   test: {
     appenders,
     categories: {
-      default: { appenders: ['console'], level: 'ERROR' },
-      Request: { appenders: ['console'], level: 'ERROR' }
+      default: { appenders: ['console'], level: 'FATAL' },
+      Request: { appenders: ['console'], level: 'FATAL' }
     }
   },
   default: {

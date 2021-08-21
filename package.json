@@ -25,6 +25,7 @@
     "eslint-plugin-vue": "^7.15.1",
     "jest": "^27.0.6",
     "jsdoc": "^3.6.7",
+    "mongodb-memory-server": "^7.3.6",
     "nodemon": "^2.0.12",
     "supertest": "^6.1.4",
     "webpack": "^5.49.0",

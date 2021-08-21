@@ -48,8 +48,12 @@ class Database {
     return mongoose.connect(this.url, this.options)
   }
 
-  close () {
-    return mongoose.connection.close()
+  /**
+   *
+   * @param {boolean} force
+   */
+  close (force) {
+    return mongoose.connection.close(force)
   }
 
   static ping () {
