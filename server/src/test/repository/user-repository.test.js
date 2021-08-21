@@ -4,8 +4,8 @@ const { MongoMemoryServer } = require('mongodb-memory-server')
 const DataBase = require('../../configs/database')
 const UserRepository = require('../../repositories/user-repository')
 const mongoose = require('mongoose')
-const userSchema = require('../../models/user')
 const config = require('config')
+const User = require('../../models/user')
 
 describe('UserRepository', () => {
   let db = null
@@ -18,7 +18,7 @@ describe('UserRepository', () => {
 
     await db.connect()
 
-    userRepo = new UserRepository('users', userSchema)
+    userRepo = new UserRepository(User)
   })
 
   beforeEach(async () => {

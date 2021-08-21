@@ -39,7 +39,7 @@ function controllerFactory (name) {
     throw new Error(`${modelName} Controller no  found`)
   }
 
-  return new Controller(new Service(new Repository(name, model)))
+  return new Controller(new Service(new Repository(model)))
 }
 
 module.exports = controllerFactory

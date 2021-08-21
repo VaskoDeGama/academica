@@ -62,7 +62,7 @@ describe('UserService', () => {
         password: 'testPassword'
       }
     }
-    const mockRequestDTO = Object.assign(baseMockRequestDTO, mockRequest)
+    const mockRequestDTO = { ...baseMockRequestDTO, ...mockRequest }
 
     await service.createUser(mockRequestDTO)
 
@@ -87,7 +87,7 @@ describe('UserService', () => {
       }
     }
 
-    const mockRequestDTO = Object.assign(baseMockRequestDTO, mockRequest)
+    const mockRequestDTO = { ...baseMockRequestDTO, ...mockRequest }
     const resultDTO = await service.createUser(mockRequestDTO)
 
     expect(resultDTO instanceof ResultDTO).toBeTruthy()
@@ -110,7 +110,7 @@ describe('UserService', () => {
       }
     }
 
-    const mockRequestDTO = Object.assign(baseMockRequestDTO, mockRequest)
+    const mockRequestDTO = { ...baseMockRequestDTO, ...mockRequest }
     const mockUser = {
       id: id.toString(),
       username: 'findById',
@@ -138,7 +138,7 @@ describe('UserService', () => {
       }
     }
 
-    const mockRequestDTO = Object.assign(baseMockRequestDTO, mockRequest)
+    const mockRequestDTO = { ...baseMockRequestDTO, ...mockRequest }
     const mockUser = {
       id: id.toString(),
       username: 'findById',
@@ -168,7 +168,7 @@ describe('UserService', () => {
       query: {},
       body: {}
     }
-    const mockRequestDTO = Object.assign(baseMockRequestDTO, mockRequest)
+    const mockRequestDTO = { ...baseMockRequestDTO, ...mockRequest }
 
     const resultDTO = await service.getUser(mockRequestDTO)
 
@@ -201,7 +201,7 @@ describe('UserService', () => {
       query: { id: requestIds },
       body: {}
     }
-    const mockRequestDTO = Object.assign(baseMockRequestDTO, mockRequest)
+    const mockRequestDTO = { ...baseMockRequestDTO, ...mockRequest }
     const resultDTO = await service.getUser(mockRequestDTO)
 
     expect(resultDTO.success).toBeTruthy()
@@ -236,7 +236,7 @@ describe('UserService', () => {
       query: { role: 'teacher' },
       body: {}
     }
-    const mockRequestDTO = Object.assign(baseMockRequestDTO, mockRequest)
+    const mockRequestDTO = { ...baseMockRequestDTO, ...mockRequest }
 
     const resultDTO = await service.getUser(mockRequestDTO)
 
@@ -279,7 +279,7 @@ describe('UserService', () => {
       body: {}
     }
 
-    const mockRequestDTO = Object.assign(baseMockRequestDTO, mockRequest)
+    const mockRequestDTO = { ...baseMockRequestDTO, ...mockRequest }
     const resultDTO = await service.getUser(mockRequestDTO)
 
     expect(resultDTO.success).toBeTruthy()
@@ -312,7 +312,7 @@ describe('UserService', () => {
       body: {}
     }
 
-    const mockRequestDTO = Object.assign(baseMockRequestDTO, mockRequest)
+    const mockRequestDTO = { ...baseMockRequestDTO, ...mockRequest }
     const resultDTO = await service.removeUser(mockRequestDTO)
 
     const hasAfterDelete = !!await service.repo.findUserById(id.toString())
@@ -352,7 +352,7 @@ describe('UserService', () => {
       body: {}
     }
 
-    const mockRequestDTO = Object.assign(baseMockRequestDTO, mockRequest)
+    const mockRequestDTO = { ...baseMockRequestDTO, ...mockRequest }
     const resultDTO = await service.removeUser(mockRequestDTO)
 
     const documents = await service.repo.getAllUsers()
@@ -390,7 +390,7 @@ describe('UserService', () => {
       body: {}
     }
 
-    const mockRequestDTO = Object.assign(baseMockRequestDTO, mockRequest)
+    const mockRequestDTO = { ...baseMockRequestDTO, ...mockRequest }
     const resultDTO = await service.removeUser(mockRequestDTO)
 
     const documents = await service.repo.getAllUsers()
@@ -421,7 +421,7 @@ describe('UserService', () => {
     }
 
     const beforeDocuments = await service.repo.getAllUsers()
-    const mockRequestDTO = Object.assign(baseMockRequestDTO, mockRequest)
+    const mockRequestDTO = { ...baseMockRequestDTO, ...mockRequest }
     const resultDTO = await service.removeUser(mockRequestDTO)
     const documents = await service.repo.getAllUsers()
 
@@ -450,7 +450,7 @@ describe('UserService', () => {
       body: { role: 'teacher' }
     }
 
-    const mockRequestDTO = Object.assign(baseMockRequestDTO, mockRequest)
+    const mockRequestDTO = { ...baseMockRequestDTO, ...mockRequest }
     const resultDTO = await service.updateUser(mockRequestDTO)
 
     const user = await service.repo.findUserById(id.toString())
@@ -479,7 +479,7 @@ describe('UserService', () => {
       query: {},
       body: { role: 'teacher' }
     }
-    const mockRequestDTO = Object.assign(baseMockRequestDTO, mockRequest)
+    const mockRequestDTO = { ...baseMockRequestDTO, ...mockRequest }
     const resultDTO = await service.updateUser(mockRequestDTO)
 
     const user = await service.repo.findUserById(id.toString())
