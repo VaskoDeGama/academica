@@ -4,7 +4,7 @@ const { configure, connectLogger, getLogger } = require('log4js')
 const config = require('config')
 const httpContext = require('express-http-context')
 
-const loggerConfig = config.get('Logger')
+const loggerConfig = config.get('logger')
 configure(loggerConfig)
 const servLog = getLogger('Server')
 const reqLog = getLogger('Request')

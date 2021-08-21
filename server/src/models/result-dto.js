@@ -32,10 +32,6 @@ class ResultDto {
     this.errors = []
   }
 
-  get success () {
-    return this._success
-  }
-
   set success (value) {
     if (value) {
       this.status = 200
@@ -50,6 +46,10 @@ class ResultDto {
   set data (value) {
     this._data = value
     this.success = true
+  }
+
+  get success () {
+    return this._success
   }
 
   get data () {

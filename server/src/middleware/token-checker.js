@@ -2,7 +2,7 @@
 const config = require('config')
 const jwt = require('jsonwebtoken')
 const BaseController = require('../controllers/base-controller')
-const { secret } = config.get('Server')
+const { secret } = config.get('server')
 
 const tokenChecker = function (req, res, next) {
   const rawToken = req.body.token || req.query.token || req.headers.authorization || ''

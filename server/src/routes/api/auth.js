@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken')
 const authRouter = express.Router()
 
 const tokens = {}
-const { secret, secretRefresh, tokenExp, refreshTokenExp } = config.get('Server')
+const { secret, secretRefresh, tokenExp, refreshTokenExp } = config.get('server')
 
 /**
  * Login

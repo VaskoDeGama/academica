@@ -1,6 +1,6 @@
 'use strict'
 
-const getDatabaseClient = require('../../configs/db-connect')
+const getDatabaseClient = require('../../configs/database')
 const config = require('config')
 const userRepo = require('../../repositories/user-repository')
 

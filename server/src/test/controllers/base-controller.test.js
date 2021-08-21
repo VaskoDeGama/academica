@@ -414,7 +414,7 @@ describe('BaseController', () => {
           })
         },
         args: {
-          dto: {
+          resultDTO: {
             reqId: 'test',
             success: true,
             status: 200,
@@ -441,7 +441,7 @@ describe('BaseController', () => {
           })
         },
         args: {
-          dto: {
+          resultDTO: {
             success: false,
             status: 404,
             errors: [

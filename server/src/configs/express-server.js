@@ -1,20 +1,22 @@
 'use strict'
 
-const cors = require('cors')
-const config = require('config')
 const express = require('express')
+const cors = require('cors')
 const { json, urlencoded } = require('body-parser')
 const { middleware: httpContext } = require('express-http-context')
 const { setupLogging } = require('../utils/logger')
 const { setMetrics, globalErrorHandler, finalMiddleware } = require('../middleware')
 const { pingRouter, apiRouter } = require('../routes')
-const getDatabaseClient = require('./db-connect.js')
 
 class ExpressServer {
-  constructor () {
-    this.dbClient = null
+  /**
+   *
+   * @param {number} port
+   */
+  constructor (port = 3000) {
     this.server = null
     this.app = express()
+    this.port = port
 
     setupLogging(this.app)
 
@@ -33,32 +35,19 @@ class ExpressServer {
   }
 
   start () {
-    const port = config.get('Server.port')
-    const dbConfig = config.get('DataBase')
-
     return new Promise((resolve, reject) => {
-      this.server = this.app.listen(port, async () => {
-        this.app.servLog.info(`Server Started! http://localhost:${port}, pid: ${process.pid}`)
-        try {
-          this.dbClient = await getDatabaseClient(dbConfig.url, dbConfig.dbName)
-          this.app.servLog.info('DataBase connect successful.')
-        } catch (e) {
-          this.app.servLog.error('Start failed', e.message)
-          reject(e)
-        }
+      this.server = this.app.listen(this.port, async () => {
+        this.app.servLog.info(`Server Started! http://localhost:${this.port}, pid: ${process.pid}`)
         resolve(this)
       })
     })
   }
 
-  async stop () {
+  async close () {
     if (this.server) {
       await this.server.close()
     }
 
-    if (this.dbClient) {
-      await this.dbClient.disconnect()
-    }
     this.app.servLog.info('Server stopped.')
     return this
   }

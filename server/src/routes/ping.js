@@ -1,24 +1,24 @@
 'use strict'
 
 const httpContext = require('express-http-context')
-const mongoose = require('mongoose')
 const express = require('express')
-const DTO = require('../models/result-dto')
+const ResultDTO = require('../models/result-dto')
 const BaseController = require('../controllers/base-controller')
+const DB = require('./../configs/database')
 
 const pingRouter = express.Router()
 
 pingRouter.get('', (req, res, next) => {
   const startTime = httpContext.get('reqStartTime')
-  const dto = new DTO(req)
-  dto.data = {
+  const resultDTO = new ResultDTO(req)
+  resultDTO.data = {
     success: true,
     isOnline: true,
     timing: Date.now() - startTime,
-    dbState: mongoose.STATES[mongoose.connection.readyState]
+    dbStatus: DB.ping()
   }
 
-  BaseController.setResponse({ req, res, dto })
+  BaseController.setResponse({ req, res, resultDTO })
   next()
 })
 

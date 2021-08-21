@@ -10,14 +10,16 @@ class BaseController {
    * @param {object} o
    * @param {Request} o.req
    * @param {Response} o.res
-   * @param {ResultDTO} o.dto
+   * @param {ResultDTO} o.resultDTO
    * @param {number} o.code
    * @param {string} o.message
    * @returns {Response}
    */
-  static setResponse ({ req, res, dto, code, message }) {
-    if (dto) {
-      return dto.success ? BaseController.ok(res, dto) : BaseController.fail({ req, res, dto })
+  static setResponse ({ req, res, resultDTO, code, message }) {
+    if (resultDTO) {
+      return resultDTO.success
+        ? BaseController.ok(res, resultDTO)
+        : BaseController.fail({ req, res, dto: resultDTO })
     }
 
     switch (code) {

@@ -2,16 +2,16 @@ require('dotenv').config()
 const logger = require('./logger')
 
 module.exports = {
-  Server: {
+  server: {
     port: 5000,
     secret: process.env.SECRET_KEY,
     secretRefresh: process.env.REFRESH_SECRET_KEY,
     tokenExp: 20,
     refreshTokenExp: 86400
   },
-  DataBase: {
+  db: {
     url: process.env.DB_URL,
-    dbName: 'test'
+    name: 'test'
   },
-  Logger: logger.default
+  logger: logger.default
 }

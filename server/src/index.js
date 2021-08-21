@@ -1,15 +1,26 @@
 'use strict'
 
 const ExpressServer = require('./configs/express-server')
+const DataBase = require('./configs/database')
+const signals = require('./utils/signals')
+const config = require('config')
 
-const app = new ExpressServer()
+const db = new DataBase(config.db)
+const server = new ExpressServer(config.server.port)
 
-const main = async () => {
+const shutdown = signals.init(async () => {
+  await db.close()
+  await server.close()
+});
+
+(async () => {
   try {
-    await app.start()
-  } catch {
-    process.exit(1)
+    await db.connect()
+    await server.start()
+  } catch (error) {
+    await shutdown()
   }
-}
+})()
 
-main().then()
+process.on('SIGINT', shutdown)
+process.on('SIGTERM', shutdown)
