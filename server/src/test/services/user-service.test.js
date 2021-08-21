@@ -128,6 +128,32 @@ describe('UserService', () => {
     expect(resultDTO.errors.length).toBe(0)
   })
 
+  it('findById not found', async () => {
+    const id = new mongoose.Types.ObjectId()
+    const mockRequest = {
+      hasParams: true,
+      method: 'GET',
+      params: {
+        id: id.toString().split('').reverse().join('')
+      }
+    }
+
+    const mockRequestDTO = Object.assign(baseMockRequestDTO, mockRequest)
+    const mockUser = {
+      id: id.toString(),
+      username: 'findById',
+      password: 'findByIdpassword'
+    }
+
+    await service.repo.saveUser(mockUser)
+    const resultDTO = await service.getUser(mockRequestDTO)
+
+    expect(resultDTO.success).toBeFalsy()
+    expect(resultDTO.status).toBe(404)
+    expect(resultDTO.errors.length).toBe(1)
+    expect(resultDTO.errors[0].msg).toBe('Users not found')
+  })
+
   it('getAll', async () => {
     const length = 10
     for (let i = 0; i < length; i += 1) {

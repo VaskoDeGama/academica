@@ -22,9 +22,7 @@ class UserService extends BaseService {
           resDTO.data = user
           return resDTO
         }
-      }
-
-      if (hasQuery) {
+      } else if (hasQuery) {
         if (Array.isArray(query.id)) {
           const users = await this.repo.findUsersByIds(query.id)
           if (Array.isArray(users) && users.length) {
@@ -45,16 +43,18 @@ class UserService extends BaseService {
 
           return resDTO
         }
+      } else {
+        // get all
+        const users = await this.repo.getAllUsers()
+
+        resDTO.data = {
+          count: users.length,
+          users
+        }
+        return resDTO
       }
 
-      // get all
-      const users = await this.repo.getAllUsers()
-
-      resDTO.data = {
-        count: users.length,
-        users
-      }
-
+      resDTO.addError('Users not found', 404)
       return resDTO
     } catch (error) {
       resDTO.addError(error)
