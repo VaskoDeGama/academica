@@ -1,15 +1,16 @@
-const request = require('supertest')
+const supertest = require('supertest')
 const ExpressServer = require('../../configs/express-server')
+const config = require('config')
 
 describe('ExpressServer', () => {
-  let app = null
+  let expressServer = null
   beforeAll(async () => {
-    app = new ExpressServer()
-    await app.start()
+    expressServer = new ExpressServer(config.server.port)
+    await expressServer.start()
   })
 
   afterAll(async () => {
-    await app.stop()
+    await expressServer.close()
   })
 
   it('server defined', () => {
@@ -17,33 +18,33 @@ describe('ExpressServer', () => {
   })
 
   it('port is 3001', () => {
-    const { port } = app.server.address() || {}
+    const { port } = expressServer.server.address() || {}
     expect(port).toBe(3001)
   })
 
   it('ping', done => {
-    request(app.server)
+    supertest(expressServer.server)
       .get('/')
-      .expect('Content-Type', /json/)
       .expect(200)
+      .expect('Content-Type', /json/)
       .then(response => {
         expect(response.body.success).toBeTruthy()
-        expect(response.body.isOnline).toBeTruthy()
-        expect(typeof response.body.timing).toBe('number')
-        expect(response.body.timing).toBeLessThan(10)
-        expect(response.body.dbState).toBe('connected')
+        expect(response.body.data.isOnline).toBeTruthy()
+        expect(response.body.data.timing).toBeLessThan(10)
+        expect(response.body.data.dbStatus).toBe('disconnected')
         done()
       })
+      .catch(err => done(err))
   })
-
   it('bad route', done => {
-    request(app.server)
-      .get('/dasdasda/asdasda')
-      .expect('Content-Type', /json/)
+    supertest(expressServer.server)
+      .get('/bad route ')
       .expect(404)
+      .expect('Content-Type', /json/)
       .then(response => {
         expect(response.body.message).toBe('Not found')
         done()
       })
+      .catch(err => done(err))
   })
 })

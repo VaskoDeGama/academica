@@ -12,7 +12,6 @@ pingRouter.get('', (req, res, next) => {
   const startTime = httpContext.get('reqStartTime')
   const resultDTO = new ResultDTO(req)
   resultDTO.data = {
-    success: true,
     isOnline: true,
     timing: Date.now() - startTime,
     dbStatus: DB.ping()
