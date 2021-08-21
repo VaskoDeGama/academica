@@ -1,65 +1,76 @@
 'use strict'
 
 const BaseController = require('./base-controller')
-const userService = require('../services/user-service')
 const RequestDTO = require('../models/request-dto')
 
 class UserController extends BaseController {
   /**
    * @param {Request} req
    * @param {Response} res
+   * @param {Function} next
    * @returns {Promise<Response>}
    */
-  async post (req, res) {
+  async create (req, res, next) {
     // TODO: валидация
     const reqDTO = new RequestDTO(req)
 
     const resultDTO = await this.service.createUser(reqDTO)
 
-    return BaseController.setResponse({ res, req, resultDTO })
+    BaseController.setResponse({ res, req, resultDTO })
+
+    next()
   }
 
   /**
    * @param {Request} req
    * @param {Response} res
+   * @param {Function} next
    * @returns {Promise<Response>}
    */
-  async get (req, res) {
+  async get (req, res, next) {
     // TODO: валидация
     const reqDTO = new RequestDTO(req)
 
     const resultDTO = await this.service.getUser(reqDTO)
 
-    return BaseController.setResponse({ res, req, resultDTO })
+    BaseController.setResponse({ res, req, resultDTO })
+
+    next()
   }
 
   /**
    * @param {Request} req
    * @param {Response} res
+   * @param {Function} next
    * @returns {Promise<Response>}
    */
-  async update (req, res) {
+  async update (req, res, next) {
     // TODO: валидация
     const reqDTO = new RequestDTO(req)
 
     const resultDTO = await this.service.updateUser(reqDTO)
 
-    return BaseController.setResponse({ res, req, resultDTO })
+    BaseController.setResponse({ res, req, resultDTO })
+
+    next()
   }
 
   /**
    * @param {Request} req
    * @param {Response} res
+   * @param {Function} next
    * @returns {Promise<Response>}
    */
-  async delete (req, res) {
+  async delete (req, res, next) {
     // TODO: валидация
     const reqDTO = new RequestDTO(req)
 
     const resultDTO = await this.service.removeUser(reqDTO)
 
-    return BaseController.setResponse({ res, req, resultDTO })
+    BaseController.setResponse({ res, req, resultDTO })
+
+    next()
   }
 }
 
-module.exports = new UserController(userService)
+module.exports = UserController

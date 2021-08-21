@@ -2,55 +2,24 @@
 
 const express = require('express')
 const usersRouter = express.Router()
+const controllerFactory = require('../../utils/controller-factory')
 
-const userController = require('./../../controllers/user-controller')
+const userController = controllerFactory('user')
 
-/**
- * Create
- */
-usersRouter.post('', async (req, res, next) => {
-  await userController.post(req, res)
-  next()
+usersRouter.post('', (req, res, next) => {
+  userController.create(req, res, next)
 })
-
-/**
- * Get by id
- */
-usersRouter.get('/:id', async (req, res, next) => {
-  await userController.get(req, res)
-  next()
+usersRouter.get('/:id', (req, res, next) => {
+  userController.get(req, res, next)
 })
-
-/**
- * Get by query
- */
-usersRouter.get('', async (req, res, next) => {
-  await userController.get(req, res)
-  next()
+usersRouter.get('', (req, res, next) => {
+  userController.get(req, res, next)
 })
-
-/**
- * Update
- */
-usersRouter.put('/:id', async (req, res, next) => {
-  res.status(200).json({ endpoint: 'Update' })
-  next()
+usersRouter.put('/:id', (req, res, next) => {
+  userController.update(req, res, next)
 })
-
-/**
- * Delete by query
- */
-usersRouter.delete('', async (req, res, next) => {
-  await userController.delete(req, res)
-  next()
-})
-
-/**
- * Delete by id
- */
-usersRouter.delete('/:id', async (req, res, next) => {
-  await userController.delete(req, res)
-  next()
+usersRouter.delete('/:id', (req, res, next) => {
+  userController.delete(req, res, next)
 })
 
 module.exports = usersRouter

@@ -7,7 +7,7 @@ class BaseRepository {
     /** @type {string}  */
     this._name = name
 
-    const schema = new Schema(schemaDefinition, { collection: this._name, timestamps: true, id: true })
+    const schema = new Schema(schemaDefinition, { timestamps: true, id: true })
 
     schema.set('toJSON', {
       virtuals: true,

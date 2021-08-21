@@ -1,21 +1,24 @@
 'use strict'
 
 const { MongoMemoryServer } = require('mongodb-memory-server')
-const mongoose = require('mongoose')
 const DataBase = require('../../configs/database')
-const userRepo = require('../../repositories/user-repository')
+const UserRepository = require('../../repositories/user-repository')
+const mongoose = require('mongoose')
+const userSchema = require('../../models/user')
 const config = require('config')
-const { name } = new DataBase(config.db)
 
 describe('UserRepository', () => {
   let db = null
   let mongod = null
+  let userRepo = null
   beforeAll(async () => {
     mongod = await MongoMemoryServer.create()
     const url = mongod.getUri()
+    db = new DataBase({ url, name: config.get('db').name })
 
-    db = new DataBase({ url, name })
     await db.connect()
+
+    userRepo = new UserRepository('users', userSchema)
   })
 
   beforeEach(async () => {

@@ -1,7 +1,6 @@
 'use strict'
 
 const BaseService = require('./base-service')
-const userRepo = require('./../repositories/user-repository')
 const ResultDTO = require('../models/result-dto')
 
 class UserService extends BaseService {
@@ -175,4 +174,4 @@ class UserService extends BaseService {
   }
 }
 
-module.exports = new UserService(userRepo)
+module.exports = UserService

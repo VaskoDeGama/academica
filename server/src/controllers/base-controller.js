@@ -1,5 +1,13 @@
 'use strict'
 
+/**
+ * @typedef {object} Controller
+ * @property {Function} create - create req handler
+ * @property {Function} get - get req handler
+ * @property {Function} update - update req handler
+ * @property {Function} delete - delete req handler
+ */
+
 class BaseController {
   constructor (service) {
     this.service = service
