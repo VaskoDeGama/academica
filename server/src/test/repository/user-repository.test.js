@@ -22,7 +22,10 @@ describe('UserRepository', () => {
   })
 
   beforeEach(async () => {
-    await db.getConnection().dropCollection('users')
+    const users = await User.find()
+    if (users.length) {
+      await db.getConnection().dropCollection('users')
+    }
   })
 
   afterAll(async () => {

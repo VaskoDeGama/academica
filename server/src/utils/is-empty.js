@@ -1,3 +1,4 @@
+'use strict'
 
 const toString = Object.prototype.toString
 const objectProto = Object.prototype

@@ -1,3 +1,5 @@
+'use strict'
+
 const services = require('./../services')
 const repositories = require('./../repositories')
 const controllers = require('./../controllers')

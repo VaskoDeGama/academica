@@ -1,3 +1,5 @@
+'use strict'
+
 /**
  * @param {string} str - lower case string
  * @returns {string}  - Lower case string

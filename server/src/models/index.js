@@ -1,4 +1,4 @@
-const User = require('./user')
+const { User } = require('./user')
 const ResultDTO = require('./result-dto')
 const RequestDTO = require('./request-dto')
 
