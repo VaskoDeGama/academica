@@ -5,7 +5,7 @@ const DataBase = require('../../configs/database')
 const UserRepository = require('../../repositories/user-repository')
 const mongoose = require('mongoose')
 const config = require('config')
-const User = require('../../models/user')
+const { User } = require('../../models/user')
 
 describe('UserRepository', () => {
   let db = null
