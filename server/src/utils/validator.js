@@ -12,14 +12,13 @@
  * @property {string} message - message for display
  */
 
-const { User, userScheme } = require('./../models/user')
-
 /**
  *
  * @param {RequestDTO} requestDTO
+ * @param {object} scheme
  * @returns {ValidationResult}
  */
-async function userValidator ({ method, query, body, params, hasBody, hasQuery, hasParams }) {
+function validator ({ method, query, body, params, hasBody, hasQuery, hasParams }, scheme) {
   try {
     const errors = []
 
@@ -27,8 +26,8 @@ async function userValidator ({ method, query, body, params, hasBody, hasQuery, 
       const entries = Object.entries(params)
 
       for (const [field, value] of entries) {
-        if (Reflect.has(userScheme, field)) {
-          const { fields = ['body'], validators = [] } = userScheme[field]
+        if (Reflect.has(scheme, field)) {
+          const { fields = ['body'], validators = [] } = scheme[field]
           if (!fields.includes('params')) {
             continue
           }
@@ -52,8 +51,8 @@ async function userValidator ({ method, query, body, params, hasBody, hasQuery, 
       const entries = Object.entries(query)
 
       for (const [field, value] of entries) {
-        if (Reflect.has(userScheme, field)) {
-          const { fields = ['body'], validators = [] } = userScheme[field]
+        if (Reflect.has(scheme, field)) {
+          const { fields = ['body'], validators = [] } = scheme[field]
           if (!fields.includes('query')) {
             continue
           }
@@ -83,7 +82,7 @@ async function userValidator ({ method, query, body, params, hasBody, hasQuery, 
     if (hasBody) {
       const entries = Object.entries(body)
 
-      const lostRequiredFields = Object.entries(userScheme).reduce((reqFields, [field, value]) => {
+      const lostRequiredFields = Object.entries(scheme).reduce((reqFields, [field, value]) => {
         if (value.required && !Reflect.has(body, field)) {
           reqFields.push(field)
         }
@@ -100,25 +99,10 @@ async function userValidator ({ method, query, body, params, hasBody, hasQuery, 
         }
       } else {
         for (const [field, value] of entries) {
-          if (Reflect.has(userScheme, field)) {
-            const { validators = [], unique, enum: signification } = userScheme[field]
+          if (Reflect.has(scheme, field)) {
+            const { validators = [], enum: signification } = scheme[field]
 
             if (method === 'POST') {
-              if (unique) {
-                const dbQuery = {}
-                dbQuery[field] = value
-                const queryResult = await User.find(dbQuery)
-
-                if (queryResult.length) {
-                  errors.push({
-                    field,
-                    message: `User with same ${field} already exist`
-                  })
-
-                  break
-                }
-              }
-
               if (signification && signification.length) {
                 if (!signification.includes(value)) {
                   errors.push({
@@ -171,4 +155,4 @@ async function userValidator ({ method, query, body, params, hasBody, hasQuery, 
   }
 }
 
-module.exports = userValidator
+module.exports = validator

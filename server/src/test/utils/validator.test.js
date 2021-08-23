@@ -1,42 +1,16 @@
 'use strict'
 
-const { userValidator } = require('../../validators')
-const { RequestDTO, User } = require('../../models')
+const validator = require('../../utils/validator')
+const { RequestDTO } = require('../../models')
+const { userScheme } = require('../../models/user')
 
-const { MongoMemoryServer } = require('mongodb-memory-server')
-const DataBase = require('../../configs/database')
-const config = require('config')
-
-describe('userValidator', () => {
-  let db = null
-  let mongod = null
-
-  beforeAll(async () => {
-    mongod = await MongoMemoryServer.create()
-    const url = mongod.getUri()
-    db = new DataBase({ url, name: config.get('db').name })
-
-    await db.connect()
-  })
-
-  afterEach(async () => {
-    const users = await User.find()
-    if (users.length) {
-      await db.getConnection().dropCollection('users')
-    }
-  })
-
-  afterAll(async () => {
-    await db.close()
-    await mongod.stop()
-  })
-
+describe('validator', () => {
   it('define', () => {
-    expect(userValidator).toBeDefined()
+    expect(validator).toBeDefined()
   })
 
   it('function', () => {
-    expect(typeof userValidator).toBe('function')
+    expect(typeof validator).toBe('function')
   })
 
   it('params id', async () => {
@@ -45,7 +19,7 @@ describe('userValidator', () => {
       params: { id: '611d0b5a9f364d1f002aa8af' }
     })
 
-    const result = await userValidator(requestDTO)
+    const result = validator(requestDTO, userScheme)
     expect(result.hasErrors).toBeFalsy()
   })
 
@@ -55,7 +29,7 @@ describe('userValidator', () => {
       params: { id: '611d0b5a9f364d1f002aa8a' }
     })
 
-    const result = await userValidator(requestDTO)
+    const result = validator(requestDTO, userScheme)
     expect(result.hasErrors).toBeTruthy()
     expect(Array.isArray(result.errors)).toBeTruthy()
     expect(result.errors.length).toBe(1)
@@ -68,7 +42,7 @@ describe('userValidator', () => {
       query: { id: '611d0b5a9f364d1f002aa8af' }
     })
 
-    const result = await userValidator(requestDTO)
+    const result = validator(requestDTO, userScheme)
     expect(result.hasErrors).toBeFalsy()
   })
 
@@ -78,7 +52,7 @@ describe('userValidator', () => {
       query: { id: '611d0b5a9f364d1002aa8af' }
     })
 
-    const result = await userValidator(requestDTO)
+    const result = validator(requestDTO, userScheme)
     expect(result.hasErrors).toBeTruthy()
     expect(Array.isArray(result.errors)).toBeTruthy()
     expect(result.errors.length).toBe(1)
@@ -91,7 +65,7 @@ describe('userValidator', () => {
       query: { id: ['611d0b5a9f364d1002aa8af', '611d0b5a9f364d1002aa8af'] }
     })
 
-    const result = await userValidator(requestDTO)
+    const result = validator(requestDTO, userScheme)
     expect(result.hasErrors).toBeTruthy()
     expect(Array.isArray(result.errors)).toBeTruthy()
     expect(result.errors.length).toBe(1)
@@ -104,7 +78,7 @@ describe('userValidator', () => {
       query: { id: ['611d0b5a9f364d1002aa8af', '61gd0b5a9f364d1002aa8af'] }
     })
 
-    const result = await userValidator(requestDTO)
+    const result = validator(requestDTO, userScheme)
     expect(result.hasErrors).toBeTruthy()
     expect(Array.isArray(result.errors)).toBeTruthy()
     expect(result.errors.length).toBe(1)
@@ -126,7 +100,7 @@ describe('userValidator', () => {
       }
     })
 
-    const result = await userValidator(requestDTO)
+    const result = validator(requestDTO, userScheme)
     expect(result.hasErrors).toBeFalsy()
   })
 
@@ -145,7 +119,7 @@ describe('userValidator', () => {
       }
     })
 
-    const result = await userValidator(requestDTO)
+    const result = validator(requestDTO, userScheme)
     expect(result.hasErrors).toBeTruthy()
     expect(Array.isArray(result.errors)).toBeTruthy()
     expect(result.errors.length).toBe(1)
@@ -167,7 +141,7 @@ describe('userValidator', () => {
       }
     })
 
-    const result = await userValidator(requestDTO)
+    const result = validator(requestDTO, userScheme)
     expect(result.hasErrors).toBeTruthy()
     expect(Array.isArray(result.errors)).toBeTruthy()
     expect(result.errors.length).toBe(1)
@@ -190,7 +164,7 @@ describe('userValidator', () => {
       }
     })
 
-    const result = await userValidator(requestDTO)
+    const result = validator(requestDTO, userScheme)
     expect(result.hasErrors).toBeTruthy()
     expect(Array.isArray(result.errors)).toBeTruthy()
     expect(result.errors.length).toBe(2)
@@ -215,7 +189,7 @@ describe('userValidator', () => {
       }
     })
 
-    const result = await userValidator(requestDTO)
+    const result = validator(requestDTO, userScheme)
     expect(result.hasErrors).toBeTruthy()
     expect(Array.isArray(result.errors)).toBeTruthy()
     expect(result.errors.length).toBe(1)
@@ -238,7 +212,7 @@ describe('userValidator', () => {
       }
     })
 
-    const result = await userValidator(requestDTO)
+    const result = validator(requestDTO, userScheme)
     expect(result.hasErrors).toBeTruthy()
     expect(Array.isArray(result.errors)).toBeTruthy()
     expect(result.errors.length).toBe(1)
@@ -261,7 +235,7 @@ describe('userValidator', () => {
       }
     })
 
-    const result = await userValidator(requestDTO)
+    const result = validator(requestDTO, userScheme)
     expect(result.hasErrors).toBeTruthy()
     expect(Array.isArray(result.errors)).toBeTruthy()
     expect(result.errors.length).toBe(1)
@@ -284,38 +258,12 @@ describe('userValidator', () => {
       }
     })
 
-    const result = await userValidator(requestDTO)
+    const result = validator(requestDTO, userScheme)
     expect(result.hasErrors).toBeTruthy()
     expect(Array.isArray(result.errors)).toBeTruthy()
     expect(result.errors.length).toBe(1)
     expect(result.errors[0].message).toBe('Wrong Email')
     expect(result.errors[0].field).toBe('email')
-  })
-
-  it('body post wrong not unique username', async () => {
-    const requestDTO = new RequestDTO({
-      method: 'POST',
-      body: {
-        username: 'uniqUsername',
-        password: '2123123123123',
-        firstName: 'te',
-        lastName: 'te',
-        balance: '123123',
-        skype: 'sdasdasd',
-        email: 'vasr123123_212eqw@gmail.com',
-        role: 'admin'
-      }
-    })
-
-    const user = new User(requestDTO.body)
-    await user.save()
-
-    const result = await userValidator(requestDTO)
-    expect(result.hasErrors).toBeTruthy()
-    expect(Array.isArray(result.errors)).toBeTruthy()
-    expect(result.errors.length).toBe(1)
-    expect(result.errors[0].message).toBe('User with same username already exist')
-    expect(result.errors[0].field).toBe('username')
   })
 
   it('body post wrong no require fields', async () => {
@@ -331,7 +279,7 @@ describe('userValidator', () => {
       }
     })
 
-    const result = await userValidator(requestDTO)
+    const result = validator(requestDTO, userScheme)
 
     expect(result.hasErrors).toBeTruthy()
     expect(Array.isArray(result.errors)).toBeTruthy()
