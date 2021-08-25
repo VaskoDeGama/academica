@@ -74,7 +74,7 @@ describe('UserService', () => {
     expect(Array.isArray(resultDTO.errors)).toBeTruthy()
     expect(resultDTO.errors.length).toBe(1)
     expect(resultDTO.errors[0].type).toBe('Custom')
-    expect(resultDTO.errors[0].msg).toBe('A user with the same username already exists.')
+    expect(resultDTO.errors[0].message).toBe('Same user already exists.')
   })
 
   it('createUserError validation', async () => {
@@ -96,7 +96,7 @@ describe('UserService', () => {
     expect(Array.isArray(resultDTO.errors)).toBeTruthy()
     expect(resultDTO.errors.length).toBe(1)
     expect(resultDTO.errors[0].type).toBe('ValidationError')
-    expect(resultDTO.errors[0].msg).toBe('validation failed: username: Path `username` is required.')
+    expect(resultDTO.errors[0].message).toBe('validation failed: username: Path `username` is required.')
     expect(resultDTO.errors.length).toBe(1)
   })
 
@@ -151,7 +151,7 @@ describe('UserService', () => {
     expect(resultDTO.success).toBeFalsy()
     expect(resultDTO.status).toBe(404)
     expect(resultDTO.errors.length).toBe(1)
-    expect(resultDTO.errors[0].msg).toBe('Users not found')
+    expect(resultDTO.errors[0].message).toBe('Users not found')
   })
 
   it('getAll', async () => {

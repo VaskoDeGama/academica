@@ -18,8 +18,9 @@
 class ResultDto {
   /**
    * @param {RequestDTO} [reqDto]
+   * @param {ValidationError[]} errors
    */
-  constructor (reqDto) {
+  constructor (reqDto, errors) {
     /** @type {number} - http status code */
     this._status = 500
     /** @type {boolean} - successful request or not */
@@ -29,7 +30,11 @@ class ResultDto {
     /** @type {string} - req id */
     this.reqId = reqDto?.reqId || 'test'
     /** @type {object[]} errors - query errors */
-    this.errors = []
+    this.errors = errors || []
+
+    if (errors?.length) {
+      this.status = 400
+    }
   }
 
   set success (value) {
@@ -68,9 +73,9 @@ class ResultDto {
   addError (error, status = 500) {
     this.status = status
     if (typeof error === 'string') {
-      this.errors.push({ msg: error, type: 'Custom' })
+      this.errors.push({ message: error, type: 'Custom' })
     } else {
-      this.errors.push({ error, msg: error.message, type: error.name })
+      this.errors.push({ error, message: error.message, type: error.name })
     }
   }
 

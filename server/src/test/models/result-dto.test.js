@@ -66,7 +66,7 @@ describe('User repo test', () => {
     expect(dto.success).toBe(false)
     expect(dto.status).toBe(404)
     expect(dto.errors.length).toBe(1)
-    expect(dto.errors[0].msg).toBe('Not found')
+    expect(dto.errors[0].message).toBe('Not found')
     expect(dto.errors[0].type).toBe('Error')
     expect(dto.errors[0].error).toStrictEqual(error)
   })

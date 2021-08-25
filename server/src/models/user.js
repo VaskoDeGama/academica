@@ -54,6 +54,7 @@ const userScheme = {
     ]
   },
   email: {
+    unique: true,
     type: String,
     validators: [
       { fn: isEmail, message: 'Wrong Email' }
@@ -76,6 +77,13 @@ schema.set('toJSON', {
   virtuals: true,
   versionKey: false,
   transform: function (doc, ret) { delete ret._id }
+})
+
+schema.index({
+  id: 1,
+  email: 1
+}, {
+  unique: true
 })
 
 const User = model('User', schema)

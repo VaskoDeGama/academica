@@ -38,24 +38,31 @@ class Database {
     })
   }
 
+  /**
+   * @returns {Mongoose}
+   */
   getConnection () {
     return mongoose.connection
   }
 
+  /**
+   * @returns {Mongoose}
+   */
   connect () {
-    // Open Connection to Mongo DB
-
     return mongoose.connect(this.url, this.options)
   }
 
   /**
-   *
    * @param {boolean} force
+   * @returns {Promise<void>}
    */
   close (force) {
     return mongoose.connection.close(force)
   }
 
+  /**
+   * @returns {string}
+   */
   static ping () {
     return mongoose.STATES[mongoose.connection.readyState]
   }

@@ -44,8 +44,7 @@ const serviceMock = {
   })
 }
 
-const mockResponse = {
-}
+const mockResponse = {}
 const mockRequest = {
   app: { servLog: { error: jest.fn() } },
   query: {},
@@ -93,12 +92,41 @@ describe('userController', () => {
     })
   })
 
+  it('post validation failed', done => {
+    const mockReq = Object.assign({}, mockRequest, { body: { }, method: 'POST' })
+
+    controller.create(mockReq, mockResponse, () => {
+      const result = mockResponse.toOBJ()
+      expect(result.status).toBe(400)
+      expect(result.body.success).toBeFalsy()
+      expect(serviceMock.removeUser.mock.calls.length).toBe(0)
+      expect(result.body.errors.length).toBe(2)
+      done()
+    })
+  })
+
   it('get ok', done => {
     controller.get(mockRequest, mockResponse, () => {
       const result = mockResponse.toOBJ()
       expect(result.status).toBe(200)
       expect(result.body.success).toBeTruthy()
       expect(serviceMock.getUser.mock.calls.length).toBe(1)
+      done()
+    })
+  })
+
+  it('get id validation failed', done => {
+    const mockReq = Object.assign({}, mockRequest, { query: { id: 'bad id' }, method: 'GET' })
+
+    controller.get(mockReq, mockResponse, () => {
+      const result = mockResponse.toOBJ()
+      expect(result.status).toBe(400)
+      expect(result.body.success).toBeFalsy()
+      expect(serviceMock.removeUser.mock.calls.length).toBe(0)
+      expect(result.body.errors.length).toBe(1)
+      expect(result.body.errors[0].field).toBe('id')
+      expect(result.body.errors[0].message).toBe('Bad ID')
+      expect(result.body.errors[0].type).toBe('ValidationError')
       done()
     })
   })
@@ -113,6 +141,22 @@ describe('userController', () => {
     })
   })
 
+  it('update id validation failed', done => {
+    const mockReq = Object.assign({}, mockRequest, { params: { id: 'bad id' }, method: 'PUT' })
+
+    controller.update(mockReq, mockResponse, () => {
+      const result = mockResponse.toOBJ()
+      expect(result.status).toBe(400)
+      expect(result.body.success).toBeFalsy()
+      expect(serviceMock.removeUser.mock.calls.length).toBe(0)
+      expect(result.body.errors.length).toBe(1)
+      expect(result.body.errors[0].field).toBe('id')
+      expect(result.body.errors[0].message).toBe('Bad ID')
+      expect(result.body.errors[0].type).toBe('ValidationError')
+      done()
+    })
+  })
+
   it('delete ok', done => {
     controller.delete(mockRequest, mockResponse, () => {
       const result = mockResponse.toOBJ()
@@ -123,12 +167,18 @@ describe('userController', () => {
     })
   })
 
-  it('delete param validation failed', done => {
-    controller.delete(mockRequest, mockResponse, () => {
+  it('delete id validation failed', done => {
+    const mockReq = Object.assign({}, mockRequest, { params: { id: 'bad id' }, method: 'DELETE' })
+
+    controller.delete(mockReq, mockResponse, () => {
       const result = mockResponse.toOBJ()
-      expect(result.status).toBe(200)
-      expect(result.body.success).toBeTruthy()
-      expect(serviceMock.removeUser.mock.calls.length).toBe(1)
+      expect(result.status).toBe(400)
+      expect(result.body.success).toBeFalsy()
+      expect(serviceMock.removeUser.mock.calls.length).toBe(0)
+      expect(result.body.errors.length).toBe(1)
+      expect(result.body.errors[0].field).toBe('id')
+      expect(result.body.errors[0].message).toBe('Bad ID')
+      expect(result.body.errors[0].type).toBe('ValidationError')
       done()
     })
   })

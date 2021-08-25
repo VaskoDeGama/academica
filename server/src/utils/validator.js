@@ -39,7 +39,8 @@ function validator ({ method, query, body, params, hasBody, hasQuery, hasParams 
             if (!validationResult) {
               errors.push({
                 field,
-                message
+                message,
+                type: 'ValidationError'
               })
             }
           }
@@ -71,7 +72,8 @@ function validator ({ method, query, body, params, hasBody, hasQuery, hasParams 
             if (!validationResult) {
               errors.push({
                 field,
-                message
+                message,
+                type: 'ValidationError'
               })
             }
           }
@@ -79,7 +81,7 @@ function validator ({ method, query, body, params, hasBody, hasQuery, hasParams 
       }
     }
 
-    if (hasBody) {
+    if (hasBody || method === 'POST' || method === 'PUT') {
       const entries = Object.entries(body)
 
       const lostRequiredFields = Object.entries(scheme).reduce((reqFields, [field, value]) => {
@@ -94,7 +96,8 @@ function validator ({ method, query, body, params, hasBody, hasQuery, hasParams 
         for (const field of lostRequiredFields) {
           errors.push({
             field,
-            message: `Field ${field} is required!`
+            message: `Field ${field} is required!`,
+            type: 'ValidationError'
           })
         }
       } else {
@@ -107,7 +110,8 @@ function validator ({ method, query, body, params, hasBody, hasQuery, hasParams 
                 if (!signification.includes(value)) {
                   errors.push({
                     field,
-                    message: `Field ${field} should be one of "${signification.join(', ')}"`
+                    message: `Field ${field} should be one of "${signification.join(', ')}"`,
+                    type: 'ValidationError'
                   })
                 }
               }
@@ -129,7 +133,8 @@ function validator ({ method, query, body, params, hasBody, hasQuery, hasParams 
               if (!validationResult) {
                 errors.push({
                   field,
-                  message
+                  message,
+                  type: 'ValidationError'
                 })
               }
             }
@@ -147,7 +152,7 @@ function validator ({ method, query, body, params, hasBody, hasQuery, hasParams 
       hasErrors: true,
       errors: [
         {
-          msg: e.message,
+          message: e.message,
           type: e.name
         }
       ]

@@ -80,8 +80,7 @@ class UserService extends BaseService {
     } catch (error) {
       switch (error.code) {
         case 11000: {
-          const field = Object.keys(error.keyValue)[0]
-          resDTO.addError(`A user with the same ${field} already exists.`, 409)
+          resDTO.addError('Same user already exists.', 409)
           break
         }
 
