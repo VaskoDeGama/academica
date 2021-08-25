@@ -8,7 +8,7 @@
     "prebuild": "npm run lint && npm run test",
     "start": "NODE_ENV=production node .",
     "build": "webpack",
-    "test": "jest --config=jest.config.js --coverage",
+    "test": "jest --config=jest.config.js --coverage --runInBand --no-cache",
     "dev": "nodemon ./server/src/index.js",
     "lint:fix": "eslint --ext .js . --fix",
     "lint": "eslint --ext .js ."
@@ -19,6 +19,7 @@
     "eslint": "^7.32.0",
     "eslint-config-standard": "^16.0.3",
     "eslint-plugin-import": "^2.23.4",
+    "eslint-plugin-jest": "^24.4.0",
     "eslint-plugin-jsdoc": "^36.0.7",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.1.0",
@@ -33,6 +34,7 @@
     "webpack-node-externals": "^3.0.0"
   },
   "dependencies": {
+    "bcrypt": "^5.0.1",
     "config": "^3.3.6",
     "cors": "^2.8.5",
     "debug": "^2.6.9",

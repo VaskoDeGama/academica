@@ -22,29 +22,24 @@ describe('ExpressServer', () => {
     expect(port).toBe(3001)
   })
 
-  it('ping', done => {
-    supertest(expressServer.server)
+  it('ping', async () => {
+    const response = await supertest(expressServer.server)
       .get('/')
       .expect(200)
       .expect('Content-Type', /json/)
-      .then(response => {
-        expect(response.body.success).toBeTruthy()
-        expect(response.body.data.isOnline).toBeTruthy()
-        expect(response.body.data.timing).toBeLessThan(10)
-        expect(response.body.data.dbStatus).toBe('disconnected')
-        done()
-      })
-      .catch(err => done(err))
+
+    expect(response.body.success).toBeTruthy()
+    expect(response.body.data.isOnline).toBeTruthy()
+    expect(response.body.data.timing).toBeLessThan(10)
+    expect(response.body.data.dbStatus).toBe('disconnected')
   })
-  it('bad route', done => {
-    supertest(expressServer.server)
+
+  it('bad route', async () => {
+    const response = await supertest(expressServer.server)
       .get('/bad route ')
       .expect(404)
       .expect('Content-Type', /json/)
-      .then(response => {
-        expect(response.body.message).toBe('Not found')
-        done()
-      })
-      .catch(err => done(err))
+
+    expect(response.body.message).toBe('Not found')
   })
 })

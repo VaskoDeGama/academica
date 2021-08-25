@@ -3,9 +3,9 @@
 const { MongoMemoryServer } = require('mongodb-memory-server')
 const DataBase = require('../../configs/database')
 const UserRepository = require('../../repositories/user-repository')
-const mongoose = require('mongoose')
 const config = require('config')
 const { User } = require('../../models/user')
+const { mockUsersLength, mockUsers } = require('./../models/mock-users')
 
 describe('UserRepository', () => {
   let db = null
@@ -34,86 +34,42 @@ describe('UserRepository', () => {
   })
 
   it('findById', async () => {
-    const id = new mongoose.Types.ObjectId()
-    const mockUser = {
-      _id: id,
-      username: 'findById',
-      password: 'findByIdpassword'
-    }
-    await userRepo.saveUser(mockUser)
-    const userFromDb = await userRepo.findUserById(id.toString())
+    await userRepo.saveUser(mockUsers[0])
+    const userFromDb = await userRepo.findUserById(mockUsers[0]._id.toString())
 
-    expect(userFromDb.username).toBe(mockUser.username)
-    expect(userFromDb.id).toBe(id.toString())
+    expect(userFromDb.username).toBe(mockUsers[0].username)
+    expect(userFromDb.id).toBe(mockUsers[0]._id.toString())
     expect(userFromDb.role).toBe('student')
   })
 
   it('saveUser', async () => {
-    const id = new mongoose.Types.ObjectId()
-    const mockUser = {
-      _id: id,
-      username: 'test1',
-      password: 'test1password'
-    }
-    const resp = await userRepo.saveUser(mockUser)
-    const userFromDb = await userRepo.findUserById(resp._id)
+    const resp = await userRepo.saveUser(mockUsers[0])
+    const userFromDb = await userRepo.findUserById(resp.id)
 
-    expect(userFromDb.username).toBe(mockUser.username)
-    expect(userFromDb.id).toBe(id.toString())
+    expect(userFromDb.username).toBe(mockUsers[0].username)
+    expect(userFromDb.id).toBe(mockUsers[0]._id.toString())
     expect(userFromDb.role).toBe('student')
   })
 
   it('getAll', async () => {
-    const length = 10
-    for (let i = 0; i < length; i += 1) {
-      await userRepo.saveUser({
-        username: `username${i}`,
-        password: `password${i}`
-      })
-    }
-
+    await User.create(mockUsers)
     const usersFromDb = await userRepo.getAllUsers()
 
     expect(Array.isArray(usersFromDb)).toBeTruthy()
-    expect(usersFromDb.length).toBe(length)
+    expect(usersFromDb.length).toBe(mockUsersLength)
   })
 
   it('findManyById', async () => {
-    const length = 10
-    const ids = []
-    for (let i = 0; i < length; i += 1) {
-      const id = new mongoose.Types.ObjectId()
-      ids.push(id.toString())
-      await userRepo.saveUser({
-        _id: id,
-        username: `username${i}`,
-        password: `password${i}`
-      })
-    }
-
-    const usersFromDb = await userRepo.findUsersByIds(ids.slice(0, length / 2))
+    await User.create(mockUsers)
+    const ids = mockUsers.map(u => u._id.toString()).slice(0, mockUsersLength / 2)
+    const usersFromDb = await userRepo.findUsersByIds(ids)
 
     expect(Array.isArray(usersFromDb)).toBeTruthy()
-    expect(usersFromDb.length).toBe(length / 2)
+    expect(usersFromDb.length).toBe(mockUsersLength / 2)
   })
 
   it('findManyByQuery', async () => {
-    const length = 10
-    for (let i = 0; i < length; i += 1) {
-      if ([2, 4, 8].includes(i)) {
-        await userRepo.saveUser({
-          username: `username${i}`,
-          password: `password${i}`,
-          role: 'teacher'
-        })
-      } else {
-        await userRepo.saveUser({
-          username: `username${i}`,
-          password: `password${i}`
-        })
-      }
-    }
-
+    await User.create(mockUsers)
     const usersFromDb = await userRepo.findUsersByQuery({
       role: 'teacher'
     })
@@ -124,66 +80,34 @@ describe('UserRepository', () => {
   })
 
   it('removeById', async () => {
-    const id = new mongoose.Types.ObjectId()
+    const id = mockUsers[0]._id
     const hasBeforeCreate = !!await userRepo.findUserById(id.toString())
-
     expect(hasBeforeCreate).toBeFalsy()
-
-    await userRepo.saveUser({
-      _id: id,
-      username: 'username',
-      password: 'password'
-    })
-
+    await User.create(mockUsers[0])
     const hasAfterCreate = !!await userRepo.findUserById(id.toString())
     expect(hasAfterCreate).toBeTruthy()
     const res = await userRepo.removeUserById(id.toString())
-
     expect(res.deletedCount).toBe(1)
-
     const hasAfterDelete = !!await userRepo.findUserById(id.toString())
     expect(hasAfterDelete).toBeFalsy()
   })
 
   it('removeByIds', async () => {
-    const length = 10
-    for (let i = 0; i < length; i += 1) {
-      if ([2, 4, 8].includes(i)) {
-        await userRepo.saveUser({
-          username: `username${i}`,
-          password: `password${i}`,
-          role: 'teacher'
-        })
-      } else {
-        await userRepo.saveUser({
-          username: `username${i}`,
-          password: `password${i}`
-        })
-      }
-    }
-
+    await User.create(mockUsers)
     const res = await userRepo.removeUsersByQuery({
       role: 'student'
     })
-
-    const documents = await userRepo.getAllUsers()
-
+    const documents = await User.find()
     expect(res.deletedCount).toBe(7)
     expect(documents.length).toBe(3)
   })
 
   it('update', async () => {
-    const id = new mongoose.Types.ObjectId()
-    await userRepo.saveUser({
-      _id: id,
-      username: 'username',
-      password: 'password'
-    })
-
+    await User.create(mockUsers)
+    const id = mockUsers[0]._id
     const res = await userRepo.findUserAndUpdate(id.toString(), {
       role: 'teacher'
     })
-
     const user = await userRepo.findUserById(id.toString())
 
     expect(res.id).toBe(id.toString())
@@ -192,14 +116,9 @@ describe('UserRepository', () => {
   })
 
   it('update not found', async () => {
-    const id = new mongoose.Types.ObjectId()
+    const id = mockUsers[0]._id
 
-    await userRepo.saveUser({
-      _id: id.toString(),
-      username: 'username',
-      password: 'password'
-    })
-
+    await User.create(mockUsers[0])
     const res = await userRepo.findUserAndUpdate(id.toString().split('').reverse().join(''), {
       role: 'teacher'
     })

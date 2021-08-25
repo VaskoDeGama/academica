@@ -14,6 +14,8 @@ class Database {
    * @param {object} config
    */
   constructor (config) {
+    this.mongoose = require('mongoose')
+
     this.options = {
       dbName: config.name,
       useNewUrlParser: true,
@@ -22,18 +24,19 @@ class Database {
       useFindAndModify: false
     }
 
+    this.db = null
     this.url = config.url
 
-    mongoose.connection.on('error', (err) => {
+    this.mongoose.connection.on('error', (err) => {
       servLog.error(`Error! DB Connection failed. Error: ${err}`)
       return err
     })
 
-    mongoose.connection.once('connected', () => {
+    this.mongoose.connection.once('connected', () => {
       servLog.info('Connection to MongoDB established')
     })
 
-    mongoose.connection.on('disconnected', () => {
+    this.mongoose.connection.on('disconnected', () => {
       servLog.info('Connection to MongoDB closed')
     })
   }
@@ -42,14 +45,16 @@ class Database {
    * @returns {Mongoose}
    */
   getConnection () {
-    return mongoose.connection
+    return this.db
   }
 
   /**
    * @returns {Mongoose}
    */
-  connect () {
-    return mongoose.connect(this.url, this.options)
+  async connect () {
+    await mongoose.connect(this.url, this.options)
+    this.db = this.mongoose.connection.db
+    return this
   }
 
   /**
@@ -58,6 +63,20 @@ class Database {
    */
   close (force) {
     return mongoose.connection.close(force)
+  }
+
+  async dropCollections (list) {
+    if (list.constructor.name !== 'Array') {
+      list = [list]
+    }
+
+    const collections = (await this.db.listCollections().toArray()).map(collection => collection.name)
+
+    for (let i = 0; i < list.length; i++) {
+      if (collections.indexOf(list[i]) !== -1) {
+        await this.db.dropCollection(list[i])
+      }
+    }
   }
 
   /**

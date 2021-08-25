@@ -3,11 +3,13 @@
 const { model, Schema } = require('mongoose')
 const getMongoSchemeDefinition = require('../utils/get-mongo-scheme-definition')
 const { isMongoId, isNumeric, isEmail, isLength, isAlphanumeric, isAlpha } = require('validator')
+const bcrypt = require('bcrypt')
 
 const userScheme = {
   id: {
     type: String,
     unique: true,
+    createIndexes: { unique: true },
     validators: [{ fn: isMongoId, message: 'Bad ID' }],
     fields: ['query', 'params']
   },
@@ -54,8 +56,11 @@ const userScheme = {
     ]
   },
   email: {
-    unique: true,
     type: String,
+    unique: true,
+    required: true,
+    validate: [isEmail, 'invalid email'],
+    createIndexes: { unique: true, sparse: true },
     validators: [
       { fn: isEmail, message: 'Wrong Email' }
     ]
@@ -79,12 +84,22 @@ schema.set('toJSON', {
   transform: function (doc, ret) { delete ret._id }
 })
 
-schema.index({
-  id: 1,
-  email: 1
-}, {
-  unique: true
+schema.pre('save', async function (next) {
+  if (!this.isModified('password')) {
+    return next()
+  }
+  try {
+    const salt = await bcrypt.genSalt(10)
+    this.password = await bcrypt.hash(this.password, salt)
+    return next()
+  } catch (err) {
+    return next(err)
+  }
 })
+
+schema.methods.validatePassword = async function validatePassword (data) {
+  return bcrypt.compare(data, this.password)
+}
 
 const User = model('User', schema)
 module.exports = { User, userSchemaDefinition, userScheme }

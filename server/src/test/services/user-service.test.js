@@ -401,7 +401,7 @@ describe('UserService', () => {
     expect(documents.length).toBe(3)
   })
 
-  it('nothing if empty query ', async () => {
+  it('nothing if empty query', async () => {
     const length = 10
     for (let i = 0; i < length; i += 1) {
       await service.repo.saveUser({

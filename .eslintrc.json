@@ -2,12 +2,14 @@
     "env": {
         "browser": true,
         "es2021": true,
-        "jest": true
+        "jest": true,
+        "jest/globals": true
     },
     "extends": [
         "plugin:vue/essential",
         "standard",
-        "plugin:jsdoc/recommended"
+        "plugin:jsdoc/recommended",
+        "plugin:jest/recommended"
     ],
     "parserOptions": {
         "ecmaVersion": 12,
@@ -15,7 +17,8 @@
     },
     "plugins": [
         "jsdoc",
-        "vue"
+        "vue",
+        "jest"
     ],
     "ignorePatterns": ["config/*.js"],
     "rules": {
