@@ -267,4 +267,114 @@ describe('User routes', () => {
     expect(response.body.errors.length).toBe(1)
     expect(response.body.errors[0].message).toBe('Users not found')
   })
+
+  it('update user by id', async () => {
+    await User.create(mockUsers)
+
+    const id = mockUsers[0]._id.toString()
+    const [userBeforeUpdate] = await User.find({ _id: id })
+    const response = await request
+      .put(`/api/users/${id}`)
+      .send({
+        role: 'teacher',
+        balance: 10,
+        skype: 'userSkype'
+      })
+      .expect(200)
+      .expect('Content-Type', /json/)
+    const [userAfterUpdate] = await User.find({ _id: id })
+    expect(response.body.success).toBeTruthy()
+    expect(response.body.status).toBe(200)
+    expect(response.body.data.id).toBe(id)
+
+    expect(userBeforeUpdate.role).toBe('student')
+    expect(userBeforeUpdate.balance).toBe(0)
+    expect(userBeforeUpdate.id).toBe(id)
+    expect(userBeforeUpdate.skype).toBe(undefined)
+
+    expect(userAfterUpdate.role).toBe('teacher')
+    expect(userAfterUpdate.balance).toBe(10)
+    expect(userAfterUpdate.id).toBe(id)
+    expect(userAfterUpdate.skype).toBe('userSkype')
+  })
+
+  it('update user by bad id', async () => {
+    const id = 'badId'
+    await request
+      .put(`/api/users/${id}`)
+      .send({
+        role: 'teacher',
+        balance: 10,
+        skype: 'userSkype'
+      })
+      .expect(400)
+      .expect('Content-Type', /json/)
+  })
+
+  it('update user not found', async () => {
+    const id = mockUsers[0]._id.toString()
+    await request
+      .put(`/api/users/${id}`)
+      .send({
+        role: 'teacher',
+        balance: 10,
+        skype: 'userSkype'
+      })
+      .expect(404)
+      .expect('Content-Type', /json/)
+  })
+
+  it('update user validation failed', async () => {
+    await User.create(mockUsers)
+    const id = mockUsers[0]._id.toString()
+    const res = await request
+      .put(`/api/users/${id}`)
+      .send({
+        balance: '12312asdasd',
+        skype: 'sdasd',
+        role: 'master'
+      })
+      .expect(400)
+      .expect('Content-Type', /json/)
+
+    expect(res.body.errors.length).toBe(3)
+  })
+
+  it('delete by id', async () => {
+    await User.create(mockUsers)
+    const id = mockUsers[0]._id.toString()
+    const res = await request
+      .delete(`/api/users/${id}`)
+      .expect(200)
+      .expect('Content-Type', /json/)
+    const userAfterDelete = await User.find({ _id: id })
+    expect(res.body.data.deletedCount).toBe(1)
+    expect(userAfterDelete.length).toBe(0)
+  })
+
+  it('delete by ids', async () => {
+    await User.create(mockUsers)
+    const id1 = mockUsers[0]._id.toString()
+    const id2 = mockUsers[2]._id.toString()
+    const id3 = mockUsers[3]._id.toString()
+    const res = await request
+      .delete(`/api/users/?id=${id1}&id=${id2}&id=${id3}`)
+      .expect(200)
+      .expect('Content-Type', /json/)
+    const userAfterDelete = await User.find({ _id: { $in: [id1, id2, id3] } })
+    expect(res.body.data.deletedCount).toBe(3)
+    expect(userAfterDelete.length).toBe(0)
+  })
+
+  it('delete by query', async () => {
+    await User.create(mockUsers)
+    const teacherIds = mockUsers.filter(u => u.role === 'teacher').map(u => u._id.toString())
+    const res = await request
+      .delete('/api/users?role=teacher')
+      .expect(200)
+      .expect('Content-Type', /json/)
+    const userAfterDelete = await User.find({ role: 'teacher' })
+    expect(res.body.data.deletedCount).toBe(teacherIds.length)
+    expect(userAfterDelete.length).toBe(0)
+  })
 })

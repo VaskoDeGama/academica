@@ -289,4 +289,20 @@ describe('validator', () => {
     expect(result.errors[0].field).toBe('username')
     expect(result.errors[1].field).toBe('password')
   })
+
+  it('put wrong fileds', async () => {
+    const requestDTO = new RequestDTO({
+      method: 'PUT',
+      body: {
+        balance: '12312asdasd',
+        skype: 'sdasd',
+        role: 'master'
+      }
+    })
+
+    const result = validator(requestDTO, userScheme)
+
+    expect(result.hasErrors).toBeTruthy()
+    expect(result.errors.length).toBe(3)
+  })
 })

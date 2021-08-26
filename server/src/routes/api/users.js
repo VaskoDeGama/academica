@@ -21,5 +21,8 @@ usersRouter.put('/:id', (req, res, next) => {
 usersRouter.delete('/:id', (req, res, next) => {
   userController.delete(req, res, next)
 })
+usersRouter.delete('', (req, res, next) => {
+  userController.delete(req, res, next)
+})
 
 module.exports = usersRouter

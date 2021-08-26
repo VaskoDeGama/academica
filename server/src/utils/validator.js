@@ -105,7 +105,7 @@ function validator ({ method, query, body, params, hasBody, hasQuery, hasParams 
           if (Reflect.has(scheme, field)) {
             const { validators = [], enum: signification } = scheme[field]
 
-            if (method === 'POST') {
+            if (method === 'POST' || method === 'PUT') {
               if (signification && signification.length) {
                 if (!signification.includes(value)) {
                   errors.push({

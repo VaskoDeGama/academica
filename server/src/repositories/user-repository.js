@@ -85,6 +85,16 @@ class UserRepository extends BaseRepository {
   /**
    * Get many by query
    *
+   * @param {string[]} ids
+   * @returns {Promise<object>}
+   */
+  async removeUsersByIds (ids) {
+    return this.model.deleteMany({ _id: { $in: ids } })
+  }
+
+  /**
+   * Get many by query
+   *
    * @param {object} query
    * @returns {Promise<object>}
    */
