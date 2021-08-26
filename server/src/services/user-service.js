@@ -70,6 +70,24 @@ class UserService extends BaseService {
    */
   async createUser (reqDTO) {
     const resDTO = new ResultDTO(reqDTO)
+
+    try { // check exits users
+      const users = await this.repo.findUsersByQuery({
+        $or: [
+          { username: reqDTO.body.username },
+          { email: reqDTO.body.email }
+        ]
+      })
+
+      if (users.length) {
+        resDTO.addError('Same user already exists.', 409)
+        return resDTO
+      }
+    } catch (e) {
+      resDTO.addError(e)
+      return resDTO
+    }
+
     try {
       const result = await this.repo.saveUser(reqDTO.body)
       resDTO.data = {
@@ -79,12 +97,6 @@ class UserService extends BaseService {
       return resDTO
     } catch (error) {
       switch (error.code) {
-        case 11000: {
-          resDTO.addError('Same user already exists.', 409)
-          break
-        }
-
-        // TODO validation error
         default: {
           resDTO.addError(error)
         }
