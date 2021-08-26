@@ -97,6 +97,10 @@ class UserService extends BaseService {
       return resDTO
     } catch (error) {
       switch (error.code) {
+        case 11000: {
+          resDTO.addError('Same user already exists.', 409)
+          break
+        }
         default: {
           resDTO.addError(error)
         }
