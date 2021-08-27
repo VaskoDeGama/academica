@@ -26,7 +26,6 @@ const userScheme = {
   password: {
     type: String,
     required: true,
-    select: false,
     validators: [
       { fn: isLength, options: { min: 8 }, message: 'Password must be longer then 8 characters' }
     ]
@@ -87,7 +86,10 @@ const schema = new Schema(userSchemaDefinition, { timestamps: true, id: true })
 schema.set('toJSON', {
   virtuals: true,
   versionKey: false,
-  transform: function (doc, ret) { delete ret._id }
+  transform: function (doc, ret) {
+    delete ret._id
+    delete ret.password
+  }
 })
 
 schema.pre('save', async function (next) {

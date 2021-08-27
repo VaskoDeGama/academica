@@ -8,6 +8,9 @@ const DataBase = require('./../../configs/database')
 const config = require('config')
 const { mockUsers, mockUsersLength } = require('../models/mock-users')
 
+// TODO mockREPO
+const userRepository = new MongoRepository(User)
+
 const baseMockRequestDTO = {
   reqId: 'TestID',
   hasBody: false,
@@ -20,14 +23,10 @@ const baseMockRequestDTO = {
 }
 
 describe('UserService', () => {
-  let service = null
   let mongod = null
   let db = null
+  const service = new UserService(userRepository)
   beforeAll(async () => {
-    const repo = new MongoRepository(User)
-    // TODO mockREPO
-    service = new UserService(repo)
-
     mongod = await MongoMemoryServer.create()
     const url = mongod.getUri()
     db = new DataBase({ url, name: config.get('db').name })

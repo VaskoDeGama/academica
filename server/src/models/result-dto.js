@@ -6,6 +6,7 @@
  * @property {string} reqId - query id
  * @property {number} status - http code
  * @property {any} [data] - result data
+ * @property {object[]} [cookies] - query cookies
  * @property {object[]} [errors] - query errors
  */
 
@@ -35,6 +36,9 @@ class ResultDto {
     if (errors?.length) {
       this.status = 400
     }
+
+    /** @type {object[]} query cookies */
+    this.cookies = []
   }
 
   set success (value) {
@@ -63,6 +67,21 @@ class ResultDto {
 
   get status () {
     return this._status
+  }
+
+  /**
+   * @param {string} name
+   * @param {string} value
+   * @param {object} options
+   * @returns {ResultDTO}
+   */
+  addCookie (name, value, options = {}) {
+    this.cookies.push({
+      name,
+      value,
+      options
+    })
+    return this
   }
 
   /**

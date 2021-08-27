@@ -13,6 +13,7 @@ const isEmpty = require('./../utils/is-empty')
  * @property {boolean} hasQuery - true if query not empty
  * @property {boolean} hasParams - true if params not empty
  * @property {boolean} hasBody - true if body not empty
+ * @property {string} ipAddress - req ip
  */
 
 /**
@@ -42,6 +43,8 @@ class RequestDto {
     this.params = req.params
     /** @type {object} - req body */
     this.body = req.body
+    /** @type {string} - req ip */
+    this.ipAddress = req.ip || '127.0.0.1'
   }
 }
 

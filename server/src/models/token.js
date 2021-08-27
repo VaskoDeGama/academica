@@ -3,7 +3,7 @@ const getMongoSchemeDefinition = require('../utils/get-mongo-scheme-definition')
 const mongoose = require('mongoose')
 
 const tokenScheme = {
-  refreshToken: {
+  token: {
     type: String
   },
   createdByIp: String,
