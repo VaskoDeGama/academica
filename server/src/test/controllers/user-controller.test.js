@@ -2,6 +2,7 @@
 
 const UserController = require('../../controllers/user-controller')
 const ResultDTO = require('../../models/result-dto')
+const { userScheme } = require('../../models')
 
 const serviceMock = {
   createUser: jest.fn().mockImplementation(() => {
@@ -78,7 +79,7 @@ describe('userController', () => {
       return result
     }
 
-    controller = new UserController(serviceMock)
+    controller = new UserController(serviceMock, userScheme)
   })
 
   it('create ok', async () => {

@@ -9,10 +9,6 @@
  */
 
 class BaseController {
-  constructor (service) {
-    this.service = service
-  }
-
   /**
    *
    * @param {object} o

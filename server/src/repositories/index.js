@@ -1,5 +1,5 @@
-const UserRepository = require('./user-repository')
+const MongoRepository = require('./mongo-repository')
 
 module.exports = {
-  UserRepository
+  MongoRepository
 }

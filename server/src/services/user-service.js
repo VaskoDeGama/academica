@@ -1,9 +1,12 @@
 'use strict'
 
-const BaseService = require('./base-service')
 const ResultDTO = require('../models/result-dto')
 
-class UserService extends BaseService {
+class UserService {
+  constructor (userRepository) {
+    this.userRepositroy = userRepository
+  }
+
   /**
    *
    * @param {RequestDTO} reqDTO
@@ -16,7 +19,7 @@ class UserService extends BaseService {
       const { hasParams, hasQuery, query, params } = reqDTO
 
       if (hasParams) {
-        const user = await this.repo.findUserById(params.id)
+        const user = await this.userRepositroy.findById(params.id)
 
         if (user) {
           resDTO.data = user
@@ -24,7 +27,7 @@ class UserService extends BaseService {
         }
       } else if (hasQuery) {
         if (Array.isArray(query.id)) {
-          const users = await this.repo.findUsersByIds(query.id)
+          const users = await this.userRepositroy.findByIds(query.id)
           if (Array.isArray(users) && users.length) {
             resDTO.data = {
               count: users.length,
@@ -34,7 +37,7 @@ class UserService extends BaseService {
           }
         }
 
-        const users = await this.repo.findUsersByQuery(reqDTO.query)
+        const users = await this.userRepositroy.findByQuery(reqDTO.query)
         if (Array.isArray(users) && users.length) {
           resDTO.data = {
             count: users.length,
@@ -45,7 +48,7 @@ class UserService extends BaseService {
         }
       } else {
         // get all
-        const users = await this.repo.getAllUsers()
+        const users = await this.userRepositroy.getAll()
 
         resDTO.data = {
           count: users.length,
@@ -54,11 +57,9 @@ class UserService extends BaseService {
         return resDTO
       }
 
-      resDTO.addError('Users not found', 404)
-      return resDTO
+      return resDTO.addError('Users not found', 404)
     } catch (error) {
-      resDTO.addError(error)
-      return resDTO
+      return resDTO.addError(error)
     }
   }
 
@@ -72,7 +73,7 @@ class UserService extends BaseService {
     const resDTO = new ResultDTO(reqDTO)
 
     try { // check exits users
-      const users = await this.repo.findUsersByQuery({
+      const users = await this.userRepositroy.findByQuery({
         $or: [
           { username: reqDTO.body.username },
           { email: reqDTO.body.email }
@@ -80,16 +81,14 @@ class UserService extends BaseService {
       })
 
       if (users.length) {
-        resDTO.addError('Same user already exists.', 409)
-        return resDTO
+        return resDTO.addError('Same user already exists.', 409)
       }
     } catch (e) {
-      resDTO.addError(e)
-      return resDTO
+      return resDTO.addError(e)
     }
 
     try {
-      const result = await this.repo.saveUser(reqDTO.body)
+      const result = await this.userRepositroy.save(reqDTO.body)
       resDTO.data = {
         id: result.id
       }
@@ -98,14 +97,12 @@ class UserService extends BaseService {
     } catch (error) {
       switch (error.code) {
         case 11000: {
-          resDTO.addError('Same user already exists.', 409)
-          break
+          return resDTO.addError('Same user already exists.', 409)
         }
         default: {
-          resDTO.addError(error)
+          return resDTO.addError(error)
         }
       }
-      return resDTO
     }
   }
 
@@ -120,7 +117,7 @@ class UserService extends BaseService {
       const { hasParams, params, hasQuery, query } = reqDTO
 
       if (hasParams) {
-        const result = await this.repo.removeUserById(params.id)
+        const result = await this.userRepositroy.removeById(params.id)
         if (result && result.deletedCount) {
           resDTO.data = {
             deletedCount: result.deletedCount
@@ -133,7 +130,7 @@ class UserService extends BaseService {
         const { id } = query
 
         if (Array.isArray(id)) {
-          const result = await this.repo.removeUsersByIds(id)
+          const result = await this.userRepositroy.removeByIds(id)
           if (result && result.deletedCount) {
             resDTO.data = {
               deletedCount: result.deletedCount
@@ -141,7 +138,7 @@ class UserService extends BaseService {
             return resDTO
           }
         } else {
-          const result = await this.repo.removeUsersByQuery(query)
+          const result = await this.userRepositroy.removeByQuery(query)
 
           if (result && result.deletedCount) {
             resDTO.data = {
@@ -152,11 +149,9 @@ class UserService extends BaseService {
         }
       }
 
-      resDTO.addError('Users not found', 404)
-      return resDTO
+      return resDTO.addError('Users not found', 404)
     } catch (error) {
-      resDTO.addError(error)
-      return resDTO
+      return resDTO.addError(error)
     }
   }
 
@@ -170,7 +165,7 @@ class UserService extends BaseService {
     try {
       const { hasParams, params, body } = reqDTO
       if (hasParams) {
-        const result = await this.repo.findUserAndUpdate(params.id, body)
+        const result = await this.userRepositroy.findAndUpdate({ id: params.id }, body)
 
         if (result && result.id === params.id) {
           resDTO.data = {
@@ -180,11 +175,9 @@ class UserService extends BaseService {
         }
       }
 
-      resDTO.addError('Users not found', 404)
-      return resDTO
+      return resDTO.addError('Users not found', 404)
     } catch (error) {
-      resDTO.addError(error)
-      return resDTO
+      return resDTO.addError(error)
     }
   }
 }

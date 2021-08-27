@@ -3,10 +3,19 @@
 const BaseController = require('./base-controller')
 const RequestDTO = require('../models/request-dto')
 const validator = require('../utils/validator')
-const { userScheme } = require('../models/user')
 const ResultDTO = require('../models/result-dto')
 
-class UserController extends BaseController {
+class UserController {
+  /**
+   *
+   * @param {UserService} userService
+   * @param {scheme} userScheme
+   */
+  constructor (userService, userScheme) {
+    this.userService = userService
+    this.userScheme = userScheme
+  }
+
   /**
    * @param {Request} req
    * @param {Response} res
@@ -15,8 +24,8 @@ class UserController extends BaseController {
    */
   async create (req, res, next) {
     const reqDTO = new RequestDTO(req)
-    const { hasErrors, errors } = validator(reqDTO, userScheme)
-    const resultDTO = hasErrors ? new ResultDTO(reqDTO, errors) : await this.service.createUser(reqDTO)
+    const { hasErrors, errors } = validator(reqDTO, this.userScheme)
+    const resultDTO = hasErrors ? new ResultDTO(reqDTO, errors) : await this.userService.createUser(reqDTO)
     BaseController.setResponse({ res, req, resultDTO })
 
     next()
@@ -30,8 +39,8 @@ class UserController extends BaseController {
    */
   async get (req, res, next) {
     const reqDTO = new RequestDTO(req)
-    const { hasErrors, errors } = validator(reqDTO, userScheme)
-    const resultDTO = hasErrors ? new ResultDTO(reqDTO, errors) : await this.service.getUser(reqDTO)
+    const { hasErrors, errors } = validator(reqDTO, this.userScheme)
+    const resultDTO = hasErrors ? new ResultDTO(reqDTO, errors) : await this.userService.getUser(reqDTO)
     BaseController.setResponse({ res, req, resultDTO })
 
     next()
@@ -45,8 +54,8 @@ class UserController extends BaseController {
    */
   async update (req, res, next) {
     const reqDTO = new RequestDTO(req)
-    const { hasErrors, errors } = validator(reqDTO, userScheme)
-    const resultDTO = hasErrors ? new ResultDTO(reqDTO, errors) : await this.service.updateUser(reqDTO)
+    const { hasErrors, errors } = validator(reqDTO, this.userScheme)
+    const resultDTO = hasErrors ? new ResultDTO(reqDTO, errors) : await this.userService.updateUser(reqDTO)
 
     BaseController.setResponse({ res, req, resultDTO })
 
@@ -61,8 +70,8 @@ class UserController extends BaseController {
    */
   async delete (req, res, next) {
     const reqDTO = new RequestDTO(req)
-    const { hasErrors, errors } = validator(reqDTO, userScheme)
-    const resultDTO = hasErrors ? new ResultDTO(reqDTO, errors) : await this.service.removeUser(reqDTO)
+    const { hasErrors, errors } = validator(reqDTO, this.userScheme)
+    const resultDTO = hasErrors ? new ResultDTO(reqDTO, errors) : await this.userService.removeUser(reqDTO)
 
     BaseController.setResponse({ res, req, resultDTO })
 

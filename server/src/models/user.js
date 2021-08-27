@@ -17,6 +17,7 @@ const userScheme = {
     type: String,
     required: true,
     unique: true,
+    trim: true,
     validators: [
       { fn: isAlphanumeric, message: 'Username must contain only letters and numbers' },
       { fn: isLength, options: { min: 6, max: 16 }, message: 'Username must be longer than 6 and shorter than 16 characters' }
@@ -32,11 +33,13 @@ const userScheme = {
   },
   role: {
     type: String,
+    trim: true,
     enum: ['admin', 'student', 'teacher'],
     default: 'student'
   },
   lastName: {
     type: String,
+    trim: true,
     validators: [
       { fn: isLength, options: { min: 2 }, message: 'LastName must be longer than 2 characters' },
       { fn: isAlpha, message: 'LastName must contain only letters' }
@@ -44,6 +47,7 @@ const userScheme = {
   },
   firstName: {
     type: String,
+    trim: true,
     validators: [
       { fn: isLength, options: { min: 2 }, message: 'FirstName must be longer than 2 characters' },
       { fn: isAlpha, message: 'FirstName must contain only letters' }
@@ -51,6 +55,7 @@ const userScheme = {
   },
   skype: {
     type: String,
+    trim: true,
     validators: [
       { fn: isLength, options: { min: 6 }, message: 'Skype must be longer than 6 characters' }
     ]
@@ -59,6 +64,7 @@ const userScheme = {
     type: String,
     unique: true,
     required: true,
+    lowercase: true,
     validate: [isEmail, 'invalid email'],
     createIndexes: { unique: true, sparse: true },
     validators: [
