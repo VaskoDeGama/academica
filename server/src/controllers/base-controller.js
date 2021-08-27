@@ -51,6 +51,10 @@ class BaseController {
    */
   static jsonResponse ({ res, dto, code, message }) {
     if (dto) {
+      for (const { name, value, options } of dto.cookies) {
+        res.cookie(name, value, options)
+      }
+
       res.status(dto.status).json(dto)
     } else if (message) {
       res.status(code).json({ message })

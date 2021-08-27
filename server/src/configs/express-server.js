@@ -3,6 +3,7 @@
 const express = require('express')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
+const helmet = require('helmet')
 const { json, urlencoded } = require('body-parser')
 const { middleware: httpContext } = require('express-http-context')
 const { setupLogging } = require('../utils/logger')
@@ -22,6 +23,7 @@ class ExpressServer {
     setupLogging(this.app)
 
     this.app.disable('x-powered-by')
+    this.app.use(helmet())
     this.app.use(cors())
     this.app.use(cookieParser())
     this.app.use(json({ limit: '10mb' }))

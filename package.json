@@ -43,6 +43,7 @@
     "express": "^4.17.1",
     "express-http-context": "^1.2.4",
     "express-validator": "^6.12.1",
+    "helmet": "^4.6.0",
     "jsonwebtoken": "^8.5.1",
     "log4js": "^6.3.0",
     "mongodb": "^4.1.0",
