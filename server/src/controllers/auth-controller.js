@@ -57,6 +57,20 @@ class AuthController {
 
     next()
   }
+
+  /**
+   * @param {Request} req
+   * @param {Response} res
+   * @param {Function} next
+   * @returns {Promise<Response>}
+   */
+  async getTokens (req, res, next) {
+    const reqDTO = new RequestDTO(req)
+    const resultDTO = await this.authService.getAllTokens(reqDTO)
+    BaseController.setResponse({ res, req, resultDTO })
+
+    next()
+  }
 }
 
 module.exports = AuthController

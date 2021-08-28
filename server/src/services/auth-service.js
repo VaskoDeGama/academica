@@ -5,6 +5,7 @@ const randomString = require('../utils/random-string')
 const config = require('config')
 const jwt = require('jsonwebtoken')
 const { Roles } = require('../models')
+const { isMongoId } = require('validator')
 
 class AuthService {
   constructor (userRepository, tokenRepository) {
@@ -95,6 +96,29 @@ class AuthService {
 
     resDTO.data = {
       message: 'Token revoked'
+    }
+
+    return resDTO
+  }
+
+  /**
+   * @param {RequestDTO} reqDTO
+   * @returns {ResultDTO}
+   */
+  async getAllTokens (reqDTO) {
+    const resDTO = new ResultDTO(reqDTO)
+
+    const id = reqDTO.user.id || reqDTO.body.id || reqDTO.params.id
+
+    if (!id || !isMongoId(id)) {
+      return resDTO.addError('Id required', 400)
+    }
+
+    const tokens = await this.tokenRepository.findByQuery({ user: id })
+
+    resDTO.data = {
+      count: tokens.length,
+      tokens
     }
 
     return resDTO

@@ -30,6 +30,13 @@ authRouter.get('/refresh', authorize(), async (req, res, next) => {
 /**
  * blacklist Token
  */
+authRouter.get('/tokens', authorize(), async (req, res, next) => {
+  await authController.getTokens(req, res, next)
+})
+
+/**
+ * blacklist Token
+ */
 authRouter.get('/logout', authorize(), async (req, res, next) => {
   await authController.revokeToken(req, res, next)
 })
