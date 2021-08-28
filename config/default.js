@@ -12,5 +12,9 @@ module.exports = {
     url: process.env.DB_URL,
     name: 'test'
   },
+  redis:{
+    host: '127.0.0.1',
+    port: '6379'
+  },
   logger: logger.default
 }

@@ -2,12 +2,11 @@
 const config = require('config')
 const jwt = require('express-jwt')
 
-const { User, Token } = require('../models')
+const { Token } = require('../models')
 const { MongoRepository } = require('../repositories')
 const { BaseController } = require('../controllers')
 const { secret } = config.server
 
-const userRepository = new MongoRepository(User)
 const tokeRepository = new MongoRepository(Token)
 
 const authorize = function (roles = []) {

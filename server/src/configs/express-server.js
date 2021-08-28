@@ -50,10 +50,10 @@ class ExpressServer {
 
   async close () {
     if (this.server) {
+      this.app.servLog.info('Server stopped.')
       await this.server.close()
     }
 
-    this.app.servLog.info('Server stopped.')
     return this
   }
 }
