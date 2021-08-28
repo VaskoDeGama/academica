@@ -106,7 +106,7 @@ describe('AuthService', () => {
   it('getRefreshToken', async () => {
     await Token.create(mockTokens)
 
-    const { token } = mockTokens[4]
+    const { token } = mockTokens[0]
     const result = await authService.getRefreshToken(token)
     expect(result.token).toBe(token)
     expect(result.isActive).toBe(true)
@@ -167,15 +167,60 @@ describe('AuthService', () => {
     const mockRequestTwo = {
       method: 'GET',
       cookies: {
-        refresh: mockTokens[0].tokens
+        refresh: mockTokens[0].token
+      },
+      user: {
+        role: mockUsers[1].role,
+        id: mockUsers[1]._id.toString(),
+        ownsToken: token => !!token
       }
     }
     const req = Object.assign(baseMockRequestDTO, mockRequestTwo)
 
-    const resultDTO = await authService.refreshToken(req)
+    const resultDTO = await authService.revokeToken(req)
     expect(resultDTO.status).toBe(200)
     expect(resultDTO.success).toBe(true)
-    expect(resultDTO.cookies[0].value).toBeDefined()
-    expect(resultDTO.data.token).toBeDefined()
+    expect(resultDTO.data.message).toBe('Token revoked')
+  })
+
+  it('revoke token: no token', async () => {
+    await Token.create(mockTokens)
+    const mockRequestTwo = {
+      method: 'GET',
+      cookies: {
+      },
+      user: {
+        role: mockUsers[1].role,
+        id: mockUsers[1]._id.toString(),
+        ownsToken: token => !!token
+      }
+    }
+    const req = Object.assign(baseMockRequestDTO, mockRequestTwo)
+
+    const resultDTO = await authService.revokeToken(req)
+    expect(resultDTO.status).toBe(400)
+    expect(resultDTO.success).toBe(false)
+    expect(resultDTO.errors[0].message).toBe('Token required')
+  })
+
+  it('revoke token: 401', async () => {
+    await Token.create(mockTokens)
+    const mockRequestTwo = {
+      method: 'GET',
+      cookies: {
+        refresh: mockTokens[0].token
+      },
+      user: {
+        role: mockUsers[1].role,
+        id: mockUsers[1]._id.toString(),
+        ownsToken: token => false
+      }
+    }
+    const req = Object.assign(baseMockRequestDTO, mockRequestTwo)
+
+    const resultDTO = await authService.revokeToken(req)
+    expect(resultDTO.status).toBe(401)
+    expect(resultDTO.success).toBe(false)
+    expect(resultDTO.errors[0].message).toBe('Unauthorized')
   })
 })

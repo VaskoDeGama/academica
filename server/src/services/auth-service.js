@@ -89,7 +89,7 @@ class AuthService {
     }
 
     if (!reqDTO.user.ownsToken(token) && reqDTO.user.role !== Roles.admin) {
-      return resDTO.addError('Token required', 400)
+      return resDTO.addError('Unauthorized', 401)
     }
 
     await this.revoke(token, null, ipAddress)

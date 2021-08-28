@@ -18,16 +18,13 @@ const authorize = function (roles = []) {
   return [
     jwt({ secret, algorithms: ['HS256'] }),
     async (req, res, next) => {
-      const user = await userRepository.findById(req.user.id)
-
-      if (!user || (roles.length && !roles.includes(user.role))) {
+      if ((roles.length && !roles.includes(req.user.role))) {
         // user no longer exists or role not authorized
         BaseController.setResponse({ req, res, code: 401 })
         res.end()
       }
 
-      req.user.role = user.role
-      const refreshTokens = await tokeRepository.findByQuery({ user: user.id })
+      const refreshTokens = await tokeRepository.findByQuery({ user: req.user.id })
       req.user.ownsToken = token => !!refreshTokens.find(x => x.token === token)
       next()
     }

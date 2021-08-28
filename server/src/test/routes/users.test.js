@@ -13,6 +13,7 @@ describe('User routes', () => {
   let server = null
   const address = `http://localhost:${config.get('server').port}`
   const request = supertest(address)
+  let token = null
   beforeAll(async () => {
     mongod = await MongoMemoryServer.create()
     const url = mongod.getUri()
@@ -21,9 +22,14 @@ describe('User routes', () => {
 
     await db.connect()
     await server.start()
+
+    await User.create(mockUsers[3])
+    const { username, password } = mockUsers[3]
+    const resp = await request.post('/api/login').send({ username, password })
+    token = resp.body.data.token
   })
 
-  afterEach(async () => {
+  beforeEach(async () => {
     await db.dropCollections('users')
   })
 
@@ -34,7 +40,10 @@ describe('User routes', () => {
   })
 
   it('ping', async () => {
-    const response = await request.get('/').expect(200).expect('Content-Type', /json/)
+    const response = await request
+      .get('/')
+      .expect(200)
+      .expect('Content-Type', /json/)
 
     expect(response.body.success).toBeTruthy()
     expect(response.body.data.isOnline).toBeTruthy()
@@ -43,7 +52,13 @@ describe('User routes', () => {
   })
 
   it('create ok', async () => {
-    const response = await request.post('/api/users').send(mockUsers[0]).expect(201).expect('Content-Type', /json/)
+    const response = await request
+      .post('/api/users')
+      .set('Authorization', 'Bearer ' + token)
+      .send(mockUsers[0])
+      .expect(201)
+      .expect('Content-Type', /json/)
+
     expect(response.body.success).toBeTruthy()
     expect(response.body.status).toBe(201)
     expect(response.body.data.id).toBeDefined()
@@ -51,11 +66,16 @@ describe('User routes', () => {
   })
 
   it('create validation failed', async () => {
-    const response = await request.post('/api/users').send({
-      username: 'testUser',
-      email: 'kek@kek.ru',
-      role: 'teacher'
-    }).expect(400).expect('Content-Type', /json/)
+    const response = await request
+      .post('/api/users')
+      .set('Authorization', 'Bearer ' + token)
+      .send({
+        username: 'testUser',
+        email: 'kek@kek.ru',
+        role: 'teacher'
+      })
+      .expect(400)
+      .expect('Content-Type', /json/)
 
     expect(response.body.success).toBeFalsy()
     expect(response.body.status).toBe(400)
@@ -66,12 +86,17 @@ describe('User routes', () => {
   })
 
   it('create validation bad email', async () => {
-    const response = await request.post('/api/users').send({
-      username: 'testUser',
-      password: 'password',
-      role: 'teacher',
-      email: 'lek'
-    }).expect(400).expect('Content-Type', /json/)
+    const response = await request
+      .post('/api/users')
+      .set('Authorization', 'Bearer ' + token)
+      .send({
+        username: 'testUser',
+        password: 'password',
+        role: 'teacher',
+        email: 'lek'
+      })
+      .expect(400)
+      .expect('Content-Type', /json/)
 
     expect(response.body.success).toBeFalsy()
     expect(response.body.status).toBe(400)
@@ -90,11 +115,15 @@ describe('User routes', () => {
 
     await user.save()
 
-    const response = await request.post('/api/users').send({
-      username: 'testUser1',
-      password: 'testUser2',
-      email: 'testUser2@mail.ru'
-    }).expect(409)
+    const response = await request
+      .post('/api/users')
+      .set('Authorization', 'Bearer ' + token)
+      .send({
+        username: 'testUser1',
+        password: 'testUser2',
+        email: 'testUser2@mail.ru'
+      })
+      .expect(409)
 
     expect(response.body.success).toBeFalsy()
     expect(response.body.status).toBe(409)
@@ -113,11 +142,15 @@ describe('User routes', () => {
 
     await user.save()
 
-    const response = await request.post('/api/users').send({
-      username: 'anotherUser',
-      password: 'testUser',
-      email: 'vaska@mail.ru'
-    }).expect(409)
+    const response = await request
+      .post('/api/users')
+      .set('Authorization', 'Bearer ' + token)
+      .send({
+        username: 'anotherUser',
+        password: 'testUser',
+        email: 'vaska@mail.ru'
+      })
+      .expect(409)
 
     expect(response.body.success).toBeFalsy()
     expect(response.body.status).toBe(409)
@@ -130,6 +163,7 @@ describe('User routes', () => {
   it('no users', async () => {
     const response = await request
       .get('/api/users')
+      .set('Authorization', 'Bearer ' + token)
       .expect(200)
       .expect('Content-Type', /json/)
 
@@ -145,6 +179,7 @@ describe('User routes', () => {
     await User.create(mockUsers)
     const response = await request
       .get('/api/users')
+      .set('Authorization', 'Bearer ' + token)
       .expect(200)
       .expect('Content-Type', /json/)
 
@@ -161,6 +196,7 @@ describe('User routes', () => {
 
     const response = await request
       .get(`/api/users?id=${mockUsers[0]._id.toString()}`)
+      .set('Authorization', 'Bearer ' + token)
       .expect(200)
       .expect('Content-Type', /json/)
 
@@ -178,6 +214,7 @@ describe('User routes', () => {
 
     const response = await request
       .get(`/api/users?id=${mockUsers[0]._id.toString().slice(1)}`)
+      .set('Authorization', 'Bearer ' + token)
       .expect(400)
       .expect('Content-Type', /json/)
 
@@ -191,6 +228,7 @@ describe('User routes', () => {
 
     const response = await request
       .get(`/api/users?id=${mockUsers[0]._id.toString()}&id=${mockUsers[1]._id.toString()}`)
+      .set('Authorization', 'Bearer ' + token)
       .expect(200)
       .expect('Content-Type', /json/)
 
@@ -209,6 +247,7 @@ describe('User routes', () => {
 
     const response = await request
       .get('/api/users?role=teacher')
+      .set('Authorization', 'Bearer ' + token)
       .expect(200)
       .expect('Content-Type', /json/)
 
@@ -226,6 +265,7 @@ describe('User routes', () => {
 
     const response = await request
       .get(`/api/users?role=teacher&id=${mockUsers[1]._id.toString()}`)
+      .set('Authorization', 'Bearer ' + token)
       .expect(200)
       .expect('Content-Type', /json/)
 
@@ -243,6 +283,7 @@ describe('User routes', () => {
 
     const response = await request
       .get(`/api/users?role=teacher&id=${mockUsers[2]._id.toString()}`)
+      .set('Authorization', 'Bearer ' + token)
       .expect(404)
       .expect('Content-Type', /json/)
 
@@ -258,6 +299,7 @@ describe('User routes', () => {
 
     const response = await request
       .get('/api/users?role=badRole')
+      .set('Authorization', 'Bearer ' + token)
       .expect(404)
       .expect('Content-Type', /json/)
 
@@ -275,6 +317,7 @@ describe('User routes', () => {
     const [userBeforeUpdate] = await User.find({ _id: id })
     const response = await request
       .put(`/api/users/${id}`)
+      .set('Authorization', 'Bearer ' + token)
       .send({
         role: 'teacher',
         balance: 10,
@@ -288,9 +331,9 @@ describe('User routes', () => {
     expect(response.body.data.id).toBe(id)
 
     expect(userBeforeUpdate.role).toBe('student')
-    expect(userBeforeUpdate.balance).toBe(0)
+    expect(userBeforeUpdate.balance).toBeGreaterThan(999)
     expect(userBeforeUpdate.id).toBe(id)
-    expect(userBeforeUpdate.skype).toBe(undefined)
+    expect(userBeforeUpdate.skype).toBe('UserSkype0')
 
     expect(userAfterUpdate.role).toBe('teacher')
     expect(userAfterUpdate.balance).toBe(10)
@@ -302,6 +345,7 @@ describe('User routes', () => {
     const id = 'badId'
     await request
       .put(`/api/users/${id}`)
+      .set('Authorization', 'Bearer ' + token)
       .send({
         role: 'teacher',
         balance: 10,
@@ -315,6 +359,7 @@ describe('User routes', () => {
     const id = mockUsers[0]._id.toString()
     await request
       .put(`/api/users/${id}`)
+      .set('Authorization', 'Bearer ' + token)
       .send({
         role: 'teacher',
         balance: 10,
@@ -329,6 +374,7 @@ describe('User routes', () => {
     const id = mockUsers[0]._id.toString()
     const res = await request
       .put(`/api/users/${id}`)
+      .set('Authorization', 'Bearer ' + token)
       .send({
         balance: '12312asdasd',
         skype: 'sdasd',
@@ -345,6 +391,7 @@ describe('User routes', () => {
     const id = mockUsers[0]._id.toString()
     const res = await request
       .delete(`/api/users/${id}`)
+      .set('Authorization', 'Bearer ' + token)
       .expect(200)
       .expect('Content-Type', /json/)
     const userAfterDelete = await User.find({ _id: id })
@@ -359,6 +406,7 @@ describe('User routes', () => {
     const id3 = mockUsers[3]._id.toString()
     const res = await request
       .delete(`/api/users/?id=${id1}&id=${id2}&id=${id3}`)
+      .set('Authorization', 'Bearer ' + token)
       .expect(200)
       .expect('Content-Type', /json/)
     const userAfterDelete = await User.find({ _id: { $in: [id1, id2, id3] } })
@@ -371,6 +419,7 @@ describe('User routes', () => {
     const teacherIds = mockUsers.filter(u => u.role === 'teacher').map(u => u._id.toString())
     const res = await request
       .delete('/api/users?role=teacher')
+      .set('Authorization', 'Bearer ' + token)
       .expect(200)
       .expect('Content-Type', /json/)
     const userAfterDelete = await User.find({ role: 'teacher' })
