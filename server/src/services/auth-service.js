@@ -4,6 +4,7 @@ const ResultDTO = require('../models/result-dto')
 const randomString = require('../utils/random-string')
 const config = require('config')
 const jwt = require('jsonwebtoken')
+const { Roles } = require('../models')
 
 class AuthService {
   constructor (userRepository, tokenRepository) {
@@ -12,9 +13,12 @@ class AuthService {
   }
 
   /**
+   * Find user by username, check password, generate refresh and jwt token
+   * if no user send 404
+   * if bad password send 403
    *
    * @param {RequestDTO} reqDTO
-   * @returns {Promise<void>}
+   * @returns {ResultDTO}
    */
   async authenticate (reqDTO) {
     const resDTO = new ResultDTO(reqDTO)
@@ -41,7 +45,87 @@ class AuthService {
       user: this.basicDetails(user)
     }
 
-    return resDTO.addCookie('refreshToken', refreshToken.token, { httpOnly: true, expires: new Date(Date.now() + config.server.refreshTokenExp) })
+    return resDTO.addCookie('refresh', refreshToken.token, { httpOnly: true, expires: new Date(Date.now() + config.server.refreshTokenExp) })
+  }
+
+  /**
+   * @param {RequestDTO} reqDTO
+   * @returns {ResultDTO}
+   */
+  async refreshToken (reqDTO) {
+    const resDTO = new ResultDTO(reqDTO)
+
+    const { refresh: token } = reqDTO.cookies
+    try {
+      const refreshToken = await this.getRefreshToken(token)
+      const { user } = refreshToken
+
+      const newRefreshToken = await this.generateRefreshToken(user, reqDTO.ipAddress)
+      await this.revoke(token, newRefreshToken.token, reqDTO.ipAddress)
+      const accessToken = this.generateJwtToken(user)
+      resDTO.data = {
+        token: accessToken
+      }
+
+      return resDTO.addCookie('refresh', newRefreshToken.token, { httpOnly: true, expires: new Date(Date.now() + config.server.refreshTokenExp) })
+    } catch (e) {
+      return resDTO.addError('Invalid token', 401)
+    }
+  }
+
+  /**
+   * @param {RequestDTO} reqDTO
+   * @returns {ResultDTO}
+   */
+  async revokeToken (reqDTO) {
+    const resDTO = new ResultDTO(reqDTO)
+
+    const token = reqDTO.cookies.refresh || reqDTO.body.refresh
+    const ipAddress = reqDTO.ipAddress
+
+    if (!token) {
+      return resDTO.addError('Token required', 400)
+    }
+
+    if (!reqDTO.user.ownsToken(token) && reqDTO.user.role !== Roles.admin) {
+      return resDTO.addError('Token required', 400)
+    }
+
+    await this.revoke(token, null, ipAddress)
+
+    resDTO.data = {
+      message: 'Token revoked'
+    }
+
+    return resDTO
+  }
+
+  /**
+   *
+   * @param {string} token
+   * @throws
+   * @returns {Promise<Token>}
+   */
+  async getRefreshToken (token) {
+    const [refreshToken] = await this.tokenRepository.findByQuery({ token }, {}, { populate: 'user' })
+    if (!refreshToken || !refreshToken.isActive) {
+      throw new Error('Invalid token')
+    }
+    return refreshToken
+  }
+
+  /**
+   * @param {string} oldTOken
+   * @param {string|null} newToken
+   * @param {string} ipAddress
+   * @returns {Promise<Token>}
+   */
+  async revoke (oldTOken, newToken, ipAddress) {
+    await this.tokenRepository.findAndUpdate({ token: oldTOken }, {
+      revoked: Date.now(),
+      revokedByIp: ipAddress,
+      replacedByToken: newToken
+    })
   }
 
   /**

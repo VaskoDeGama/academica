@@ -7,6 +7,7 @@ const { MongoMemoryServer } = require('mongodb-memory-server')
 const DataBase = require('./../../configs/database')
 const config = require('config')
 const jwt = require('jsonwebtoken')
+const { mockTokens } = require('../models/mock-tokens')
 
 const userRepository = new MongoRepository(User)
 const tokenRepository = new MongoRepository(Token)
@@ -20,7 +21,8 @@ const baseMockRequestDTO = {
   params: {},
   body: {},
   method: 'GET',
-  ipAddress: '127.0.0.1'
+  ipAddress: '127.0.0.1',
+  cookies: []
 }
 
 describe('AuthService', () => {
@@ -73,7 +75,6 @@ describe('AuthService', () => {
 
     const resultDTO = await authService.authenticate(mockRequestDTO)
 
-    console.log(resultDTO)
     expect(resultDTO.success).toBeFalsy()
     expect(resultDTO.status).toBe(403)
     expect(resultDTO.errors.length).toBe(1)
@@ -100,5 +101,81 @@ describe('AuthService', () => {
     expect(user.username).toBe(username)
     expect(decoded.id).toBe(_id.toString())
     expect(decoded.role).toBe(role)
+  })
+
+  it('getRefreshToken', async () => {
+    await Token.create(mockTokens)
+
+    const { token } = mockTokens[4]
+    const result = await authService.getRefreshToken(token)
+    expect(result.token).toBe(token)
+    expect(result.isActive).toBe(true)
+  })
+
+  it('getRefreshToken invalid', async () => {
+    await Token.create(mockTokens)
+
+    const { token } = mockTokens[1]
+    await expect(authService.getRefreshToken(token))
+      .rejects
+      .toThrow('Invalid token')
+  })
+
+  it('refresh jwt 401', async () => {
+    const mockRequestTwo = {
+      method: 'GET',
+      cookies: {
+        refresh: 'bad string'
+      }
+    }
+    const req = Object.assign(baseMockRequestDTO, mockRequestTwo)
+
+    const resultDTO = await authService.refreshToken(req)
+    expect(resultDTO.success).toBeFalsy()
+    expect(resultDTO.status).toBe(401)
+  })
+
+  it('refresh jwt', async () => {
+    const { username, password } = mockUsers[3]
+    const mockRequestOne = {
+      hasBody: true,
+      method: 'POST',
+      body: { username, password }
+    }
+
+    const mockRequestDTO = Object.assign(baseMockRequestDTO, mockRequestOne)
+    const res = await authService.authenticate(mockRequestDTO)
+    const refresh = res.cookies[0].value
+
+    const mockRequestTwo = {
+      method: 'GET',
+      cookies: {
+        refresh
+      }
+    }
+    const req = Object.assign(baseMockRequestDTO, mockRequestTwo)
+
+    const resultDTO = await authService.refreshToken(req)
+    expect(resultDTO.status).toBe(200)
+    expect(resultDTO.success).toBe(true)
+    expect(resultDTO.cookies[0].value).toBeDefined()
+    expect(resultDTO.data.token).toBeDefined()
+  })
+
+  it('revoke token', async () => {
+    await Token.create(mockTokens)
+    const mockRequestTwo = {
+      method: 'GET',
+      cookies: {
+        refresh: mockTokens[0].tokens
+      }
+    }
+    const req = Object.assign(baseMockRequestDTO, mockRequestTwo)
+
+    const resultDTO = await authService.refreshToken(req)
+    expect(resultDTO.status).toBe(200)
+    expect(resultDTO.success).toBe(true)
+    expect(resultDTO.cookies[0].value).toBeDefined()
+    expect(resultDTO.data.token).toBeDefined()
   })
 })

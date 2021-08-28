@@ -3,11 +3,11 @@
 const setMetrics = require('./set-metrics')
 const globalErrorHandler = require('./global-error-handler')
 const finalMiddleware = require('./final-middleware')
-const tokenChecker = require('./token-checker')
+const authorize = require('./authorize')
 
 module.exports = {
   setMetrics,
   globalErrorHandler,
   finalMiddleware,
-  tokenChecker
+  authorize
 }
