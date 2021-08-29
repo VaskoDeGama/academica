@@ -1,13 +1,17 @@
 'use strict'
 
+const { ioc } = require('./../utils/di-container')
+const Types = require('./../utils/ioc-types')
+const reqLogger = ioc.get(Types.reqLogger)
+const ctx = ioc.get(Types.ctx)
+
 const { v4: uuid } = require('uuid')
-const httpContext = require('express-http-context')
 
 const setMetrics = function (req, res, next) {
   const traceId = req.headers.reqid || uuid()
-  httpContext.set('reqStartTime', Date.now())
-  httpContext.set('traceId', traceId)
-  req.app.reqLog.info(`#${traceId}: start request...`)
+  ctx.set('reqStartTime', Date.now())
+  ctx.set('traceId', traceId)
+  reqLogger.info(`#${traceId}: start request...`)
   next()
 }
 

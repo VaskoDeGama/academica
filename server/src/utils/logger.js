@@ -1,13 +1,17 @@
 'use strict'
 
 const { configure, connectLogger, getLogger } = require('log4js')
-const config = require('config')
 const httpContext = require('express-http-context')
+const config = require('config')
 
-const loggerConfig = config.get('logger')
-configure(loggerConfig)
-const servLog = getLogger('Server')
-const reqLog = getLogger('Request')
+configure(config.logger)
+
+const appLogger = getLogger('Server')
+const requestLogger = getLogger('Request')
+const traceLogger = connectLogger(getLogger('Request'), {
+  level: 'INFO',
+  format: (req, res, format) => httpFormatter(req, res, format)
+})
 
 /**
  *
@@ -22,38 +26,8 @@ function httpFormatter (req, res, format) {
   return format(`#${traceId}: :method :url | processed for: ${Date.now() - startTime}ms | ${JSON.stringify(req.body)}`)
 }
 
-/**
- * @param {Express} app
- */
-function setupExpress (app) {
-  const httpLogger = connectLogger(getLogger('Request'), {
-    level: 'INFO',
-    format: (req, res, format) => httpFormatter(req, res, format)
-  })
-  app.use(httpLogger)
-
-  Object.defineProperty(app, 'reqLog', {
-    configurable: true,
-    enumerable: true,
-    get: () => reqLog
-  })
-
-  Object.defineProperty(app, 'servLog', {
-    configurable: true,
-    enumerable: true,
-    get: () => servLog
-  })
-}
-
-/**
- * @param {Express} app
- */
-function setupLogging (app) {
-  setupExpress(app)
-}
-
 module.exports = {
-  reqLog,
-  servLog,
-  setupLogging
+  appLogger,
+  requestLogger,
+  traceLogger
 }

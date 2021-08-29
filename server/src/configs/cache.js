@@ -1,18 +1,18 @@
 'use strict'
 
-const { servLog } = require('../utils/logger')
-
-class RedisClient {
+class Cache {
   /**
    * @param {object} config
    * @param {string} config.host
    * @param {number} config.port
+   * @param {Logger} logger
    */
-  constructor (config) {
+  constructor (config, logger) {
     this.config = config
     this.redis = require('redis')
     /** @type {RedisClient} */
     this.client = null
+    this.log = logger
   }
 
   /**
@@ -23,12 +23,12 @@ class RedisClient {
       this.client = this.redis.createClient(this.config)
 
       this.client.on('error', (error) => {
-        servLog.error('Redis:', error.message)
+        this.log.error('Redis:', error.message)
         reject(error)
       })
       this.client.on('connect', () => {
-        servLog.info('Redis connection open!')
-        resolve(this)
+        this.log.info('Connection to Redis established')
+        resolve()
       })
     })
   }
@@ -82,15 +82,16 @@ class RedisClient {
    * @returns {Promise<this>}
    */
   async close () {
-    return new Promise((resolve) => {
-      if (this.client) {
+    if (this.client) {
+      return new Promise(resolve => {
         this.client.quit(() => {
-          servLog.info('Redis connection stopped!')
-          resolve(this)
+          this.log.info('Redis connection stopped!')
+          this.client = null
+          resolve()
         })
-      }
-    })
+      })
+    }
   }
 }
 
-module.exports = RedisClient
+module.exports = Cache

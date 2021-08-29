@@ -1,6 +1,5 @@
 'use strict'
 const mongoose = require('mongoose')
-const { servLog } = require('../utils/logger')
 
 /**
  * @typedef {object} DB
@@ -12,9 +11,11 @@ const { servLog } = require('../utils/logger')
 class Database {
   /**
    * @param {object} config
+   * @param {Logger} logger
    */
-  constructor (config) {
+  constructor (config, logger) {
     this.mongoose = require('mongoose')
+    this.log = logger
 
     this.options = {
       dbName: config.name,
@@ -28,16 +29,16 @@ class Database {
     this.url = config.url
 
     this.mongoose.connection.on('error', (err) => {
-      servLog.error(`Error! DB Connection failed. Error: ${err}`)
+      this.log.error(`Error! DB Connection failed. Error: ${err}`)
       return err
     })
 
     this.mongoose.connection.once('connected', () => {
-      servLog.info('Connection to MongoDB established')
+      this.log.info('Connection to MongoDB established')
     })
 
     this.mongoose.connection.on('disconnected', () => {
-      servLog.info('Connection to MongoDB closed')
+      this.log.info('Connection to MongoDB closed')
     })
   }
 
@@ -54,7 +55,6 @@ class Database {
   async connect () {
     await mongoose.connect(this.url, this.options)
     this.db = this.mongoose.connection.db
-    return this
   }
 
   /**

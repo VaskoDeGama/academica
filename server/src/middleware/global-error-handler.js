@@ -1,5 +1,9 @@
 'use strict'
 
+const { ioc } = require('./../utils/di-container')
+const Types = require('./../utils/ioc-types')
+const logger = ioc.get(Types.logger)
+
 const BaseController = require('../controllers/base-controller')
 const { TokenExpiredError } = require('jsonwebtoken')
 const { ResultDTO, RequestDTO } = require('../models')
@@ -16,7 +20,7 @@ const globalErrorHandler = function (error, req, res, next) {
     resultDTO.addError('No token provided!', 403)
     BaseController.setResponse({ req, res, resultDTO })
   } else {
-    req.app.servLog.error(error)
+    logger.error(error)
     BaseController.setResponse({ req, res, code: 500 })
   }
 

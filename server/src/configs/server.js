@@ -6,21 +6,21 @@ const cookieParser = require('cookie-parser')
 const helmet = require('helmet')
 const { json, urlencoded } = require('body-parser')
 const { middleware: httpContext } = require('express-http-context')
-const { setupLogging } = require('../utils/logger')
 const { setMetrics, globalErrorHandler, finalMiddleware } = require('../middleware')
+const { traceLogger } = require('../utils/logger')
 const { pingRouter, apiRouter } = require('../routes')
 
-class ExpressServer {
+class Server {
   /**
    *
-   * @param {number} port
+   * @param {object} config
+   * @param {Logger} logger
    */
-  constructor (port = 3000) {
+  constructor (config, logger) {
     this.server = null
+    this.config = config
+    this.log = logger
     this.app = express()
-    this.port = port
-
-    setupLogging(this.app)
 
     this.app.disable('x-powered-by')
     this.app.use(helmet())
@@ -28,7 +28,7 @@ class ExpressServer {
     this.app.use(cookieParser())
     this.app.use(json({ limit: '10mb' }))
     this.app.use(urlencoded({ extended: true }))
-    this.app.use(urlencoded({ extended: true }))
+    this.app.use(traceLogger)
     this.app.use(httpContext)
     this.app.use(setMetrics)
 
@@ -39,23 +39,26 @@ class ExpressServer {
     this.app.use(globalErrorHandler)
   }
 
-  start () {
-    return new Promise((resolve, reject) => {
-      this.server = this.app.listen(this.port, async () => {
-        this.app.servLog.info(`Server Started! http://localhost:${this.port}, pid: ${process.pid}`)
-        resolve(this)
+  async start () {
+    await new Promise((resolve, reject) => {
+      this.server = this.app.listen(this.config.port, async () => {
+        this.log.info(`Server Started! http://localhost:${this.config.port}, pid: ${process.pid}`)
+        resolve()
       })
     })
   }
 
-  async close () {
+  async stop () {
     if (this.server) {
-      this.app.servLog.info('Server stopped.')
-      await this.server.close()
+      return new Promise(resolve => {
+        this.server.close(() => {
+          this.log.info('Server stopped.')
+          this.server = null
+          resolve()
+        })
+      })
     }
-
-    return this
   }
 }
 
-module.exports = ExpressServer
+module.exports = Server

@@ -1,37 +1,38 @@
 'use strict'
 
-const RedisClient = require('../../configs/redis-client')
+const Cache = require('../../configs/cache')
 const mockRedis = require('redis-mock')
 const config = require('config')
 const delay = require('../../utils/delay')
+const { appLogger } = require('../../utils/logger')
 
-describe('RedisClient', () => {
-  let redis = null
+describe('Cache', () => {
+  let cache = null
   beforeAll(async () => {
-    redis = new RedisClient(config.redis)
-    redis.redis = mockRedis
-    await redis.connect()
+    cache = new Cache(config.cache, appLogger)
+    cache.redis = mockRedis
+    await cache.connect()
   })
 
   afterAll(async () => {
-    await redis.close()
+    await cache.close()
   })
 
   afterEach(async () => {
-    await new Promise(resolve => redis.client.flushdb(resolve))
+    await new Promise(resolve => cache.client.flushdb(resolve))
   })
 
   it('server defined', () => {
-    expect(redis).toBeDefined()
+    expect(cache).toBeDefined()
   })
 
   it('base', async () => {
     await new Promise(resolve => {
-      redis.client.set('key', 'value', () => resolve())
+      cache.client.set('key', 'value', () => resolve())
     })
 
     const value = await new Promise((resolve, reject) => {
-      redis.client.get('key', (err, value) => {
+      cache.client.get('key', (err, value) => {
         if (err) reject(err)
         resolve(value)
       })
@@ -41,10 +42,10 @@ describe('RedisClient', () => {
   })
 
   it('set', async () => {
-    await redis.set('test key', 'test value')
+    await cache.set('test key', 'test value')
 
     const value = await new Promise((resolve, reject) => {
-      redis.client.get('test key', (err, value) => {
+      cache.client.get('test key', (err, value) => {
         if (err) reject(err)
         resolve(value)
       })
@@ -54,19 +55,19 @@ describe('RedisClient', () => {
 
   it('get', async () => {
     await new Promise(resolve => {
-      redis.client.set('test key 2', 'test value 2', () => resolve())
+      cache.client.set('test key 2', 'test value 2', () => resolve())
     })
 
-    const value = await redis.get('test key 2')
+    const value = await cache.get('test key 2')
 
     expect(value).toBe('test value 2')
   })
 
   it('ser with expiry', async () => {
-    await redis.set('test key 3', 'value 3', 1)
-    const value = await redis.get('test key 3')
+    await cache.set('test key 3', 'value 3', 1)
+    const value = await cache.get('test key 3')
     await delay(1500)
-    const valueAfterDelay = await redis.get('test key 3')
+    const valueAfterDelay = await cache.get('test key 3')
 
     expect(value).toBe('value 3')
     expect(valueAfterDelay).toBe(null)

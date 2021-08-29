@@ -12,7 +12,7 @@ module.exports = {
     url: process.env.DB_URL,
     name: 'prodBase'
   },
-  redis:{
+  cache:{
     host: '127.0.0.1',
     port: '6379'
   },

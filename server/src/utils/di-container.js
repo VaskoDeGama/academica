@@ -35,8 +35,7 @@ class DiContainer {
   get (name) {
     if (!this.dependencies[name]) {
       const factory = this.factories[name]
-      this.dependencies[name] = factory && this.inject(factory)
-      if (!this.dependencies[name]) throw new Error(`Cannot find module ${name}`)
+      this.dependencies[name] = factory && this.picker(factory)
     }
 
     return this.dependencies[name]
@@ -49,7 +48,7 @@ class DiContainer {
    * @param {string[]} inject.depNames
    * @returns {any}
    */
-  inject ({ factory, depNames = [] }) {
+  picker ({ factory, depNames = [] }) {
     const args = []
 
     for (const name of depNames) {
@@ -66,6 +65,6 @@ class DiContainer {
 }
 
 module.exports = {
-  diContainer: new DiContainer(),
+  ioc: new DiContainer(),
   DiContainer
 }

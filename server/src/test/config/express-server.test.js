@@ -1,5 +1,5 @@
 const supertest = require('supertest')
-const ExpressServer = require('../../configs/express-server')
+const ExpressServer = require('../../configs/server')
 const config = require('config')
 
 describe('ExpressServer', () => {
