@@ -1,5 +1,5 @@
 'use strict'
-const config = require('config')
+
 const Types = require('./../utils/ioc-types')
 const { ioc } = require('../utils/di-container')
 const ctx = require('express-http-context')
@@ -9,8 +9,8 @@ const DataBase = require('./database')
 const Cache = require('./cache')
 
 class App {
-  constructor () {
-    this.initIOC()
+  constructor (config) {
+    this.initIOC(config)
 
     this.db = ioc.get(Types.db)
     this.server = ioc.get(Types.server)
@@ -23,6 +23,7 @@ class App {
       await this.cache.connect()
       await this.server.start()
     } catch (error) {
+      console.log(error)
       await this.stop()
     }
   }
@@ -33,7 +34,7 @@ class App {
     await this.server.stop()
   }
 
-  initIOC () {
+  initIOC (config) {
     ioc.register(Types.serverConfig, config.server)
     ioc.register(Types.dbConfig, config.db)
     ioc.register(Types.cacheConfig, config.cache)

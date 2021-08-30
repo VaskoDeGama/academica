@@ -10,7 +10,7 @@ class DiContainer {
 
   /**
    *
-   * @param {string} name
+   * @param {symbol} name
    * @param {any} dependency
    */
   register (name, dependency) {
@@ -19,7 +19,7 @@ class DiContainer {
 
   /**
    *
-   * @param {string} name
+   * @param {symbol} name
    * @param {Function | Class} factory
    * @param {string[]} depNames - array on string where string it's a name if ether dependency or factory
    */
@@ -29,13 +29,14 @@ class DiContainer {
 
   /**
    *
-   * @param {string} name
+   * @param {symbol} name
    * @returns {any}
    */
   get (name) {
     if (!this.dependencies[name]) {
       const factory = this.factories[name]
       this.dependencies[name] = factory && this.picker(factory)
+      if (!this.dependencies[name]) throw new Error(`Cannot find module ${name.description}`)
     }
 
     return this.dependencies[name]

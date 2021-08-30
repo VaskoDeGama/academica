@@ -5,6 +5,7 @@ const { MongoMemoryServer } = require('mongodb-memory-server')
 const { User } = require('../../models/')
 const { mockUsers, mockUsersLength } = require('../models/mock-users')
 const { MongoRepository } = require('../../repositories')
+const { appLogger } = require('../../utils/logger')
 
 describe('mongo repository', () => {
   let mongod = null
@@ -13,7 +14,7 @@ describe('mongo repository', () => {
   beforeAll(async () => {
     mongod = await MongoMemoryServer.create()
     const url = mongod.getUri()
-    db = new DataBase({ url, name: config.get('db').name })
+    db = new DataBase({ url, name: config.get('db').name }, appLogger)
 
     await db.connect()
   })

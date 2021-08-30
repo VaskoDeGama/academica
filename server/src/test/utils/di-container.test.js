@@ -14,59 +14,65 @@ describe('DiContainer', () => {
 
   it('register number', () => {
     const diContainer = new DiContainer()
-
-    diContainer.register('const', 12)
-    expect(diContainer.get('const')).toBe(12)
+    const name = Symbol('const')
+    diContainer.register(name, 12)
+    expect(diContainer.get(name)).toBe(12)
   })
 
   it('register string', () => {
     const diContainer = new DiContainer()
-
-    diContainer.register('const', '12')
-    expect(diContainer.get('const')).toBe('12')
+    const name = Symbol('const')
+    diContainer.register(name, '12')
+    expect(diContainer.get(name)).toBe('12')
   })
 
   it('register object', () => {
     const diContainer = new DiContainer()
 
     const b = { c: 10 }
-    diContainer.register('const', { a: b })
-    expect(diContainer.get('const')).toStrictEqual({ a: b })
+    const name = Symbol('const')
+    diContainer.register(name, { a: b })
+    expect(diContainer.get(name)).toStrictEqual({ a: b })
   })
 
   it('register array', () => {
     const diContainer = new DiContainer()
-
+    const name = Symbol('const')
     const arr = ['a', 'b', {}]
-    diContainer.register('const', arr)
-    expect(diContainer.get('const')).toStrictEqual(arr)
+    diContainer.register(name, arr)
+    expect(diContainer.get(name)).toStrictEqual(arr)
   })
 
   it('dependency throw', () => {
     const diContainer = new DiContainer()
-    expect(() => diContainer.get('const')).toThrow('Cannot find module const')
+    const name = Symbol('const')
+    expect(() => diContainer.get(name)).toThrow('Cannot find module const')
   })
 
   it('simple factory', () => {
     const diContainer = new DiContainer()
-
+    const hostName = Symbol('host')
+    const portName = Symbol('port')
+    const fullHostName = Symbol('fullHost')
     const host = '127.0.0.1'
     const port = 1488
     const hostFactory = (port, host) => `${port}:${host}`
-    diContainer.factory('fullHost', hostFactory, ['port', 'host'])
-    diContainer.register('host', host)
-    diContainer.register('port', port)
-    expect(diContainer.get('fullHost')).toStrictEqual(`${port}:${host}`)
+    diContainer.factory(fullHostName, hostFactory, [portName, hostName])
+    diContainer.register(hostName, host)
+    diContainer.register(portName, port)
+    expect(diContainer.get(fullHostName)).toStrictEqual(`${port}:${host}`)
   })
 
   it('factory throw', () => {
     const diContainer = new DiContainer()
-
+    const hostName = Symbol('host')
+    const portName = Symbol('port')
+    const fullHostName = Symbol('fullHost')
     const host = '127.0.0.1'
     const hostFactory = (port, host) => `${port}:${host}`
-    diContainer.factory('fullHost', hostFactory, ['port', 'host'])
-    diContainer.register('host', host)
-    expect(() => diContainer.get('fullHost')).toThrow('Cannot find module port')
+    diContainer.factory(fullHostName, hostFactory, [portName, hostName])
+    diContainer.register(hostName, host)
+    expect(() => diContainer.get(fullHostName)).toThrow('Cannot find module port')
   })
 
   it('class factory 1 level', () => {

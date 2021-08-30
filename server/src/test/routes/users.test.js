@@ -1,26 +1,31 @@
 const supertest = require('supertest')
-const ExpressServer = require('../../configs/server')
-const DataBase = require('./../../configs/database')
 const config = require('config')
 const { MongoMemoryServer } = require('mongodb-memory-server')
 const { User } = require('../../models/user')
 
 const { mockUsersLength, mockUsers } = require('./../models/mock-users')
-
+const App = require('../../configs/app')
 describe('User routes', () => {
   let mongod = null
-  let db = null
   let server = null
   const address = `http://localhost:${config.get('server').port}`
   const request = supertest(address)
   let token = null
   beforeAll(async () => {
     mongod = await MongoMemoryServer.create()
-    const url = mongod.getUri()
-    db = new DataBase({ url, name: config.get('db').name })
-    server = new ExpressServer(config.server.port)
 
-    await db.connect()
+    const conf = {
+      cache: {},
+      db: {},
+      server: {},
+      logger: {}
+    }
+    Object.assign(conf.db, config.db)
+    Object.assign(conf.cache, config.cache)
+    Object.assign(conf.server, config.server)
+    Object.assign(conf.logger, config.logger)
+    conf.db.url = mongod.getUri()
+    server = new App(conf)
     await server.start()
 
     await User.create(mockUsers[3])
@@ -30,12 +35,11 @@ describe('User routes', () => {
   })
 
   beforeEach(async () => {
-    await db.dropCollections('users')
+    await server.db.dropCollections('users')
   })
 
   afterAll(async () => {
-    await db.close()
-    await server.close()
+    await server.stop()
     await mongod.stop()
   })
 

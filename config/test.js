@@ -9,7 +9,7 @@ module.exports = {
     refreshTokenExp: 86400
   },
   db: {
-    url: process.env.DB_URL,
+    url: 'mongodb://127.0.0.1:59983/',
     name: 'mockBase'
   },
   cache:{

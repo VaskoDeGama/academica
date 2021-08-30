@@ -1,16 +1,19 @@
 const supertest = require('supertest')
 const ExpressServer = require('../../configs/server')
 const config = require('config')
+const { appLogger } = require('../../utils/logger')
+const App = require('../../configs/app')
 
-describe('ExpressServer', () => {
-  let expressServer = null
+describe('Server', () => {
+  let server = null
   beforeAll(async () => {
-    expressServer = new ExpressServer(config.server.port)
-    await expressServer.start()
+    const app = new App(config)
+    server = new ExpressServer(config.server, appLogger)
+    await server.start()
   })
 
   afterAll(async () => {
-    await expressServer.close()
+    await server.stop()
   })
 
   it('server defined', () => {
@@ -18,12 +21,12 @@ describe('ExpressServer', () => {
   })
 
   it('port is 3001', () => {
-    const { port } = expressServer.server.address() || {}
+    const { port } = server.server.address() || {}
     expect(port).toBe(3001)
   })
 
   it('ping', async () => {
-    const response = await supertest(expressServer.server)
+    const response = await supertest(server.server)
       .get('/')
       .expect(200)
       .expect('Content-Type', /json/)
@@ -35,7 +38,7 @@ describe('ExpressServer', () => {
   })
 
   it('bad route', async () => {
-    const response = await supertest(expressServer.server)
+    const response = await supertest(server.server)
       .get('/bad route ')
       .expect(404)
       .expect('Content-Type', /json/)

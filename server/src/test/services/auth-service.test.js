@@ -8,6 +8,7 @@ const DataBase = require('./../../configs/database')
 const config = require('config')
 const jwt = require('jsonwebtoken')
 const { mockTokens } = require('../models/mock-tokens')
+const { appLogger } = require('../../utils/logger')
 
 const userRepository = new MongoRepository(User)
 const tokenRepository = new MongoRepository(Token)
@@ -32,7 +33,7 @@ describe('AuthService', () => {
   beforeAll(async () => {
     mongod = await MongoMemoryServer.create()
     const url = mongod.getUri()
-    db = new DataBase({ url, name: config.get('db').name })
+    db = new DataBase({ url, name: config.get('db').name }, appLogger)
     await db.connect()
 
     await User.create(mockUsers)
