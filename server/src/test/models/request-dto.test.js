@@ -9,6 +9,12 @@ const mockGETQuery = {
   body: {}
 }
 
+Object.defineProperty(mockGETQuery, 'app', {
+  value: {
+    get: () => {}
+  }
+})
+
 describe('User repo test', () => {
   it('define', () => {
     expect(RequestDTO).toBeDefined()

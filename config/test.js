@@ -5,8 +5,8 @@ module.exports = {
   server: {
     port: 3001,
     secret: process.env.SECRET_KEY,
-    tokenExp: 900,
-    refreshTokenExp: 86400
+    tokenExp: 30,
+    refreshTokenExp: 3 * 60 * 1000
   },
   db: {
     url: 'mongodb://127.0.0.1:59983/',

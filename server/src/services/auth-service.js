@@ -43,11 +43,14 @@ class AuthService {
     const isValidPassword = await user.validatePassword(password)
 
     if (!isValidPassword) {
-      return resDTO.addError('The username or password is incorrect', 403)
+      return resDTO.addError('The username or password is incorrect', 401)
     }
 
-    const accessToken = this.generateJwtToken(user)
+    // clear oldRefreshTokens
+    await this.tokenRepository.removeByQuery({ user: user.id, isActive: false })
+
     const refreshToken = await this.generateRefreshToken(user, reqDTO.ipAddress)
+    const accessToken = this.generateJwtToken(user, refreshToken.id)
 
     resDTO.data = {
       token: accessToken,
@@ -65,13 +68,23 @@ class AuthService {
     const resDTO = new ResultDTO(reqDTO)
 
     const { refresh: token } = reqDTO.cookies
+
+    if (!token) {
+      return resDTO.addError('Token required', 400)
+    }
+
     try {
       const refreshToken = await this.getRefreshToken(token)
       const { user } = refreshToken
 
       const newRefreshToken = await this.generateRefreshToken(user, reqDTO.ipAddress)
-      await this.revoke(token, newRefreshToken.token, reqDTO.ipAddress)
-      const accessToken = this.generateJwtToken(user)
+      await this.revoke(token, refreshToken.token, reqDTO.ipAddress)
+
+      const cache = reqDTO.ioc.get(Types.cache)
+      const { id, jti, exp } = reqDTO.user
+      await this.blackList(cache, id, jti, exp)
+
+      const accessToken = this.generateJwtToken(user, newRefreshToken.id)
       resDTO.data = {
         token: accessToken
       }
@@ -88,12 +101,10 @@ class AuthService {
    */
   async revokeToken (reqDTO) {
     const resDTO = new ResultDTO(reqDTO)
-    const cache = reqDTO.ioc.get(Types.cache)
     const token = reqDTO.cookies.refresh || reqDTO.body.refresh
-    const { id: userId, jti } = reqDTO.user
     const ipAddress = reqDTO.ipAddress
 
-    if (!token || !userId || !jti) {
+    if (!token) {
       return resDTO.addError('Token required', 400)
     }
 
@@ -103,9 +114,9 @@ class AuthService {
 
     await this.revoke(token, null, ipAddress)
 
-    if (userId) {
-      await cache.set(`${userId}:${jti}`, token, new Date(reqDTO.user.exp) - (Math.trunc(Date.now() / 1000)))
-    }
+    const cache = reqDTO.ioc.get(Types.cache)
+    const { id, jti, exp } = reqDTO.user
+    await this.blackList(cache, id, jti, exp)
 
     resDTO.data = {
       message: 'Token revoked'
@@ -139,6 +150,20 @@ class AuthService {
 
   /**
    *
+   * @param {Cache} cache
+   * @param {string} userId
+   * @param {string} jti
+   * @param {number} exp
+   * @returns {Promise<void>}
+   */
+  async blackList (cache, userId, jti, exp) {
+    if (userId && jti && cache) {
+      await cache.set(`${userId}:${jti}`, true, exp - (Math.trunc(Date.now() / 1000)))
+    }
+  }
+
+  /**
+   *
    * @param {string} token
    * @throws
    * @returns {Promise<Token>}
@@ -167,10 +192,11 @@ class AuthService {
 
   /**
    * @param {User} user
+   * @param {string} refreshId
    * @returns {string}
    */
-  generateJwtToken (user) {
-    return jwt.sign({ id: user.id, role: user.role }, config.server.secret, { expiresIn: config.server.tokenExp, jwtid: randomString(6) })
+  generateJwtToken (user, refreshId) {
+    return jwt.sign({ id: user.id, role: user.role }, config.server.secret, { expiresIn: config.server.tokenExp, jwtid: refreshId })
   }
 
   /**

@@ -53,7 +53,7 @@ class RequestDto {
     /** @type {object} - req user */
     this.user = req.user || {}
     /** @type {DiContainer} */
-    this.ioc = req.app.get('ioc')
+    this.ioc = req?.app?.get('ioc')
   }
 }
 

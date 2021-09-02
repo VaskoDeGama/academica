@@ -5,7 +5,7 @@ module.exports = {
   server: {
     port: 1488,
     secret: process.env.SECRET_KEY,
-    tokenExp: 900,
+    tokenExp: 30 * 60 * 1000,
     refreshTokenExp: 86400
   },
   db: {

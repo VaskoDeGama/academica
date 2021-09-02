@@ -19,7 +19,7 @@ const isRevokedCallback = async function (req, payload, done) {
     const token = await cache.get(`${userId}:${tokenId}`)
 
     if (token) {
-      done(new UnauthorizedError('Access Token was expired!'))
+      done(new UnauthorizedError(401, new Error('Access Token was expired!')))
     }
     done(null, false)
   } catch (e) {

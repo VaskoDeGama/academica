@@ -9,9 +9,17 @@ const config = require('config')
 const jwt = require('jsonwebtoken')
 const { mockTokens } = require('../models/mock-tokens')
 const { appLogger } = require('../../utils/logger')
+const { DiContainer } = require('../../ioc')
+const Types = require('../../ioc/types')
 
 const userRepository = new MongoRepository(User)
 const tokenRepository = new MongoRepository(Token)
+
+const ioc = new DiContainer()
+
+ioc.register(Types.cache, {
+  set: () => {}
+})
 
 const baseMockRequestDTO = {
   reqId: 'TestID',
@@ -23,7 +31,8 @@ const baseMockRequestDTO = {
   body: {},
   method: 'GET',
   ipAddress: '127.0.0.1',
-  cookies: []
+  cookies: [],
+  ioc
 }
 
 describe('AuthService', () => {
@@ -77,7 +86,7 @@ describe('AuthService', () => {
     const resultDTO = await authService.authenticate(mockRequestDTO)
 
     expect(resultDTO.success).toBeFalsy()
-    expect(resultDTO.status).toBe(403)
+    expect(resultDTO.status).toBe(401)
     expect(resultDTO.errors.length).toBe(1)
     expect(resultDTO.errors[0].message).toBe('The username or password is incorrect')
   })
@@ -152,7 +161,8 @@ describe('AuthService', () => {
       method: 'GET',
       cookies: {
         refresh
-      }
+      },
+      user: {}
     }
     const req = Object.assign(baseMockRequestDTO, mockRequestTwo)
 
@@ -165,7 +175,7 @@ describe('AuthService', () => {
 
   it('revoke token', async () => {
     await Token.create(mockTokens)
-    const mockRequestTwo = {
+    const mockRequest = {
       method: 'GET',
       cookies: {
         refresh: mockTokens[0].token
@@ -173,10 +183,11 @@ describe('AuthService', () => {
       user: {
         role: mockUsers[1].role,
         id: mockUsers[1]._id.toString(),
+        jti: 'asdasda',
         ownsToken: token => !!token
       }
     }
-    const req = Object.assign(baseMockRequestDTO, mockRequestTwo)
+    const req = Object.assign(baseMockRequestDTO, mockRequest)
 
     const resultDTO = await authService.revokeToken(req)
     expect(resultDTO.status).toBe(200)
@@ -214,6 +225,7 @@ describe('AuthService', () => {
       user: {
         role: mockUsers[1].role,
         id: mockUsers[1]._id.toString(),
+        jti: 'asdasda',
         ownsToken: token => false
       }
     }
