@@ -1,4 +1,5 @@
 module.exports = {
+  container: Symbol('container'),
   serverConfig: Symbol('server-config'),
   dbConfig: Symbol('db-config'),
   cacheConfig: Symbol('cache-config'),

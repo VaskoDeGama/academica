@@ -9,9 +9,9 @@ const { appLogger } = require('../../utils/logger')
 describe('Cache', () => {
   let cache = null
   beforeAll(async () => {
-    cache = new Cache(config.cache, appLogger)
+    cache = new Cache(appLogger)
     cache.redis = mockRedis
-    await cache.connect()
+    await cache.connect(config.cache)
   })
 
   afterAll(async () => {

@@ -167,9 +167,6 @@ class BaseController {
    * @returns {Request}
    */
   static fail ({ req, res, dto, code = 500, message = 'Internal Server Error' }) {
-    if (dto?.status === 500 || (!dto && code === 500)) {
-      req.app.servLog.error(dto?.toJSON() || message)
-    }
     return BaseController.jsonResponse({ res, dto, code, message })
   }
 }

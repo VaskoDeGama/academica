@@ -14,9 +14,9 @@ describe('mongo repository', () => {
   beforeAll(async () => {
     mongod = await MongoMemoryServer.create()
     const url = mongod.getUri()
-    db = new DataBase({ url, name: config.get('db').name }, appLogger)
+    db = new DataBase(appLogger)
 
-    await db.connect()
+    await db.connect({ url, name: config.get('db').name })
   })
 
   afterEach(async () => {

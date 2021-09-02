@@ -2,13 +2,9 @@
 
 class Cache {
   /**
-   * @param {object} config
-   * @param {string} config.host
-   * @param {number} config.port
    * @param {Logger} logger
    */
-  constructor (config, logger) {
-    this.config = config
+  constructor (logger) {
     this.redis = require('redis')
     /** @type {RedisClient} */
     this.client = null
@@ -16,11 +12,12 @@ class Cache {
   }
 
   /**
+   * @param {object} config
    * @returns {Promise<this>}
    */
-  async connect () {
+  async connect (config) {
     return new Promise((resolve, reject) => {
-      this.client = this.redis.createClient(this.config)
+      this.client = this.redis.createClient(config)
 
       this.client.on('error', (error) => {
         this.log.error('Redis:', error.message)

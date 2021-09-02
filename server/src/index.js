@@ -7,7 +7,7 @@ const shutdown = signals.init(async () => await app.stop())
 
 const main = async () => {
   try {
-    await app.start()
+    await app.start(config)
   } catch {
     await shutdown()
   }

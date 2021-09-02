@@ -16,6 +16,7 @@ const isEmpty = require('./../utils/is-empty')
  * @property {string} ipAddress - req ip
  * @property {object} cookies - req ip
  * @property {object} user - req user
+ * @property {DiContainer} ioc - req ioc
  */
 
 /**
@@ -51,6 +52,8 @@ class RequestDto {
     this.cookies = req.cookies || {}
     /** @type {object} - req user */
     this.user = req.user || {}
+    /** @type {DiContainer} */
+    this.ioc = req.app.get('ioc')
   }
 }
 

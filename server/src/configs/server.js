@@ -13,12 +13,11 @@ const { pingRouter, apiRouter } = require('../routes')
 class Server {
   /**
    *
-   * @param {object} config
    * @param {Logger} logger
+   * @param {DiContainer} ioc
    */
-  constructor (config, logger) {
+  constructor (logger, ioc) {
     this.server = null
-    this.config = config
     this.log = logger
     this.app = express()
 
@@ -31,6 +30,7 @@ class Server {
     this.app.use(traceLogger)
     this.app.use(httpContext)
     this.app.use(setMetrics)
+    this.app.set('ioc', ioc)
 
     this.app.use(pingRouter)
     this.app.use('/api', apiRouter)
@@ -39,10 +39,14 @@ class Server {
     this.app.use(globalErrorHandler)
   }
 
-  async start () {
-    await new Promise((resolve, reject) => {
-      this.server = this.app.listen(this.config.port, async () => {
-        this.log.info(`Server Started! http://localhost:${this.config.port}, pid: ${process.pid}`)
+  /**
+    @param {object} config
+   * @returns {Promise<void>}
+   */
+  async start (config) {
+    await new Promise((resolve) => {
+      this.server = this.app.listen(config.port, async () => {
+        this.log.info(`Server Started! http://localhost:${config.port}, pid: ${process.pid}`)
         resolve()
       })
     })

@@ -6,11 +6,19 @@ const config = require('config')
 const jwt = require('jsonwebtoken')
 const { Roles } = require('../models')
 const { isMongoId } = require('validator')
+const Types = require('../ioc/types')
 
 class AuthService {
-  constructor (userRepository, tokenRepository) {
+  /**
+   *
+   * @param {MongoRepository} userRepository
+   * @param {MongoRepository} tokenRepository
+   * @param {Cache} cache
+   */
+  constructor (userRepository, tokenRepository, cache) {
     this.userRepository = userRepository
     this.tokenRepository = tokenRepository
+    this.cache = cache
   }
 
   /**
@@ -80,11 +88,12 @@ class AuthService {
    */
   async revokeToken (reqDTO) {
     const resDTO = new ResultDTO(reqDTO)
-
+    const cache = reqDTO.ioc.get(Types.cache)
     const token = reqDTO.cookies.refresh || reqDTO.body.refresh
+    const { id: userId, jti } = reqDTO.user
     const ipAddress = reqDTO.ipAddress
 
-    if (!token) {
+    if (!token || !userId || !jti) {
       return resDTO.addError('Token required', 400)
     }
 
@@ -93,6 +102,10 @@ class AuthService {
     }
 
     await this.revoke(token, null, ipAddress)
+
+    if (userId) {
+      await cache.set(`${userId}:${jti}`, token, new Date(reqDTO.user.exp) - (Math.trunc(Date.now() / 1000)))
+    }
 
     resDTO.data = {
       message: 'Token revoked'
@@ -157,7 +170,7 @@ class AuthService {
    * @returns {string}
    */
   generateJwtToken (user) {
-    return jwt.sign({ id: user.id, role: user.role }, config.server.secret, { expiresIn: config.server.tokenExp })
+    return jwt.sign({ id: user.id, role: user.role }, config.server.secret, { expiresIn: config.server.tokenExp, jwtid: randomString(6) })
   }
 
   /**

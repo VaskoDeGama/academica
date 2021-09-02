@@ -1,27 +1,25 @@
 'use strict'
 
-const Types = require('./../utils/ioc-types')
-const { ioc } = require('../utils/di-container')
-const ctx = require('express-http-context')
-const { appLogger, requestLogger } = require('../utils/logger')
-const Server = require('./server')
-const DataBase = require('./database')
-const Cache = require('./cache')
+const { ioc } = require('../ioc')
+const Types = require('../ioc/types')
 
 class App {
-  constructor (config) {
-    this.initIOC(config)
-
+  constructor () {
     this.db = ioc.get(Types.db)
     this.server = ioc.get(Types.server)
     this.cache = ioc.get(Types.cache)
   }
 
-  async start () {
+  /**
+   *
+   * @param {object} config
+   * @returns {Promise<void>}
+   */
+  async start (config) {
     try {
-      await this.db.connect()
-      await this.cache.connect()
-      await this.server.start()
+      await this.db.connect(config.db)
+      await this.cache.connect(config.cache)
+      await this.server.start(config.server)
     } catch (error) {
       console.log(error)
       await this.stop()
@@ -32,19 +30,6 @@ class App {
     await this.db.close()
     await this.cache.close()
     await this.server.stop()
-  }
-
-  initIOC (config) {
-    ioc.register(Types.serverConfig, config.server)
-    ioc.register(Types.dbConfig, config.db)
-    ioc.register(Types.cacheConfig, config.cache)
-    ioc.register(Types.ctx, ctx)
-    ioc.register(Types.logger, appLogger)
-    ioc.register(Types.reqLogger, requestLogger)
-
-    ioc.factory(Types.server, Server, [Types.serverConfig, Types.logger])
-    ioc.factory(Types.db, DataBase, [Types.dbConfig, Types.logger])
-    ioc.factory(Types.cache, Cache, [Types.cacheConfig, Types.logger])
   }
 }
 

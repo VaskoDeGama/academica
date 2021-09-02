@@ -1,15 +1,14 @@
 const supertest = require('supertest')
 const ExpressServer = require('../../configs/server')
 const config = require('config')
+
 const { appLogger } = require('../../utils/logger')
-const App = require('../../configs/app')
 
 describe('Server', () => {
   let server = null
   beforeAll(async () => {
-    const app = new App(config)
-    server = new ExpressServer(config.server, appLogger)
-    await server.start()
+    server = new ExpressServer(appLogger)
+    await server.start(config.server)
   })
 
   afterAll(async () => {

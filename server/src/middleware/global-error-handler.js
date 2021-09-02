@@ -1,15 +1,12 @@
 'use strict'
 
-const { ioc } = require('./../utils/di-container')
-const Types = require('./../utils/ioc-types')
-
 const BaseController = require('../controllers/base-controller')
 const { TokenExpiredError } = require('jsonwebtoken')
 const { ResultDTO, RequestDTO } = require('../models')
 const { UnauthorizedError } = require('express-jwt')
+const { appLogger: logger } = require('../utils/logger')
 
 const globalErrorHandler = function (error, req, res, next) {
-  const logger = ioc.get(Types.logger)
   const reqDTO = new RequestDTO(req)
   const resultDTO = new ResultDTO(reqDTO)
 

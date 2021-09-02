@@ -1,6 +1,6 @@
 'use strict'
 
-const isCLass = require('./is-class')
+const isCLass = require('../utils/is-class')
 
 class DiContainer {
   constructor () {
@@ -65,7 +65,4 @@ class DiContainer {
   }
 }
 
-module.exports = {
-  ioc: new DiContainer(),
-  DiContainer
-}
+module.exports = DiContainer

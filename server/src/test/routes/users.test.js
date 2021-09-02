@@ -8,25 +8,18 @@ const App = require('../../configs/app')
 describe('User routes', () => {
   let mongod = null
   let server = null
-  const address = `http://localhost:${config.get('server').port}`
-  const request = supertest(address)
+  let address = null
+  let request = null
   let token = null
   beforeAll(async () => {
     mongod = await MongoMemoryServer.create()
+    server = new App()
 
-    const conf = {
-      cache: {},
-      db: {},
-      server: {},
-      logger: {}
-    }
-    Object.assign(conf.db, config.db)
-    Object.assign(conf.cache, config.cache)
-    Object.assign(conf.server, config.server)
-    Object.assign(conf.logger, config.logger)
-    conf.db.url = mongod.getUri()
-    server = new App(conf)
-    await server.start()
+    config.db.url = mongod.getUri()
+
+    await server.start(config)
+    address = `http://localhost:${config.get('server').port}`
+    request = supertest(address)
 
     await User.create(mockUsers[3])
     const { username, password } = mockUsers[3]

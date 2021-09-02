@@ -10,23 +10,20 @@ const mongoose = require('mongoose')
 
 class Database {
   /**
-   * @param {object} config
    * @param {Logger} logger
    */
-  constructor (config, logger) {
+  constructor (logger) {
     this.mongoose = require('mongoose')
     this.log = logger
+    this.db = null
 
     this.options = {
-      dbName: config.name,
+      dbName: 'Test',
       useNewUrlParser: true,
       useUnifiedTopology: true,
       useCreateIndex: true,
       useFindAndModify: false
     }
-
-    this.db = null
-    this.url = config.url
 
     this.mongoose.connection.on('error', (err) => {
       this.log.error(`Error! DB Connection failed. Error: ${err}`)
@@ -50,10 +47,12 @@ class Database {
   }
 
   /**
+   * @param {object} config
    * @returns {Mongoose}
    */
-  async connect () {
-    await mongoose.connect(this.url, this.options)
+  async connect (config) {
+    this.options.dbName = config.name
+    await mongoose.connect(config.url, this.options)
     this.db = this.mongoose.connection.db
   }
 

@@ -33,8 +33,8 @@ describe('AuthService', () => {
   beforeAll(async () => {
     mongod = await MongoMemoryServer.create()
     const url = mongod.getUri()
-    db = new DataBase({ url, name: config.get('db').name }, appLogger)
-    await db.connect()
+    db = new DataBase(appLogger)
+    await db.connect({ url, name: config.get('db').name })
 
     await User.create(mockUsers)
   })

@@ -1,6 +1,6 @@
 'use strict'
 
-const { DiContainer } = require('./../../utils/di-container')
+const { DiContainer } = require('../../ioc/di-container')
 
 describe('DiContainer', () => {
   it('define', () => {
