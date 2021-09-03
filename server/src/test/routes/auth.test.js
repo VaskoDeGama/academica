@@ -132,10 +132,28 @@ describe('Auth routes', () => {
       .set('Cookie', [`refresh=${refresh}`])
       .expect(401)
 
-    expect(body.errors[0].message).toBe('Unauthorized! Access Token was expired!')
+    expect(body.errors[0].message).toBe('Token expired!')
   })
 
-  it('update token', async () => {
+  it('refresh token no token', async () => {
+    const auth = await request
+      .post('/api/login')
+      .send({
+        username: mockUsers[3].username,
+        password: mockUsers[3].password
+      })
+
+    const token = auth.body.data.token
+
+    const resp = await request
+      .get('/api/refresh')
+      .set('Authorization', 'Bearer ' + token)
+      .expect(400)
+
+    expect(resp.body.errors[0].message).toBe('Token required!')
+  })
+
+  it('refresh token', async () => {
     const auth = await request
       .post('/api/login')
       .send({

@@ -70,7 +70,7 @@ class AuthService {
     const { refresh: token } = reqDTO.cookies
 
     if (!token) {
-      return resDTO.addError('Token required', 400)
+      return resDTO.addError('Token required!', 400)
     }
 
     try {
@@ -133,10 +133,6 @@ class AuthService {
     const resDTO = new ResultDTO(reqDTO)
 
     const id = reqDTO.user.id || reqDTO.body.id || reqDTO.params.id
-
-    if (!id || !isMongoId(id)) {
-      return resDTO.addError('Id required', 400)
-    }
 
     const tokens = await this.tokenRepository.findByQuery({ user: id })
 
