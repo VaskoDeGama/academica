@@ -5,15 +5,69 @@ const RequestDTO = require('../models/request-dto')
 const validator = require('../utils/validator')
 const ResultDTO = require('../models/result-dto')
 const Types = require('../ioc/types')
+const { Methods, Roles } = require('./../models')
 
-class UserController {
+class UserController extends BaseController {
+  constructor (authorize) {
+    super()
+    this.path = '/users'
+    this.applyAll = authorize([Roles.teacher, Roles.admin, Roles.student])
+    this.applyTeachetAndAdmin = authorize([Roles.teacher, Roles.admin])
+
+    this.routes = [
+      {
+        path: '',
+        method: Methods.POST,
+        handler: this.create,
+        localMiddleware: [this.applyTeachetAndAdmin]
+      },
+      {
+        path: '/:id',
+        method: Methods.GET,
+        handler: this.get,
+        localMiddleware: [this.applyAll]
+      },
+      {
+        path: '',
+        method: Methods.GET,
+        handler: this.get,
+        localMiddleware: [this.applyAll]
+      },
+      {
+        path: '/:id',
+        method: Methods.PUT,
+        handler: this.update,
+        localMiddleware: [this.applyAll]
+      },
+      {
+        path: '/:id',
+        method: Methods.DELETE,
+        handler: this.delete,
+        localMiddleware: [this.applyTeachetAndAdmin]
+      },
+      {
+        path: '',
+        method: Methods.DELETE,
+        handler: this.delete,
+        localMiddleware: [this.applyTeachetAndAdmin]
+      }
+    ]
+
+    this.setRoutes()
+
+    return {
+      path: this.path,
+      router: this.router
+    }
+  }
+
   /**
    * @param {Request} req
    * @param {Response} res
    * @param {Function} next
    * @returns {Promise<Response>}
    */
-  static async create (req, res, next) {
+  async create (req, res, next) {
     const reqDTO = new RequestDTO(req)
     const userService = reqDTO.ioc.get(Types.userService)
     const userScheme = reqDTO.ioc.get(Types.userScheme)
@@ -21,7 +75,7 @@ class UserController {
     const { hasErrors, errors } = validator(reqDTO, userScheme)
 
     const resultDTO = hasErrors ? new ResultDTO(reqDTO, errors) : await userService.createUser(reqDTO)
-    BaseController.setResponse({ res, req, resultDTO })
+    this.setResp({ res, req, resultDTO })
 
     next()
   }
@@ -32,14 +86,14 @@ class UserController {
    * @param {Function} next
    * @returns {Promise<Response>}
    */
-  static async get (req, res, next) {
+  async get (req, res, next) {
     const reqDTO = new RequestDTO(req)
     const userService = reqDTO.ioc.get(Types.userService)
     const userScheme = reqDTO.ioc.get(Types.userScheme)
 
     const { hasErrors, errors } = validator(reqDTO, userScheme)
     const resultDTO = hasErrors ? new ResultDTO(reqDTO, errors) : await userService.getUser(reqDTO)
-    BaseController.setResponse({ res, req, resultDTO })
+    this.setResp({ res, req, resultDTO })
 
     next()
   }
@@ -50,7 +104,7 @@ class UserController {
    * @param {Function} next
    * @returns {Promise<Response>}
    */
-  static async update (req, res, next) {
+  async update (req, res, next) {
     const reqDTO = new RequestDTO(req)
     const userService = reqDTO.ioc.get(Types.userService)
     const userScheme = reqDTO.ioc.get(Types.userScheme)
@@ -58,7 +112,7 @@ class UserController {
     const { hasErrors, errors } = validator(reqDTO, userScheme)
     const resultDTO = hasErrors ? new ResultDTO(reqDTO, errors) : await userService.updateUser(reqDTO)
 
-    BaseController.setResponse({ res, req, resultDTO })
+    this.setResp({ res, req, resultDTO })
 
     next()
   }
@@ -69,7 +123,7 @@ class UserController {
    * @param {Function} next
    * @returns {Promise<Response>}
    */
-  static async delete (req, res, next) {
+  async delete (req, res, next) {
     const reqDTO = new RequestDTO(req)
     const userService = reqDTO.ioc.get(Types.userService)
     const userScheme = reqDTO.ioc.get(Types.userScheme)
@@ -77,7 +131,7 @@ class UserController {
     const { hasErrors, errors } = validator(reqDTO, userScheme)
     const resultDTO = hasErrors ? new ResultDTO(reqDTO, errors) : await userService.removeUser(reqDTO)
 
-    BaseController.setResponse({ res, req, resultDTO })
+    this.setResp({ res, req, resultDTO })
 
     next()
   }

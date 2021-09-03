@@ -1,5 +1,15 @@
 'use strict'
 
+const { Router } = require('express')
+
+/**
+ * @typedef {object} Route
+ * @property {string} path - url
+ * @property {string} method - ['GET', 'POST', 'PUT', 'DELETE']
+ * @property {Function} handler - ['GET', 'POST', 'PUT', 'DELETE']
+ * @property {Function[]} localMiddleware - [fn]
+ */
+
 /**
  * @typedef {object} Controller
  * @property {Function} create - create req handler
@@ -9,6 +19,44 @@
  */
 
 class BaseController {
+  constructor () {
+    this.router = Router()
+    /** @type {Route} */
+    this.routes = []
+  }
+
+  setRoutes () {
+    for (const route of this.routes) {
+      for (const mw of route.localMiddleware) {
+        this.router.use(route.path, mw)
+      }
+      const handler = route.handler.bind(this)
+      switch (route.method) {
+        case 'GET':
+          this.router.get(route.path, handler)
+          break
+        case 'POST':
+          this.router.post(route.path, handler)
+          break
+        case 'PUT':
+          this.router.put(route.path, handler)
+          break
+        case 'DELETE':
+          this.router.delete(route.path, handler)
+          break
+        default:
+          throw new Error(`Not registered method! ${route.method}`)
+      }
+    }
+  }
+
+  /**
+   * @param {object} params
+   */
+  setResp (params) {
+    BaseController.setResponse(params)
+  }
+
   /**
    *
    * @param {object} o

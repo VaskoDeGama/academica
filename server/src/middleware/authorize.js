@@ -2,7 +2,7 @@
 const config = require('config')
 const jwt = require('express-jwt')
 
-const { Token } = require('../models')
+const { Token, Roles } = require('../models')
 const { MongoRepository } = require('../repositories')
 const { BaseController } = require('../controllers')
 const Types = require('../ioc/types')

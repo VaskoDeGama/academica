@@ -6,20 +6,61 @@ const validator = require('../utils/validator')
 const ResultDTO = require('../models/result-dto')
 const Types = require('../ioc/types')
 const { loginScheme } = require('../models')
+const methods = require('../models/methods')
+const { Roles } = require('./../models')
 
-class AuthController {
+class AuthController extends BaseController {
+  constructor (authorize) {
+    super()
+    this.path = ''
+    this.applyAll = authorize([Roles.teacher, Roles.admin, Roles.student])
+    this.routes = [
+      {
+        path: '/login',
+        method: methods.POST,
+        handler: this.authenticate,
+        localMiddleware: []
+      },
+      {
+        path: '/refresh',
+        method: methods.GET,
+        handler: this.refreshToken,
+        localMiddleware: [this.applyAll]
+      },
+      {
+        path: '/tokens',
+        method: methods.GET,
+        handler: this.getTokens,
+        localMiddleware: [this.applyAll]
+      },
+      {
+        path: '/logout',
+        method: methods.PUT,
+        handler: this.revokeToken,
+        localMiddleware: []
+      }
+    ]
+
+    this.setRoutes()
+
+    return {
+      path: this.path,
+      router: this.router
+    }
+  }
+
   /**
    * @param {Request} req
    * @param {Response} res
    * @param {Function} next
    * @returns {Promise<Response>}
    */
-  static async authenticate (req, res, next) {
+  async authenticate (req, res, next) {
     const reqDTO = new RequestDTO(req)
     const authService = reqDTO.ioc.get(Types.authService)
     const { hasErrors, errors } = validator(reqDTO, loginScheme)
     const resultDTO = hasErrors ? new ResultDTO(reqDTO, errors) : await authService.authenticate(reqDTO)
-    BaseController.setResponse({ res, req, resultDTO })
+    this.setResp({ res, req, resultDTO })
 
     next()
   }
@@ -30,11 +71,11 @@ class AuthController {
    * @param {Function} next
    * @returns {Promise<Response>}
    */
-  static async refreshToken (req, res, next) {
+  async refreshToken (req, res, next) {
     const reqDTO = new RequestDTO(req)
     const authService = reqDTO.ioc.get(Types.authService)
     const resultDTO = await authService.refreshToken(reqDTO)
-    BaseController.setResponse({ res, req, resultDTO })
+    this.setResp({ res, req, resultDTO })
 
     next()
   }
@@ -45,11 +86,11 @@ class AuthController {
    * @param {Function} next
    * @returns {Promise<Response>}
    */
-  static async revokeToken (req, res, next) {
+  async revokeToken (req, res, next) {
     const reqDTO = new RequestDTO(req)
     const authService = reqDTO.ioc.get(Types.authService)
     const resultDTO = await authService.revokeToken(reqDTO)
-    BaseController.setResponse({ res, req, resultDTO })
+    this.setResp({ res, req, resultDTO })
 
     next()
   }
@@ -60,11 +101,11 @@ class AuthController {
    * @param {Function} next
    * @returns {Promise<Response>}
    */
-  static async getTokens (req, res, next) {
+  async getTokens (req, res, next) {
     const reqDTO = new RequestDTO(req)
     const authService = reqDTO.ioc.get(Types.authService)
     const resultDTO = await authService.getAllTokens(reqDTO)
-    BaseController.setResponse({ res, req, resultDTO })
+    this.setResp({ res, req, resultDTO })
 
     next()
   }

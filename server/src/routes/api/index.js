@@ -1,16 +1,17 @@
 'use strict'
 
-const usersRouter = require('./users.js')
-const authRouter = require('./auth.js')
 const express = require('express')
 
 const apiRouter = express.Router()
 
-const { authorize } = require('../../middleware')
-const { Roles } = require('../../models')
-const authMW = authorize([Roles.admin, Roles.teacher])
+const { UserController, AuthController } = require('../../controllers')
 
-apiRouter.use('/users', authMW, usersRouter)
-apiRouter.use('/', authRouter)
+const { authorize } = require('../../middleware')
+
+const { path: userPath, router: userRouter } = new UserController(authorize)
+const { path: authPath, router: authRouter } = new AuthController(authorize)
+
+apiRouter.use(userPath, userRouter)
+apiRouter.use(authPath, authRouter)
 
 module.exports = apiRouter
