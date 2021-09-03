@@ -423,4 +423,61 @@ describe('User routes', () => {
     expect(res.body.data.deletedCount).toBe(teacherIds.length)
     expect(userAfterDelete.length).toBe(0)
   })
+
+  it('not permitted get not self data', async () => {
+    await User.create(mockUsers)
+
+    const auth = await request
+      .post('/api/login')
+      .send({
+        username: mockUsers[2].username,
+        password: mockUsers[2].password
+      })
+
+    const token = auth.body.data.token
+
+    await request
+      .get('/api/users')
+      .set('Authorization', 'Bearer ' + token)
+      .expect(403)
+  })
+
+  it('not permitted put not self data', async () => {
+    await User.create(mockUsers)
+
+    const auth = await request
+      .post('/api/login')
+      .send({
+        username: mockUsers[2].username,
+        password: mockUsers[2].password
+      })
+
+    const token = auth.body.data.token
+
+    await request
+      .put(`/api/users/${mockUsers[3]._id.toString()}`)
+      .set('Authorization', 'Bearer ' + token)
+      .expect(403)
+  })
+
+  it('put self student', async () => {
+    await User.create(mockUsers)
+
+    const auth = await request
+      .post('/api/login')
+      .send({
+        username: mockUsers[2].username,
+        password: mockUsers[2].password
+      })
+
+    const token = auth.body.data.token
+
+    await request
+      .put(`/api/users/${mockUsers[2]._id.toString()}`)
+      .send({
+        balance: 1000
+      })
+      .set('Authorization', 'Bearer ' + token)
+      .expect(200)
+  })
 })
