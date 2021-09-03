@@ -2,10 +2,10 @@
 const config = require('config')
 const jwt = require('express-jwt')
 
-const { Token, Roles } = require('../models')
+const { Token } = require('../models')
 const { MongoRepository } = require('../repositories')
 const { BaseController } = require('../controllers')
-const Types = require('../ioc/types')
+const Types = require('../models/types')
 const { UnauthorizedError } = require('express-jwt')
 const { secret } = config.server
 
@@ -19,7 +19,7 @@ const isRevokedCallback = async function (req, payload, done) {
     const token = await cache.get(`${userId}:${tokenId}`)
 
     if (token) {
-      done(new UnauthorizedError(401, new Error('Access Token was expired!')))
+      done(new UnauthorizedError(401, new Error('Token blacklisted!')))
     }
     done(null, false)
   } catch (e) {
@@ -27,6 +27,11 @@ const isRevokedCallback = async function (req, payload, done) {
   }
 }
 
+/**
+ *
+ * @param {string[]} roles
+ * @returns {Function}
+ */
 const authorize = function (roles = []) {
   if (typeof roles === 'string') {
     roles = [roles]
@@ -36,8 +41,8 @@ const authorize = function (roles = []) {
     jwt({ secret, algorithms: ['HS256'], isRevoked: isRevokedCallback }),
     async (req, res, next) => {
       if ((roles.length && !roles.includes(req.user.role))) {
-        BaseController.setResponse({ req, res, code: 401 })
-        res.end()
+        BaseController.setResponse({ req, res, code: 403 })
+        return res.end()
       }
 
       const refreshTokens = await tokeRepository.findByQuery({ user: req.user.id })

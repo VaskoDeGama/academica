@@ -4,52 +4,52 @@ const BaseController = require('./base-controller')
 const RequestDTO = require('../models/request-dto')
 const validator = require('../utils/validator')
 const ResultDTO = require('../models/result-dto')
-const Types = require('../ioc/types')
-const { Methods, Roles } = require('./../models')
+const { Methods, Roles, Types } = require('./../models')
 
 class UserController extends BaseController {
-  constructor (authorize) {
+  constructor (authorize, checkPermission) {
     super()
     this.path = '/users'
-    this.applyAll = authorize([Roles.teacher, Roles.admin, Roles.student])
-    this.applyTeachetAndAdmin = authorize([Roles.teacher, Roles.admin])
+    this.all = authorize([Roles.teacher, Roles.admin, Roles.student])
+    this.teacherAndAdmin = authorize([Roles.teacher, Roles.admin])
+    this.selfStudent = checkPermission(Roles.student)
 
     this.routes = [
       {
         path: '',
         method: Methods.POST,
         handler: this.create,
-        localMiddleware: [this.applyTeachetAndAdmin]
+        localMiddleware: [this.teacherAndAdmin]
       },
       {
         path: '/:id',
         method: Methods.GET,
         handler: this.get,
-        localMiddleware: [this.applyAll]
+        localMiddleware: [this.all, this.selfStudent]
       },
       {
         path: '',
         method: Methods.GET,
         handler: this.get,
-        localMiddleware: [this.applyAll]
+        localMiddleware: [this.teacherAndAdmin]
       },
       {
         path: '/:id',
         method: Methods.PUT,
         handler: this.update,
-        localMiddleware: [this.applyAll]
+        localMiddleware: [this.all, this.selfStudent]
       },
       {
         path: '/:id',
         method: Methods.DELETE,
         handler: this.delete,
-        localMiddleware: [this.applyTeachetAndAdmin]
+        localMiddleware: [this.teacherAndAdmin]
       },
       {
         path: '',
         method: Methods.DELETE,
         handler: this.delete,
-        localMiddleware: [this.applyTeachetAndAdmin]
+        localMiddleware: [this.teacherAndAdmin]
       }
     ]
 

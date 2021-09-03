@@ -4,9 +4,7 @@ const ResultDTO = require('../models/result-dto')
 const randomString = require('../utils/random-string')
 const config = require('config')
 const jwt = require('jsonwebtoken')
-const { Roles } = require('../models')
-const { isMongoId } = require('validator')
-const Types = require('../ioc/types')
+const { Roles, Types } = require('../models')
 
 class AuthService {
   /**

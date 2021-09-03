@@ -22,6 +22,7 @@ describe('Auth routes', () => {
     request = supertest(address)
 
     await User.create(mockUsers[3])
+    await User.create(mockUsers[2])
   })
 
   beforeEach(async () => {
@@ -127,7 +128,7 @@ describe('Auth routes', () => {
     const { refresh } = auth.headers['set-cookie'][0].match(/refresh=(?<refresh>[a-f0-9]*);/)?.groups || {}
 
     const { body } = await request
-      .get('/api/refresh')
+      .get('/api/tokens')
       .set('Authorization', 'Bearer ' + token)
       .set('Cookie', [`refresh=${refresh}`])
       .expect(401)
@@ -182,13 +183,6 @@ describe('Auth routes', () => {
 
     await request
       .get('/api/tokens')
-      .set('Authorization', 'Bearer ' + token)
-      .set('Cookie', [`refresh=${refresh}`])
-      .expect(401)
-
-    await request
-      .get('/api/refresh')
-      .set('Authorization', 'Bearer ' + newToken)
       .set('Cookie', [`refresh=${refresh}`])
       .expect(401)
 
@@ -197,5 +191,22 @@ describe('Auth routes', () => {
       .set('Authorization', 'Bearer ' + newToken)
       .set('Cookie', [`refresh=${newRefresh}`])
       .expect(200)
+  })
+
+  it('not permitted 403', async () => {
+    const auth = await request
+      .post('/api/login')
+      .send({
+        username: mockUsers[2].username,
+        password: mockUsers[2].password
+      })
+
+    const token = auth.body.data.token
+
+    await request
+      .post('/api/users/')
+      .send({})
+      .set('Authorization', 'Bearer ' + token)
+      .expect(403)
   })
 })

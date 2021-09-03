@@ -5,7 +5,8 @@ const { appLogger: logger } = require('../utils/logger')
 const { RequestDTO, ResultDTO } = require('../models')
 
 const msgMap = {
-  'jwt expired': 'Token expired!'
+  'jwt expired': 'Token expired!',
+  'jwt malformed': 'Token required!'
 }
 
 const globalErrorHandler = function (error, req, res, next) {

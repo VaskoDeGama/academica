@@ -1,6 +1,7 @@
 const { model, Schema } = require('mongoose')
 const getMongoSchemeDefinition = require('../utils/get-mongo-scheme-definition')
 const mongoose = require('mongoose')
+const config = require('config')
 
 const tokenScheme = {
   token: {
@@ -38,6 +39,8 @@ schema.set('toJSON', {
     delete ret.user
   }
 })
+
+schema.index({ createdAt: 1 }, { expireAfterSeconds: config.server.refreshTokenExp / 1000 })
 
 const Token = model('Token', schema)
 module.exports = { Token, tokenSchemeDefinition, tokenScheme }

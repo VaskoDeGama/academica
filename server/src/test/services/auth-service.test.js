@@ -10,7 +10,7 @@ const jwt = require('jsonwebtoken')
 const { mockTokens } = require('../models/mock-tokens')
 const { appLogger } = require('../../utils/logger')
 const { DiContainer } = require('../../ioc')
-const Types = require('../../ioc/types')
+const Types = require('../../models/types')
 
 const userRepository = new MongoRepository(User)
 const tokenRepository = new MongoRepository(Token)

@@ -1,4 +1,3 @@
-const Types = require('./types')
 const ctx = require('express-http-context')
 const { appLogger, requestLogger } = require('../utils/logger')
 const Server = require('../configs/server')
@@ -6,7 +5,7 @@ const DataBase = require('../configs/database')
 const Cache = require('../configs/cache')
 const { MongoRepository } = require('../repositories')
 const { AuthService, UserService } = require('../services')
-const { User, Token, loginScheme, userScheme, tokenScheme } = require('../models')
+const { User, Token, loginScheme, userScheme, tokenScheme, Types } = require('../models')
 /**
  * @param {DiContainer} ioc
  */

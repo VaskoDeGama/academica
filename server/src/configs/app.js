@@ -1,7 +1,7 @@
 'use strict'
 
 const { ioc } = require('../ioc')
-const Types = require('../ioc/types')
+const { Types } = require('../models')
 
 class App {
   constructor () {

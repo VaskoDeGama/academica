@@ -4,7 +4,7 @@ const BaseController = require('./base-controller')
 const RequestDTO = require('../models/request-dto')
 const validator = require('../utils/validator')
 const ResultDTO = require('../models/result-dto')
-const Types = require('../ioc/types')
+const Types = require('../models/types')
 const { loginScheme } = require('../models')
 const methods = require('../models/methods')
 const { Roles } = require('./../models')
@@ -25,7 +25,7 @@ class AuthController extends BaseController {
         path: '/refresh',
         method: methods.GET,
         handler: this.refreshToken,
-        localMiddleware: [this.applyAll]
+        localMiddleware: []
       },
       {
         path: '/tokens',
@@ -35,9 +35,9 @@ class AuthController extends BaseController {
       },
       {
         path: '/logout',
-        method: methods.PUT,
+        method: methods.GET,
         handler: this.revokeToken,
-        localMiddleware: []
+        localMiddleware: [this.applyAll]
       }
     ]
 

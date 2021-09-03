@@ -27,22 +27,19 @@ class BaseController {
 
   setRoutes () {
     for (const route of this.routes) {
-      for (const mw of route.localMiddleware) {
-        this.router.use(route.path, mw)
-      }
       const handler = route.handler.bind(this)
       switch (route.method) {
         case 'GET':
-          this.router.get(route.path, handler)
+          this.router.get(route.path, route.localMiddleware, handler)
           break
         case 'POST':
-          this.router.post(route.path, handler)
+          this.router.post(route.path, route.localMiddleware, handler)
           break
         case 'PUT':
-          this.router.put(route.path, handler)
+          this.router.put(route.path, route.localMiddleware, handler)
           break
         case 'DELETE':
-          this.router.delete(route.path, handler)
+          this.router.delete(route.path, route.localMiddleware, handler)
           break
         default:
           throw new Error(`Not registered method! ${route.method}`)
