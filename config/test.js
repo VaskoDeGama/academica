@@ -10,7 +10,9 @@ module.exports = {
   },
   db: {
     url: 'mongodb://127.0.0.1:59983/',
-    name: 'mockBase'
+    name: 'mockBase',
+    port: 59983,
+    ip: '127.0.0.1'
   },
   cache:{
     host: '127.0.0.1',

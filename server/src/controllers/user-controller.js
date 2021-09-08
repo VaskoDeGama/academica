@@ -2,8 +2,6 @@
 
 const BaseController = require('./base-controller')
 const RequestDTO = require('../models/request-dto')
-const validator = require('../utils/validator')
-const ResultDTO = require('../models/result-dto')
 const { Methods, Roles, Types } = require('./../models')
 
 class UserController extends BaseController {
@@ -70,11 +68,7 @@ class UserController extends BaseController {
   async create (req, res, next) {
     const reqDTO = new RequestDTO(req)
     const userService = reqDTO.ioc.get(Types.userService)
-    const userScheme = reqDTO.ioc.get(Types.userScheme)
-
-    const { hasErrors, errors } = validator(reqDTO, userScheme)
-
-    const resultDTO = hasErrors ? new ResultDTO(reqDTO, errors) : await userService.createUser(reqDTO)
+    const resultDTO = await userService.createUser(reqDTO)
     this.setResp({ res, req, resultDTO })
 
     next()
@@ -89,10 +83,7 @@ class UserController extends BaseController {
   async get (req, res, next) {
     const reqDTO = new RequestDTO(req)
     const userService = reqDTO.ioc.get(Types.userService)
-    const userScheme = reqDTO.ioc.get(Types.userScheme)
-
-    const { hasErrors, errors } = validator(reqDTO, userScheme)
-    const resultDTO = hasErrors ? new ResultDTO(reqDTO, errors) : await userService.getUser(reqDTO)
+    const resultDTO = await userService.getUser(reqDTO)
     this.setResp({ res, req, resultDTO })
 
     next()
@@ -107,10 +98,7 @@ class UserController extends BaseController {
   async update (req, res, next) {
     const reqDTO = new RequestDTO(req)
     const userService = reqDTO.ioc.get(Types.userService)
-    const userScheme = reqDTO.ioc.get(Types.userScheme)
-
-    const { hasErrors, errors } = validator(reqDTO, userScheme)
-    const resultDTO = hasErrors ? new ResultDTO(reqDTO, errors) : await userService.updateUser(reqDTO)
+    const resultDTO = await userService.updateUser(reqDTO)
 
     this.setResp({ res, req, resultDTO })
 
@@ -126,10 +114,7 @@ class UserController extends BaseController {
   async delete (req, res, next) {
     const reqDTO = new RequestDTO(req)
     const userService = reqDTO.ioc.get(Types.userService)
-    const userScheme = reqDTO.ioc.get(Types.userScheme)
-
-    const { hasErrors, errors } = validator(reqDTO, userScheme)
-    const resultDTO = hasErrors ? new ResultDTO(reqDTO, errors) : await userService.removeUser(reqDTO)
+    const resultDTO = await userService.removeUser(reqDTO)
 
     this.setResp({ res, req, resultDTO })
 

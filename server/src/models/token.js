@@ -1,5 +1,4 @@
 const { model, Schema } = require('mongoose')
-const getMongoSchemeDefinition = require('../utils/get-mongo-scheme-definition')
 const mongoose = require('mongoose')
 const config = require('config')
 
@@ -18,8 +17,7 @@ const tokenScheme = {
   replacedByToken: String
 }
 
-const tokenSchemeDefinition = getMongoSchemeDefinition(tokenScheme)
-const schema = new Schema(tokenSchemeDefinition, { timestamps: true })
+const schema = new Schema(tokenScheme, { timestamps: true })
 
 schema.virtual('isExpired').get(function () {
   return Date.now() >= this.expires
@@ -33,14 +31,13 @@ schema.set('toJSON', {
   virtuals: true,
   versionKey: false,
   transform: function (doc, ret) {
-    // remove these props when object is serialized
     delete ret._id
     delete ret.id
     delete ret.user
   }
 })
 
-schema.index({ createdAt: 1 }, { expireAfterSeconds: config.server.refreshTokenExp / 1000 })
+schema.index({ createdAt: 1 }, { expireAfterSeconds: (config?.server?.refreshTokenExp || 30 * 60 * 1000) / 1000 })
 
 const Token = model('Token', schema)
-module.exports = { Token, tokenSchemeDefinition, tokenScheme }
+module.exports = { Token, tokenScheme }

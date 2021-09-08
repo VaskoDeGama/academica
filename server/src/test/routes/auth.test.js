@@ -1,28 +1,31 @@
 const supertest = require('supertest')
 const config = require('config')
 const { MongoMemoryServer } = require('mongodb-memory-server')
-const { User } = require('../../models/user')
+const { User, Role } = require('../../models')
 
-const { mockUsers } = require('./../models/mock-users')
+const { mockUsers, roles } = require('../models/mock-data')
 const App = require('../../configs/app')
 
 describe('Auth routes', () => {
-  let mongod = null
+  let mongoServer = null
   let server = null
   let address = null
   let request = null
   beforeAll(async () => {
-    mongod = await MongoMemoryServer.create()
+    mongoServer = await MongoMemoryServer.create({
+      instance: {
+        ip: config.db.ip,
+        port: config.db.port
+      }
+    })
     server = new App()
-
-    config.db.url = mongod.getUri()
 
     await server.start(config)
     address = `http://localhost:${config.get('server').port}`
     request = supertest(address)
-
+    await Role.create(roles)
     await User.create(mockUsers[3])
-    await User.create(mockUsers[2])
+    await User.create(mockUsers[22])
   })
 
   beforeEach(async () => {
@@ -31,7 +34,7 @@ describe('Auth routes', () => {
 
   afterAll(async () => {
     await server.stop()
-    await mongod.stop()
+    await mongoServer.stop()
   })
 
   it('ping', async () => {
@@ -197,8 +200,8 @@ describe('Auth routes', () => {
     const auth = await request
       .post('/api/login')
       .send({
-        username: mockUsers[2].username,
-        password: mockUsers[2].password
+        username: mockUsers[22].username,
+        password: mockUsers[22].password
       })
 
     const token = auth.body.data.token

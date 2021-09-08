@@ -1,87 +1,52 @@
 'use strict'
 
 const { model, Schema } = require('mongoose')
-const getMongoSchemeDefinition = require('../utils/get-mongo-scheme-definition')
-const { isMongoId, isNumeric, isEmail, isLength, isAlphanumeric, isAlpha } = require('validator')
 const bcrypt = require('bcrypt')
 
 const userScheme = {
-  id: {
-    type: String,
-    unique: true,
-    createIndexes: { unique: true },
-    validators: [{ fn: isMongoId, message: 'Bad ID' }],
-    fields: ['query', 'params']
-  },
   username: {
     type: String,
     required: true,
     unique: true,
-    trim: true,
-    validators: [
-      { fn: isAlphanumeric, message: 'Username must contain only letters and numbers' },
-      { fn: isLength, options: { min: 6, max: 16 }, message: 'Username must be longer than 6 and shorter than 16 characters' }
-    ]
+    trim: true
   },
   password: {
     type: String,
-    required: true,
-    validators: [
-      { fn: isLength, options: { min: 8 }, message: 'Password must be longer then 8 characters' }
-    ]
-  },
-  role: {
-    type: String,
-    trim: true,
-    enum: ['admin', 'student', 'teacher'],
-    default: 'student'
+    required: true
   },
   lastName: {
     type: String,
-    trim: true,
-    validators: [
-      { fn: isLength, options: { min: 2 }, message: 'LastName must be longer than 2 characters' },
-      { fn: isAlpha, message: 'LastName must contain only letters' }
-    ]
+    trim: true
   },
   firstName: {
     type: String,
-    trim: true,
-    validators: [
-      { fn: isLength, options: { min: 2 }, message: 'FirstName must be longer than 2 characters' },
-      { fn: isAlpha, message: 'FirstName must contain only letters' }
-    ]
+    trim: true
   },
   skype: {
     type: String,
-    trim: true,
-    validators: [
-      { fn: isLength, options: { min: 6 }, message: 'Skype must be longer than 6 characters' }
-    ]
+    trim: true
   },
   email: {
     type: String,
     unique: true,
     required: true,
     lowercase: true,
-    validate: [isEmail, 'invalid email'],
-    createIndexes: { unique: true, sparse: true },
-    validators: [
-      { fn: isEmail, message: 'Wrong Email' }
-    ]
+    createIndexes: { unique: true, sparse: true }
   },
   balance: {
     type: Number,
-    default: 0,
-    validators: [
-      { fn: isNumeric, message: 'Balance must be numeric' }
-    ]
-  }
+    default: 0
+  },
+  role: { type: Schema.Types.ObjectId, ref: 'Role' },
+  teacher: { type: Schema.Types.ObjectId, ref: 'User' },
+  students: [{ type: Schema.Types.ObjectId, ref: 'User' }]
 }
 
-const userSchemaDefinition = getMongoSchemeDefinition(userScheme)
+const schema = new Schema(userScheme, { timestamps: true, id: true })
 
-const schema = new Schema(userSchemaDefinition, { timestamps: true, id: true })
+schema.virtual('fullName').get(function () {
+  return `${this.firstName} ${this.lastName}`
+})
 
 schema.set('toJSON', {
   virtuals: true,
@@ -110,4 +75,4 @@ schema.methods.validatePassword = async function validatePassword (data) {
 }
 
 const User = model('User', schema)
-module.exports = { User, userSchemaDefinition, userScheme }
+module.exports = { User, userScheme }

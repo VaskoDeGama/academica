@@ -2,41 +2,40 @@
 const DataBase = require('./../../configs/database')
 const config = require('config')
 const { MongoMemoryServer } = require('mongodb-memory-server')
-const { User } = require('../../models/')
-const { mockUsers, mockUsersLength } = require('../models/mock-users')
+const { User, Role } = require('../../models/')
+const { mockUsers, mockUsersLength, roles } = require('../models/mock-data')
 const { MongoRepository } = require('../../repositories')
 const { appLogger } = require('../../utils/logger')
+const mongoose = require('mongoose')
 
 describe('mongo repository', () => {
-  let mongod = null
+  let mongoServer = null
   let db = null
   const repository = new MongoRepository(User)
   beforeAll(async () => {
-    mongod = await MongoMemoryServer.create()
-    const url = mongod.getUri()
+    mongoServer = await MongoMemoryServer.create({
+      instance: {
+        ip: config.db.ip,
+        port: config.db.port
+      }
+    })
     db = new DataBase(appLogger)
-
-    await db.connect({ url, name: config.get('db').name })
-  })
-
-  afterEach(async () => {
-    await db.dropCollections('users')
+    await db.connect({ url: mongoServer.getUri(), name: config.get('db').name })
+    await Role.create(roles)
+    await User.create(mockUsers)
   })
 
   afterAll(async () => {
     await db.close()
-    await mongod.stop()
+    await mongoServer.stop()
   })
 
   it('findAll', async () => {
-    await User.create(mockUsers)
-
     const users = await repository.getAll()
     expect(users.length).toBe(mockUsersLength)
   })
 
   it('select', async () => {
-    await User.create(mockUsers)
     const [user] = await repository.getAll({ email: 1, username: 1 })
     expect(user.username).toBeDefined()
     expect(user.email).toBeDefined()
@@ -45,7 +44,6 @@ describe('mongo repository', () => {
   })
 
   it('options', async () => {
-    await User.create(mockUsers)
     const id = mockUsers[0]._id.toString()
     const users = await repository.getAll({ email: 1, username: 1 }, { skip: 5 })
     expect(users[0].id).not.toBe(id)
@@ -53,11 +51,10 @@ describe('mongo repository', () => {
     expect(users[0].email).toBeDefined()
     expect(users[0].balance).not.toBeDefined()
     expect(users[0].role).not.toBeDefined()
-    expect(users.length).toBe(5)
+    expect(users.length).toBe(40)
   })
 
   it('findById', async () => {
-    await User.create(mockUsers)
     const id = mockUsers[0]._id.toString()
     const user = await repository.findById(id)
     expect(user.username).toBe(mockUsers[0].username)
@@ -65,7 +62,6 @@ describe('mongo repository', () => {
   })
 
   it('findByIds', async () => {
-    await User.create(mockUsers)
     const id1 = mockUsers[1]._id.toString()
     const id2 = mockUsers[2]._id.toString()
     const id3 = mockUsers[3]._id.toString()
@@ -75,30 +71,31 @@ describe('mongo repository', () => {
   })
 
   it('findByQuery', async () => {
-    await User.create(mockUsers)
     const id1 = mockUsers[1]._id.toString()
     const id2 = mockUsers[2]._id.toString()
-    const id3 = mockUsers[3]._id.toString()
+    const id3 = mockUsers[22]._id.toString()
     const users = await repository.findByQuery({
       $and: [
-        { role: 'teacher' },
         { _id: { $in: [id1, id2, id3] } }
       ]
-    })
-    expect(users.length).toBe(2)
-    expect(users[0].id).toBe(id1)
-    expect(users[1].id).toBe(id3)
+    }, {}, {})
+    expect(users.length).toBe(3)
   })
 
   it('save', async () => {
-    await repository.save(mockUsers[0])
-    const [user] = await User.find()
-    expect(user.id).toBe(mockUsers[0]._id.toString())
-    expect(user.username).toBe(mockUsers[0].username)
+    const _id = new mongoose.Types.ObjectId()
+    await repository.save({
+      _id,
+      username: 'testUser',
+      password: 'testUser',
+      email: 'testUser@email.ru'
+    })
+    const user = await User.findById(_id.toString())
+    expect(user.id).toBe(_id.toString())
+    expect(user.username).toBe('testUser')
   })
 
   it('removeById', async () => {
-    await User.create(mockUsers)
     const res = await repository.removeById(mockUsers[0]._id.toString())
 
     const users = await User.find({ _id: mockUsers[0]._id.toString() })
@@ -108,11 +105,9 @@ describe('mongo repository', () => {
   })
 
   it('removeByIds', async () => {
-    await User.create(mockUsers)
-
-    const id1 = mockUsers[1]._id.toString()
-    const id2 = mockUsers[2]._id.toString()
-    const id3 = mockUsers[3]._id.toString()
+    const id1 = mockUsers[33]._id.toString()
+    const id2 = mockUsers[32]._id.toString()
+    const id3 = mockUsers[31]._id.toString()
     const res = await repository.removeByIds([id1, id2, id3])
 
     const users = await User.find({ _id: { $in: [id1, id2, id3] } })
@@ -122,13 +117,12 @@ describe('mongo repository', () => {
   })
 
   it('removeByQuery', async () => {
-    await User.create(mockUsers)
     const id1 = mockUsers[1]._id.toString()
     const id2 = mockUsers[2]._id.toString()
-    const id3 = mockUsers[3]._id.toString()
+    const id3 = mockUsers[22]._id.toString()
     const res = await repository.removeByQuery({
       $and: [
-        { role: 'teacher' },
+        { role: roles[1]._id.toString() },
         { _id: { $in: [id1, id2, id3] } }
       ]
     })
@@ -142,14 +136,19 @@ describe('mongo repository', () => {
   })
 
   it('findAndUpdate', async () => {
-    await User.create(mockUsers)
-
-    const id = mockUsers[3]._id.toString()
+    const id = mockUsers[22]._id.toString()
     const res = await repository.findAndUpdate({ _id: id }, { balance: 10 })
 
     const users = await User.find({ _id: id })
     expect(res.balance).toBe(10)
     expect(users.length).toBe(1)
     expect(users[0].balance).toBe(10)
+  })
+
+  it('populate', async () => {
+    const [res] = await repository.findByQuery({ role: roles[1]._id.toString() }, {}, { populate: 'role students' })
+
+    expect(res.role.name).toBe('teacher')
+    expect(res.students[0].username).toBeDefined()
   })
 })

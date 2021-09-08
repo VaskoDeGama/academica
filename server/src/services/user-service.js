@@ -19,7 +19,7 @@ class UserService {
       const { hasParams, hasQuery, query, params } = reqDTO
 
       if (hasParams) {
-        const user = await this.userRepositroy.findById(params.id)
+        const user = await this.userRepositroy.findById(params.id, {}, { populate: 'role + students + teacher' })
 
         if (user) {
           resDTO.data = user
@@ -27,7 +27,7 @@ class UserService {
         }
       } else if (hasQuery) {
         if (Array.isArray(query.id)) {
-          const users = await this.userRepositroy.findByIds(query.id)
+          const users = await this.userRepositroy.findByIds(query.id, {}, { populate: 'role + students + teacher' })
           if (Array.isArray(users) && users.length) {
             resDTO.data = {
               count: users.length,
@@ -37,7 +37,7 @@ class UserService {
           }
         }
 
-        const users = await this.userRepositroy.findByQuery(reqDTO.query)
+        const users = await this.userRepositroy.findByQuery(reqDTO.query, {}, { populate: 'role + students + teacher' })
         if (Array.isArray(users) && users.length) {
           resDTO.data = {
             count: users.length,
@@ -48,7 +48,7 @@ class UserService {
         }
       } else {
         // get all
-        const users = await this.userRepositroy.getAll()
+        const users = await this.userRepositroy.getAll({}, { populate: [{ path: 'role', select: 'name' }, { path: 'students' }] })
 
         resDTO.data = {
           count: users.length,

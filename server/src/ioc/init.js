@@ -5,7 +5,7 @@ const DataBase = require('../configs/database')
 const Cache = require('../configs/cache')
 const { MongoRepository } = require('../repositories')
 const { AuthService, UserService } = require('../services')
-const { User, Token, loginScheme, userScheme, tokenScheme, Types } = require('../models')
+const { User, Token, Types } = require('../models')
 /**
  * @param {DiContainer} ioc
  */
@@ -17,10 +17,6 @@ function init (ioc) {
 
   ioc.register(Types.user, User)
   ioc.register(Types.token, Token)
-
-  ioc.register(Types.loginScheme, loginScheme)
-  ioc.register(Types.userScheme, userScheme)
-  ioc.register(Types.tokenScheme, tokenScheme)
 
   ioc.factory(Types.server, Server, [Types.logger, Types.container])
   ioc.factory(Types.db, DataBase, [Types.logger])

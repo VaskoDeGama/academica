@@ -26,6 +26,7 @@
         "node/no-path-concat": ["off"],
         "jsdoc/require-param-description": ["off"],
         "jsdoc/require-returns-description": ["off"],
-        "jsdoc/no-undefined-types": ["off"]
+        "jsdoc/no-undefined-types": ["off"],
+        "jest/expect-expect": ["off"]
     }
 }

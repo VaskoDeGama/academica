@@ -20,9 +20,7 @@ class Database {
     this.options = {
       dbName: 'Test',
       useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useCreateIndex: true,
-      useFindAndModify: false
+      useUnifiedTopology: true
     }
 
     this.mongoose.connection.on('error', (err) => {

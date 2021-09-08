@@ -2,42 +2,37 @@
 
 const BaseController = require('./base-controller')
 const RequestDTO = require('../models/request-dto')
-const validator = require('../utils/validator')
-const ResultDTO = require('../models/result-dto')
-const Types = require('../models/types')
-const { loginScheme } = require('../models')
-const methods = require('../models/methods')
-const { Roles } = require('./../models')
+const { Roles, Types, Methods } = require('./../models')
 
 class AuthController extends BaseController {
   constructor (authorize) {
     super()
     this.path = ''
-    this.applyAll = authorize([Roles.teacher, Roles.admin, Roles.student])
+    this.all = authorize([Roles.teacher, Roles.admin, Roles.student])
     this.routes = [
       {
         path: '/login',
-        method: methods.POST,
+        method: Methods.POST,
         handler: this.authenticate,
         localMiddleware: []
       },
       {
         path: '/refresh',
-        method: methods.GET,
+        method: Methods.GET,
         handler: this.refreshToken,
         localMiddleware: []
       },
       {
         path: '/tokens',
-        method: methods.GET,
+        method: Methods.GET,
         handler: this.getTokens,
-        localMiddleware: [this.applyAll]
+        localMiddleware: [this.all]
       },
       {
         path: '/logout',
-        method: methods.GET,
+        method: Methods.GET,
         handler: this.revokeToken,
-        localMiddleware: [this.applyAll]
+        localMiddleware: [this.all]
       }
     ]
 
@@ -58,8 +53,7 @@ class AuthController extends BaseController {
   async authenticate (req, res, next) {
     const reqDTO = new RequestDTO(req)
     const authService = reqDTO.ioc.get(Types.authService)
-    const { hasErrors, errors } = validator(reqDTO, loginScheme)
-    const resultDTO = hasErrors ? new ResultDTO(reqDTO, errors) : await authService.authenticate(reqDTO)
+    const resultDTO = await authService.authenticate(reqDTO)
     this.setResp({ res, req, resultDTO })
 
     next()
