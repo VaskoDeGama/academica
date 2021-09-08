@@ -1,6 +1,6 @@
 'use strict'
 
-const Cache = require('../../configs/cache')
+const Cache = require('../../infrastructure/cache')
 const mockRedis = require('redis-mock')
 const config = require('config')
 const delay = require('../../utils/delay')

@@ -5,25 +5,28 @@ const { BaseController } = require('../controllers')
 /**
  * check owner
  *
- * @param {string[]} who
- * @param {string} [field='id']
- * @param {string} [place='params']
- * @param {string} [model]
+ * @param {string} resource
+ * @param {string} action
  * @returns {Function}
  */
-function checkPermissions (who, field = 'id', place = 'params', model) {
-  if (typeof who === 'string') {
-    who = [who]
-  }
-
+function checkPermissions (resource, action) {
   return async (req, res, next) => {
-    const { id: userId, role } = req.user || {}
+    const { permissions } = req.user || {}
 
-    if (who.includes(role)) {
-      if (!model && Reflect.has(req[place], field) && req[place][field] !== userId) {
-        BaseController.setResponse({ req, res, code: 403 })
-        return res.end()
-      }
+    const resourceRights = permissions.find(p => p.resource === resource)
+
+    if (!resourceRights) {
+      BaseController.setResponse({ req, res, code: 403 })
+      return res.end()
+    }
+
+    if (!resourceRights[action]) {
+      BaseController.setResponse({ req, res, code: 403 })
+      return res.end()
+    }
+
+    if (resourceRights.onlyOwned) {
+      req.user.onlyOwned = true
     }
 
     next()

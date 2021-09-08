@@ -1,10 +1,10 @@
 const supertest = require('supertest')
 const config = require('config')
 const { MongoMemoryServer } = require('mongodb-memory-server')
-const { User, Role } = require('../../models')
+const { User } = require('../../models')
 
-const { mockUsers, roles } = require('../models/mock-data')
-const App = require('../../configs/app')
+const { mockUsers } = require('../models/mock-data')
+const App = require('../../infrastructure/app')
 
 describe('Auth routes', () => {
   let mongoServer = null
@@ -23,7 +23,6 @@ describe('Auth routes', () => {
     await server.start(config)
     address = `http://localhost:${config.get('server').port}`
     request = supertest(address)
-    await Role.create(roles)
     await User.create(mockUsers[3])
     await User.create(mockUsers[22])
   })

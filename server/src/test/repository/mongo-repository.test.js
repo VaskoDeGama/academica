@@ -1,8 +1,8 @@
 'use strict'
-const DataBase = require('./../../configs/database')
+const DataBase = require('../../infrastructure/database')
 const config = require('config')
 const { MongoMemoryServer } = require('mongodb-memory-server')
-const { User, Role } = require('../../models/')
+const { User } = require('../../models/')
 const { mockUsers, mockUsersLength, roles } = require('../models/mock-data')
 const { MongoRepository } = require('../../repositories')
 const { appLogger } = require('../../utils/logger')
@@ -21,7 +21,6 @@ describe('mongo repository', () => {
     })
     db = new DataBase(appLogger)
     await db.connect({ url: mongoServer.getUri(), name: config.get('db').name })
-    await Role.create(roles)
     await User.create(mockUsers)
   })
 
@@ -122,7 +121,7 @@ describe('mongo repository', () => {
     const id3 = mockUsers[22]._id.toString()
     const res = await repository.removeByQuery({
       $and: [
-        { role: roles[1]._id.toString() },
+        { role: 'teacher' },
         { _id: { $in: [id1, id2, id3] } }
       ]
     })
@@ -146,9 +145,9 @@ describe('mongo repository', () => {
   })
 
   it('populate', async () => {
-    const [res] = await repository.findByQuery({ role: roles[1]._id.toString() }, {}, { populate: 'role students' })
+    const [res] = await repository.findByQuery({ role: 'teacher' }, {}, { populate: 'students' })
 
-    expect(res.role.name).toBe('teacher')
+    expect(res.role).toBe('teacher')
     expect(res.students[0].username).toBeDefined()
   })
 })

@@ -5,48 +5,6 @@ const { refreshTokenExp } = config.get('server')
 const getRandomInt = require('../../utils/get-random-int')
 const randomString = require('../../utils/random-string')
 
-const roles = [
-  {
-    _id: new mongoose.Types.ObjectId(),
-    name: Roles.student,
-    permissions: [
-      {
-        resource: 'users',
-        read: true,
-        write: false,
-        delete: false,
-        onlyOwned: true
-      }
-    ]
-  },
-  {
-    _id: new mongoose.Types.ObjectId(),
-    name: Roles.teacher,
-    permissions: [
-      {
-        resource: 'users',
-        read: true,
-        write: true,
-        delete: true,
-        onlyOwned: true
-      }
-    ]
-  },
-  {
-    _id: new mongoose.Types.ObjectId(),
-    name: Roles.admin,
-    permissions: [
-      {
-        resource: 'users',
-        read: true,
-        write: true,
-        delete: true,
-        onlyOwned: false
-      }
-    ]
-  }
-]
-
 const teachers = [
 ]
 
@@ -60,7 +18,7 @@ for (let i = 0; i < 4; i += 1) {
     balance: getRandomInt(1000, 10000),
     lastName: `teacher${i}`,
     firstName: `firstname${i}`,
-    role: roles[1]._id,
+    role: Roles.teacher,
     students: []
   })
 }
@@ -81,7 +39,7 @@ for (const teacher of teachers) {
       lastName: `Student${i}`,
       firstName: `${username}`,
       teacher: _id,
-      role: roles[0]._id
+      role: Roles.student
     })
 
     refs.push(studId)
@@ -95,7 +53,7 @@ const admins = [
     password: 'SuperAdmin',
     skype: 'SuperAdmin',
     email: 'SuperAdmin@mail.ru',
-    role: roles[2]._id,
+    role: Roles.admin,
     lastName: 'Super',
     firstName: 'Admin'
   }
@@ -125,6 +83,5 @@ module.exports = {
   mockUsers,
   mockUsersLength: mockUsers.length,
   mockTokens,
-  mockTokensLength: mockTokens.length,
-  roles
+  mockTokensLength: mockTokens.length
 }

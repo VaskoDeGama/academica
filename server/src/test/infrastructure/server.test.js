@@ -1,5 +1,5 @@
 const supertest = require('supertest')
-const ExpressServer = require('../../configs/server')
+const ExpressServer = require('../../infrastructure/server')
 const config = require('config')
 
 const { appLogger } = require('../../utils/logger')

@@ -2,6 +2,7 @@
 
 const { model, Schema } = require('mongoose')
 const bcrypt = require('bcrypt')
+const { Roles } = require('./role')
 
 const userScheme = {
   username: {
@@ -37,7 +38,11 @@ const userScheme = {
     type: Number,
     default: 0
   },
-  role: { type: Schema.Types.ObjectId, ref: 'Role' },
+  role: {
+    type: String,
+    enum: [Roles.student, Roles.admin, Roles.teacher],
+    default: Roles.student
+  },
   teacher: { type: Schema.Types.ObjectId, ref: 'User' },
   students: [{ type: Schema.Types.ObjectId, ref: 'User' }]
 }

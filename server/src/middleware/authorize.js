@@ -2,14 +2,11 @@
 const config = require('config')
 const jwt = require('express-jwt')
 
-const { Token } = require('../models')
-const { MongoRepository } = require('../repositories')
-const { BaseController } = require('../controllers')
-const Types = require('../models/types')
 const { UnauthorizedError } = require('express-jwt')
+const { BaseController } = require('../controllers')
 const { secret } = config.server
-
-const tokeRepository = new MongoRepository(Token)
+const { PERMISSIONS } = require('../models')
+const Types = require('../models/types')
 
 const isRevokedCallback = async function (req, payload, done) {
   try {
@@ -45,7 +42,12 @@ const authorize = function (roles = []) {
         return res.end()
       }
 
+      const ioc = req.app.get('ioc')
+      const tokeRepository = ioc.get(Types.tokenRepository)
+
       const refreshTokens = await tokeRepository.findByQuery({ user: req.user.id })
+
+      req.user.permissions = PERMISSIONS[req.user.role]
       req.user.ownsToken = token => !!refreshTokens.find(x => x.token === token)
       next()
     }

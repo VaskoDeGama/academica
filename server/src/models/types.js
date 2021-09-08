@@ -15,9 +15,11 @@ module.exports = {
 
   user: Symbol('user'),
   token: Symbol('token'),
+  role: Symbol('role'),
 
   userRepository: Symbol('userRepository'),
   tokenRepository: Symbol('tokenRepository'),
+  roleRepository: Symbol('roleRepository'),
 
   userService: Symbol('userService'),
   authService: Symbol('authService')

@@ -190,7 +190,7 @@ class AuthService {
    * @returns {string}
    */
   generateJwtToken (user, refreshId) {
-    return jwt.sign({ id: user.id, role: user.role.name }, config.server.secret, { expiresIn: config.server.tokenExp, jwtid: refreshId })
+    return jwt.sign({ id: user.id, role: user.role }, config.server.secret, { expiresIn: config.server.tokenExp, jwtid: refreshId })
   }
 
   /**
@@ -213,7 +213,7 @@ class AuthService {
    */
   basicDetails (user) {
     const { id, username, role, balance, skype } = user
-    return { id, username, role: role.name, balance, skype }
+    return { id, username, role, balance, skype }
   }
 }
 

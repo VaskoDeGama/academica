@@ -1,6 +1,6 @@
 'use strict'
 const config = require('config')
-const App = require('./configs/app')
+const App = require('./infrastructure/app')
 const signals = require('./utils/signals')
 const app = new App(config)
 const shutdown = signals.init(async () => await app.stop())

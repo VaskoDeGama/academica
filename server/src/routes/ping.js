@@ -4,7 +4,7 @@ const httpContext = require('express-http-context')
 const express = require('express')
 const ResultDTO = require('../models/result-dto')
 const BaseController = require('../controllers/base-controller')
-const DB = require('./../configs/database')
+const DB = require('../infrastructure/database')
 
 const pingRouter = express.Router()
 
