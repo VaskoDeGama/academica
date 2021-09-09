@@ -209,26 +209,18 @@ class UserService {
    * @param {string[]} mutableFields
    * @returns {{}|null}
    */
-  sanitizeUpdate (body, mutableFields = []) {
-    const update = {}
-    let updated = false
-
+  checkUpdate (body, mutableFields = []) {
     if (!mutableFields.length) {
-      return body
+      return true
     }
 
     for (const key of Object.keys(body)) {
-      if (mutableFields.includes(key)) {
-        update[key] = body[key]
-        updated = true
+      if (!mutableFields.includes(key)) {
+        return false
       }
     }
 
-    if (updated) {
-      return update
-    }
-
-    return null
+    return true
   }
 
   /**
@@ -244,10 +236,8 @@ class UserService {
         const userForUpdate = await this.userRepositroy.findById(params.id)
 
         if (userForUpdate && this.isOwner(user.role, user.id, userForUpdate)) {
-          const update = this.sanitizeUpdate(body, user.mutableFields)
-
-          if (update) {
-            const result = await this.userRepositroy.update(userForUpdate, update)
+          if (this.checkUpdate(body, user.mutableFields)) {
+            const result = await this.userRepositroy.update(userForUpdate, body)
 
             if (result.acknowledged && result.modifiedCount === 1) {
               resDTO.data = userForUpdate.id
