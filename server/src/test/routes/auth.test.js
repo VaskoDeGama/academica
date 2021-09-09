@@ -334,4 +334,63 @@ describe('Auth routes', () => {
       .set('Authorization', 'Bearer ' + token)
       .expect(403)
   })
+
+  it('admin get all', async () => {
+    const admin = mockUsers.find(user => user.role === 'admin')
+
+    const auth = await request
+      .post('/api/login')
+      .send({
+        username: admin.username,
+        password: admin.password
+      })
+
+    const token = auth.body.data.token
+
+    const { body } = await request
+      .get('/api/users')
+      .set('Authorization', 'Bearer ' + token)
+      .expect(200)
+
+    expect(body.data.count).toBe(45)
+  })
+
+  it('student can\'t update balance', async () => {
+    const student = mockUsers.find(user => user.role === 'student')
+
+    const auth = await request
+      .post('/api/login')
+      .send({
+        username: student.username,
+        password: student.password
+      })
+
+    const token = auth.body.data.token
+
+    await request
+      .put(`/api/users/${student._id.toString()}`)
+      .send({ balance: 2000 })
+      .set('Authorization', 'Bearer ' + token)
+      .expect(400)
+  })
+
+  it('teacher can update balance', async () => {
+    const teacher = mockUsers.find(user => user.role === 'teacher')
+    const student = mockUsers.find(user => user.role === 'student' && user.teacher === teacher._id)
+
+    const auth = await request
+      .post('/api/login')
+      .send({
+        username: teacher.username,
+        password: teacher.password
+      })
+
+    const token = auth.body.data.token
+
+    await request
+      .put(`/api/users/${student._id.toString()}`)
+      .send({ balance: 2000 })
+      .set('Authorization', 'Bearer ' + token)
+      .expect(200)
+  })
 })
