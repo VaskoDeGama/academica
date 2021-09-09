@@ -3,54 +3,59 @@
 const BaseController = require('./base-controller')
 const RequestDTO = require('../models/request-dto')
 const { Methods, Roles, Types, Actions } = require('./../models')
+const { Validators } = require('../models')
 
 class UserController extends BaseController {
-  constructor (authorize, checkPermission) {
+  constructor (authorize, checkPermission, validate) {
     super()
     this.path = '/users'
     this.ALL = authorize([Roles.teacher, Roles.admin, Roles.student])
     this.TEACHER_ADMIN = authorize([Roles.teacher, Roles.admin])
+
     this.USER_CREATE = checkPermission('users', Actions.CREATE)
     this.USER_DELETE = checkPermission('users', Actions.DELETE)
     this.USER_UPDATE = checkPermission('users', Actions.UPDATE)
     this.USER_READ = checkPermission('users', Actions.READ)
+
+    this.ID_VALIDATE = validate(Validators.idSchema)
+    this.USER_VALIDATE = validate(Validators.userSchema)
 
     this.routes = [
       {
         path: '',
         method: Methods.POST,
         handler: this.create,
-        localMiddleware: [this.TEACHER_ADMIN, this.USER_CREATE]
+        localMiddleware: [this.TEACHER_ADMIN, this.USER_CREATE, this.USER_VALIDATE]
       },
       {
         path: '/:id',
         method: Methods.GET,
         handler: this.getById,
-        localMiddleware: [this.ALL, this.USER_READ]
+        localMiddleware: [this.ALL, this.USER_READ, this.ID_VALIDATE]
       },
       {
         path: '',
         method: Methods.GET,
         handler: this.getAllAndQuery,
-        localMiddleware: [this.TEACHER_ADMIN, this.USER_READ]
+        localMiddleware: [this.TEACHER_ADMIN, this.USER_READ, this.ID_VALIDATE]
       },
       {
         path: '/:id',
         method: Methods.PUT,
         handler: this.update,
-        localMiddleware: [this.ALL, this.USER_UPDATE]
+        localMiddleware: [this.ALL, this.USER_UPDATE, this.ID_VALIDATE]
       },
       {
         path: '/:id',
         method: Methods.DELETE,
         handler: this.delete,
-        localMiddleware: [this.TEACHER_ADMIN, this.USER_DELETE]
+        localMiddleware: [this.TEACHER_ADMIN, this.USER_DELETE, this.ID_VALIDATE]
       },
       {
         path: '',
         method: Methods.DELETE,
         handler: this.delete,
-        localMiddleware: [this.TEACHER_ADMIN, this.USER_DELETE]
+        localMiddleware: [this.TEACHER_ADMIN, this.USER_DELETE, this.ID_VALIDATE]
       }
     ]
 

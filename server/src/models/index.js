@@ -6,6 +6,7 @@ const RequestDTO = require('./request-dto')
 const Methods = require('./methods')
 const Types = require('./types')
 const Actions = require('./actions')
+const Validators = require('./validators')
 
 module.exports = {
   User,
@@ -16,5 +17,6 @@ module.exports = {
   PERMISSIONS,
   Methods,
   Types,
-  Actions
+  Actions,
+  Validators
 }

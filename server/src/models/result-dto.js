@@ -88,12 +88,13 @@ class ResultDto {
    *
    * @param {string|Error} error
    * @param {number} [status=400]
+   * @param {string} [type='Error']
    * @returns {ResultDTO}
    */
-  addError (error, status = 500) {
+  addError (error, status = 500, type = 'Error') {
     this.status = status
     if (typeof error === 'string') {
-      this.errors.push({ message: error, type: 'Error' })
+      this.errors.push({ message: error, type })
     } else {
       this.errors.push({ error, message: error.message, type: error.name })
     }

@@ -2,19 +2,21 @@
 
 const BaseController = require('./base-controller')
 const RequestDTO = require('../models/request-dto')
-const { Roles, Types, Methods } = require('./../models')
+const { Roles, Types, Methods, Validators } = require('./../models')
 
 class AuthController extends BaseController {
-  constructor (authorize) {
+  constructor (authorize, validate) {
     super()
     this.path = ''
-    this.all = authorize([Roles.teacher, Roles.admin, Roles.student])
+    this.ALL = authorize([Roles.teacher, Roles.admin, Roles.student])
+    this.LOGIN_VALIDATE = validate(Validators.loginSchema)
+
     this.routes = [
       {
         path: '/login',
         method: Methods.POST,
         handler: this.authenticate,
-        localMiddleware: []
+        localMiddleware: [this.LOGIN_VALIDATE]
       },
       {
         path: '/refresh',
@@ -26,13 +28,13 @@ class AuthController extends BaseController {
         path: '/tokens',
         method: Methods.GET,
         handler: this.getTokens,
-        localMiddleware: [this.all]
+        localMiddleware: [this.ALL]
       },
       {
         path: '/logout',
         method: Methods.GET,
         handler: this.revokeToken,
-        localMiddleware: [this.all]
+        localMiddleware: [this.ALL]
       }
     ]
 
