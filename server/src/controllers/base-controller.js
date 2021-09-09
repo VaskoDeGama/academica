@@ -74,13 +74,13 @@ class BaseController {
     switch (code) {
       case 200: return BaseController.ok(res)
       case 201: return BaseController.created(res)
-      case 400: return BaseController.clientError(res)
-      case 401: return BaseController.unauthorized(res)
-      case 402: return BaseController.paymentRequired(res)
-      case 403: return BaseController.forbidden(res)
-      case 404: return BaseController.notFound(res)
-      case 409: return BaseController.conflict(res)
-      case 429: return BaseController.tooMany(res)
+      case 400: return BaseController.clientError(res, null, message)
+      case 401: return BaseController.unauthorized(res, null, message)
+      case 402: return BaseController.paymentRequired(res, null, message)
+      case 403: return BaseController.forbidden(res, null, message)
+      case 404: return BaseController.notFound(res, null, message)
+      case 409: return BaseController.conflict(res, null, message)
+      case 429: return BaseController.tooMany(res, null, message)
       default: return BaseController.fail({ req, res, code, message })
     }
   }

@@ -94,6 +94,17 @@ class MongoRepository {
   }
 
   /**
+   *
+   * @param {object} model - mongoose filter
+   * @param {object} update - update fields
+   * @param {object} [options={}] - other options for mongoose findOneAndUpdate
+   * @returns {Promise<object>}
+   */
+  async update (model, update, options) {
+    return model.updateOne(update, options)
+  }
+
+  /**
    * check id field and replace on _id
    *
    * @param {object} query

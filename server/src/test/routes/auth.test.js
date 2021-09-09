@@ -23,12 +23,7 @@ describe('Auth routes', () => {
     await server.start(config)
     address = `http://localhost:${config.get('server').port}`
     request = supertest(address)
-    await User.create(mockUsers[3])
-    await User.create(mockUsers[22])
-  })
-
-  beforeEach(async () => {
-    await server.db.dropCollections('tokens')
+    await User.create(mockUsers)
   })
 
   afterAll(async () => {
@@ -46,6 +41,43 @@ describe('Auth routes', () => {
     expect(response.body.data.isOnline).toBeTruthy()
     expect(response.body.data.timing).toBeLessThan(10)
     expect(response.body.data.dbStatus).toBe('connected')
+  })
+
+  it('teacher get self student ok', async () => {
+    const teacher = mockUsers.find(user => user.role === 'teacher')
+    const studentId = teacher.students[0]._id.toString()
+
+    const auth = await request
+      .post('/api/login')
+      .send({
+        username: teacher.username,
+        password: teacher.password
+      })
+
+    const token = auth.body.data.token
+
+    await request
+      .get(`/api/users/${studentId}`)
+      .set('Authorization', 'Bearer ' + token)
+      .expect(200)
+  })
+
+  it('teacher get self ok', async () => {
+    const teacher = mockUsers.find(user => user.role === 'teacher')
+
+    const auth = await request
+      .post('/api/login')
+      .send({
+        username: teacher.username,
+        password: teacher.password
+      })
+
+    const token = auth.body.data.token
+
+    await request
+      .get(`/api/users/${teacher._id.toString()}`)
+      .set('Authorization', 'Bearer ' + token)
+      .expect(200)
   })
 
   it('login ok', async () => {
@@ -126,6 +158,7 @@ describe('Auth routes', () => {
         password: mockUsers[3].password
       })
 
+    // noinspection SpellCheckingInspection
     const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxMzExODA0YmM4NzU4NTczOTlkMDVkNiIsInJvbGUiOiJ0ZWFjaGVyIiwiaWF0IjoxNjMwNjA3MzY0LCJleHAiOjE2MzA2MDczOTQsImp0aSI6IjYxMzExODA0YmM4NzU4NTczOTlkMDVlMyJ9._7RVm2DYlhanKSF5b4SypeA47dAvIQbkneTPQvpGL4E'
     const { refresh } = auth.headers['set-cookie'][0].match(/refresh=(?<refresh>[a-f0-9]*);/)?.groups || {}
 
@@ -208,6 +241,96 @@ describe('Auth routes', () => {
     await request
       .post('/api/users/')
       .send({})
+      .set('Authorization', 'Bearer ' + token)
+      .expect(403)
+  })
+
+  it('student get not owned', async () => {
+    const auth = await request
+      .post('/api/login')
+      .send({
+        username: mockUsers[22].username,
+        password: mockUsers[22].password
+      })
+
+    const token = auth.body.data.token
+
+    await request
+      .get(`/api/users/${mockUsers[21]._id.toString()}`)
+      .set('Authorization', 'Bearer ' + token)
+      .expect(404)
+  })
+
+  it('student get self', async () => {
+    const auth = await request
+      .post('/api/login')
+      .send({
+        username: mockUsers[22].username,
+        password: mockUsers[22].password
+      })
+
+    const token = auth.body.data.token
+
+    await request
+      .get(`/api/users/${mockUsers[22]._id.toString()}`)
+      .set('Authorization', 'Bearer ' + token)
+      .expect(200)
+  })
+
+  it('teacher get all onlyOwned', async () => {
+    const teacher = mockUsers.find(user => user.role === 'teacher')
+    const users = mockUsers.filter(user => user._id === teacher._id || user?.teacher === teacher._id)
+
+    const auth = await request
+      .post('/api/login')
+      .send({
+        username: teacher.username,
+        password: teacher.password
+      })
+
+    const token = auth.body.data.token
+
+    const { body } = await request
+      .get('/api/users')
+      .set('Authorization', 'Bearer ' + token)
+      .expect(200)
+
+    expect(body.data.users.length).toBe(users.length)
+  })
+
+  it('teacher get another student 404', async () => {
+    const teacher = mockUsers.find(user => user.role === 'teacher')
+    const student = mockUsers.find(user => user.role === 'student' && user.teacher !== teacher._id)
+
+    const auth = await request
+      .post('/api/login')
+      .send({
+        username: teacher.username,
+        password: teacher.password
+      })
+
+    const token = auth.body.data.token
+
+    await request
+      .get(`/api/users/${student._id.toString()}`)
+      .set('Authorization', 'Bearer ' + token)
+      .expect(404)
+  })
+
+  it('student get all 403', async () => {
+    const student = mockUsers.find(user => user.role === 'student')
+
+    const auth = await request
+      .post('/api/login')
+      .send({
+        username: student.username,
+        password: student.password
+      })
+
+    const token = auth.body.data.token
+
+    await request
+      .get('/api/users')
       .set('Authorization', 'Bearer ' + token)
       .expect(403)
   })

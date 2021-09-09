@@ -42,6 +42,6 @@ describe('Server', () => {
       .expect(404)
       .expect('Content-Type', /json/)
 
-    expect(response.body.message).toBe('Not found')
+    expect(response.body.message).toBe('Route not found')
   })
 })

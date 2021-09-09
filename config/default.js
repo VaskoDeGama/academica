@@ -9,7 +9,7 @@ module.exports = {
     refreshTokenExp: 30 * 60 * 1000
   },
   db: {
-    url: process.env.DB_URL,
+    url: 'mongodb://127.0.0.1:27017/',
     name: 'test'
   },
   cache:{

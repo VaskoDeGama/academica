@@ -93,7 +93,7 @@ class ResultDto {
   addError (error, status = 500) {
     this.status = status
     if (typeof error === 'string') {
-      this.errors.push({ message: error, type: 'Custom' })
+      this.errors.push({ message: error, type: 'Error' })
     } else {
       this.errors.push({ error, message: error.message, type: error.name })
     }

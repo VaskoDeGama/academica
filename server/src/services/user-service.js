@@ -1,18 +1,54 @@
 'use strict'
 
 const ResultDTO = require('../models/result-dto')
+const { Roles } = require('../models')
 
 class UserService {
   constructor (userRepository) {
     this.userRepositroy = userRepository
-    this.options = {
-      populate:
-        [
-          { path: 'students', select: '-createdAt -updatedAt -teacher' },
-          { path: 'teacher', select: '-createdAt -updatedAt -students' }
-        ]
+  }
+
+  /**
+   *
+   * @param {string} role
+   * @param {string} userId
+   * @param {User[]} users
+   * @returns {User[]}
+   */
+  getOnlyOwned (role, userId, users = []) {
+    try {
+      return users.filter(user => this.isOwner(role, userId, user))
+    } catch (e) {
+      throw new Error(`getOwned failed: ${e.message}`)
     }
-    this.select = { createdAt: 0, updatedAt: 0 }
+  }
+
+  /**
+   *
+   * @param {string} role
+   * @param {string} userId
+   * @param {User} userForCheck
+   * @returns {boolean}
+   */
+  isOwner (role, userId, userForCheck) {
+    try {
+      switch (role) {
+        case Roles.student: {
+          return userForCheck.id === userId
+        }
+        case Roles.teacher: {
+          return userForCheck?.id === userId || userForCheck?.teacher?.toString() === userId || userForCheck?.teacher?.id === userId
+        }
+        case Roles.admin: {
+          return true
+        }
+        default: {
+          return false
+        }
+      }
+    } catch (e) {
+      throw new Error(`getOwned failed: ${e.message}`)
+    }
   }
 
   /**
@@ -21,23 +57,38 @@ class UserService {
    * @returns {Promise<ResultDTO>}
    */
   async getUsers (reqDTO) {
-    // TODO add onlyOwned check
     const resDTO = new ResultDTO(reqDTO)
-    const { hasQuery, query } = reqDTO
+    const { hasQuery, query, user } = reqDTO
     const users = []
+
+    const opt = {
+      populate: {
+        path: `${user.role === 'teacher' ? 'students' : 'teacher'}`,
+        select: `-students -teacher -createdAt -updatedAt -role${user.role === 'teacher' ? ' +balance +username' : ' -balance -username'}`
+      }
+    }
+
+    const select = {
+      createdAt: 0,
+      updatedAt: 0,
+      students: 0
+    }
+
     try {
       if (hasQuery) {
-        // TODO разбор query
-        users.push(...await this.userRepositroy.findByQuery(query, this.select, this.options))
+        users.push(...await this.userRepositroy.findByQuery(query, select, opt))
       } else {
-        users.push(...await this.userRepositroy.getAll(this.select, this.options))
+        users.push(...await this.userRepositroy.getAll(select, opt))
       }
 
-      if (users.length) {
+      const result = this.getOnlyOwned(user.role, user.id, users)
+
+      if (result.length) {
         resDTO.data = {
-          count: users.length,
-          users
+          count: result.length,
+          users: result
         }
+
         return resDTO
       } else {
         return resDTO.addError('Resource not found', 404)
@@ -53,17 +104,28 @@ class UserService {
    * @returns {Promise<ResultDTO>}
    */
   async getUser (reqDTO) {
-    // TODO add onlyOwned check
     const resDTO = new ResultDTO(reqDTO)
 
     try {
-      const { hasParams, params } = reqDTO
+      const { hasParams, params, user } = reqDTO
+
+      const opt = {
+        populate: {
+          path: `${user.role === 'teacher' ? 'students' : 'teacher'}`,
+          select: `-students -teacher -createdAt -updatedAt -role${user.role === 'teacher' ? ' +balance +username' : ' -balance -username'}`
+        }
+      }
+
+      const select = {
+        createdAt: 0,
+        updatedAt: 0
+      }
 
       if (hasParams) {
-        const user = await this.userRepositroy.findById(params.id, this.select, this.options)
+        const searchedUser = await this.userRepositroy.findById(params.id, select, opt)
 
-        if (user) {
-          resDTO.data = user
+        if (searchedUser && this.isOwner(user.role, user.id, searchedUser)) {
+          resDTO.data = searchedUser
           return resDTO
         }
       }
@@ -129,9 +191,7 @@ class UserService {
 
     try {
       const result = await this.userRepositroy.save(reqDTO.body)
-      resDTO.data = {
-        id: result.id
-      }
+      resDTO.data = result.id
       resDTO.status = 201
       return resDTO
     } catch (error) {
@@ -151,15 +211,17 @@ class UserService {
   async updateUser (reqDTO) {
     const resDTO = new ResultDTO(reqDTO)
     try {
-      const { hasParams, params, body } = reqDTO
+      const { hasParams, params, body, user } = reqDTO
       if (hasParams) {
-        const result = await this.userRepositroy.findAndUpdate({ id: params.id }, body)
+        const userForUpdate = await this.userRepositroy.findById(params.id)
 
-        if (result && result.id === params.id) {
-          resDTO.data = {
-            id: result.id
+        if (userForUpdate && this.isOwner(user.role, user.id, userForUpdate)) {
+          const result = await this.userRepositroy.update(userForUpdate, body)
+
+          if (result.acknowledged && result.modifiedCount === 1) {
+            resDTO.data = userForUpdate.id
+            return resDTO
           }
-          return resDTO
         }
       }
 

@@ -1,7 +1,7 @@
 'use strict'
 const mongoose = require('mongoose')
-const { Role, User } = require('../models')
-const { roles, mockUsers } = require('../test/models/mock-data')
+const { User } = require('../models')
+const { mockUsers } = require('../test/models/mock-data')
 
 /**
  * @typedef {object} DB
@@ -54,8 +54,13 @@ class Database {
     this.options.dbName = config.name
     await mongoose.connect(config.url, this.options)
     this.db = this.mongoose.connection.db
-    // await this.dropCollections(['users', 'tokens'])
-    // await User.create(mockUsers)
+
+    // if (process.env.SEEDING) {
+    //   this.log.info('Start seed db...')
+    //   await this.dropCollections(['users', 'tokens'])
+    //   await User.create(mockUsers)
+    //   this.log.info('Seed db succeed!')
+    // }
   }
 
   /**
