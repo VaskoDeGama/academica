@@ -55,12 +55,12 @@ class Database {
     await mongoose.connect(config.url, this.options)
     this.db = this.mongoose.connection.db
 
-    // if (process.env.SEEDING) {
-    //   this.log.info('Start seed db...')
-    //   await this.dropCollections(['users', 'tokens'])
-    //   await User.create(mockUsers)
-    //   this.log.info('Seed db succeed!')
-    // }
+    if (process.env.SEEDING) {
+      this.log.info('Start seed db...')
+      await this.dropCollections(['users', 'tokens'])
+      await User.create(mockUsers)
+      this.log.info('Seed db succeed!')
+    }
   }
 
   /**

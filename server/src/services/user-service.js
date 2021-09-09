@@ -145,18 +145,24 @@ class UserService {
     const resDTO = new ResultDTO(reqDTO)
     let result = {}
     try {
-      const { hasParams, params, hasQuery, query } = reqDTO
+      const { hasParams, params, hasQuery, query, user } = reqDTO
 
       if (hasParams) {
-        result = await this.userRepositroy.removeById(params.id)
+        const userForDelete = await this.userRepositroy.findById(params.id)
+        if (this.isOwner(user.role, user.id, userForDelete)) {
+          result = await this.userRepositroy.removeById(params.id)
+        }
       } else if (hasQuery && Array.isArray(query.id)) {
-        result = await this.userRepositroy.removeByIds(query.id)
+        const users = await this.userRepositroy.findByIds(query.id)
+        const usersForDelete = this.getOnlyOwned(user.role, user.id, users)
+
+        if (usersForDelete.length === users.length) {
+          result = await this.userRepositroy.removeByIds(query.id)
+        }
       }
 
       if (result && result.deletedCount) {
-        resDTO.data = {
-          deletedCount: result.deletedCount
-        }
+        resDTO.data = result.deletedCount
         return resDTO
       }
 

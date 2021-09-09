@@ -9,7 +9,7 @@
     "start": "NODE_ENV=production node .",
     "build": "webpack",
     "test": "jest --config=jest.config.js --coverage --runInBand --no-cache",
-    "dev": "SEEDING=false nodemon ./server/src/index.js --trace-warnings",
+    "dev": "SEEDING=true nodemon ./server/src/index.js --trace-warnings",
     "lint:fix": "eslint --ext .js . --fix",
     "lint": "eslint --ext .js ."
   },
