@@ -8,6 +8,7 @@
  * @property {boolean} create - can do create with resource
  * @property {boolean} delete - can do delete with resource
  * @property {boolean} update - can do update with resource
+ * @property {string[]} mutableFields - list filed
  */
 
 const Roles = {
@@ -24,6 +25,7 @@ PERMISSIONS[Roles.student] = [
     create: false,
     delete: false,
     update: true,
+    mutableFields: ['password', 'lastName', 'firstName', 'skype', 'email'],
     onlyOwned: true
   }
 ]
@@ -35,6 +37,7 @@ PERMISSIONS[Roles.teacher] = [
     create: true,
     delete: true,
     update: true,
+    mutableFields: [],
     onlyOwned: true
   }
 ]
@@ -46,6 +49,7 @@ PERMISSIONS[Roles.admin] = [
     create: true,
     delete: true,
     update: true,
+    mutableFields: [],
     onlyOwned: false
   }
 ]

@@ -29,6 +29,10 @@ function checkPermissions (resource, action) {
       req.user.onlyOwned = true
     }
 
+    if (resourceRights.mutableFields.length) {
+      req.user.mutableFields = resourceRights.mutableFields
+    }
+
     next()
   }
 }

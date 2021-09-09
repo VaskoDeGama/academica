@@ -9,7 +9,8 @@ const userScheme = {
     type: String,
     required: true,
     unique: true,
-    trim: true
+    trim: true,
+    immutable: true
   },
   password: {
     type: String,

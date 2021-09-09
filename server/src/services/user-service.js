@@ -205,6 +205,34 @@ class UserService {
 
   /**
    *
+   * @param {object} body
+   * @param {string[]} mutableFields
+   * @returns {{}|null}
+   */
+  sanitizeUpdate (body, mutableFields = []) {
+    const update = {}
+    let updated = false
+
+    if (!mutableFields.length) {
+      return body
+    }
+
+    for (const key of Object.keys(body)) {
+      if (mutableFields.includes(key)) {
+        update[key] = body[key]
+        updated = true
+      }
+    }
+
+    if (updated) {
+      return update
+    }
+
+    return null
+  }
+
+  /**
+   *
    * @param {RequestDTO} reqDTO
    * @returns {Promise<ResultDTO>}
    */
@@ -216,11 +244,17 @@ class UserService {
         const userForUpdate = await this.userRepositroy.findById(params.id)
 
         if (userForUpdate && this.isOwner(user.role, user.id, userForUpdate)) {
-          const result = await this.userRepositroy.update(userForUpdate, body)
+          const update = this.sanitizeUpdate(body, user.mutableFields)
 
-          if (result.acknowledged && result.modifiedCount === 1) {
-            resDTO.data = userForUpdate.id
-            return resDTO
+          if (update) {
+            const result = await this.userRepositroy.update(userForUpdate, update)
+
+            if (result.acknowledged && result.modifiedCount === 1) {
+              resDTO.data = userForUpdate.id
+              return resDTO
+            }
+          } else {
+            return resDTO.addError('Bad request', 400)
           }
         }
       }
