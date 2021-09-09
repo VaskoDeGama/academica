@@ -86,6 +86,7 @@ const userUpdateSchema = {
   },
   balance: {
     in: ['body'],
+    errorMessage: 'Balance should be numeric',
     isNumeric: true,
     optional: true,
     toFloat: true
@@ -94,7 +95,6 @@ const userUpdateSchema = {
     in: ['body'],
     optional: true,
     trim: true
-
   },
   firstName: {
     in: ['body'],
