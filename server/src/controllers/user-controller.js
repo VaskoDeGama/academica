@@ -9,6 +9,7 @@ class UserController extends BaseController {
   constructor (authorize, checkPermission, validate) {
     super()
     this.path = '/users'
+
     this.ALL = authorize([Roles.teacher, Roles.admin, Roles.student])
     this.TEACHER_ADMIN = authorize([Roles.teacher, Roles.admin])
 
@@ -18,14 +19,15 @@ class UserController extends BaseController {
     this.USER_READ = checkPermission('users', Actions.READ)
 
     this.ID_VALIDATE = validate(Validators.idSchema)
-    this.USER_VALIDATE = validate(Validators.userSchema)
+    this.USER_CREATE_VALIDATE = validate(Validators.userSchema)
+    this.USER_UPDATE_VALIDATE = validate(Validators.userUpdateSchema)
 
     this.routes = [
       {
         path: '',
         method: Methods.POST,
         handler: this.create,
-        localMiddleware: [this.TEACHER_ADMIN, this.USER_CREATE, this.USER_VALIDATE]
+        localMiddleware: [this.TEACHER_ADMIN, this.USER_CREATE, this.USER_CREATE_VALIDATE]
       },
       {
         path: '/:id',
@@ -43,7 +45,7 @@ class UserController extends BaseController {
         path: '/:id',
         method: Methods.PUT,
         handler: this.update,
-        localMiddleware: [this.ALL, this.USER_UPDATE, this.ID_VALIDATE]
+        localMiddleware: [this.ALL, this.USER_UPDATE, this.ID_VALIDATE, this.USER_UPDATE_VALIDATE]
       },
       {
         path: '/:id',

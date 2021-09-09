@@ -4,7 +4,7 @@ const loginSchema = {
   username: {
     in: ['body'],
     exists: true,
-    string: true,
+    isString: true,
     errorMessage: 'Username is required',
     trim: true,
     escape: true,
@@ -19,10 +19,10 @@ const loginSchema = {
   password: {
     in: ['body'],
     exists: true,
-    string: true,
     errorMessage: 'Password is required',
     trim: true,
     escape: true,
+    isString: true,
     isLength: {
       errorMessage: 'Password should be at least 6 chars long',
       options: { min: 6 }
@@ -34,10 +34,10 @@ const userSchema = {
   username: {
     in: ['body'],
     exists: true,
-    string: true,
     errorMessage: 'Username is required',
     trim: true,
     escape: true,
+    isString: true,
     isLength: {
       errorMessage: 'Username should be at least 6 chars long and less then 25 chars',
       options: { min: 6, max: 25 }
@@ -49,9 +49,9 @@ const userSchema = {
   password: {
     in: ['body'],
     exists: true,
-    string: true,
     errorMessage: 'Password is required',
     trim: true,
+    isString: true,
     escape: true,
     isLength: {
       errorMessage: 'Password should be at least 6 chars long',
@@ -65,11 +65,54 @@ const userSchema = {
   }
 }
 
+const userUpdateSchema = {
+  password: {
+    in: ['body'],
+    optional: true,
+    trim: true,
+    isString: true,
+    escape: true,
+    isLength: {
+      errorMessage: 'Password should be at least 6 chars long',
+      options: { min: 6 }
+    }
+  },
+  email: {
+    in: ['body'],
+    errorMessage: 'Email is not valid',
+    optional: true,
+    isEmail: true,
+    trim: true
+  },
+  balance: {
+    in: ['body'],
+    isNumeric: true,
+    optional: true,
+    toFloat: true
+  },
+  lastName: {
+    in: ['body'],
+    optional: true,
+    trim: true
+
+  },
+  firstName: {
+    in: ['body'],
+    optional: true,
+    trim: true
+  },
+  skype: {
+    in: ['body'],
+    optional: true,
+    trim: true
+  }
+}
+
 const idSchema = {
   id: {
     in: ['params', 'query'],
     optional: true,
-    string: true,
+    isString: true,
     errorMessage: 'Bad ID',
     isMongoId: true
   }
@@ -78,5 +121,6 @@ const idSchema = {
 module.exports = {
   loginSchema,
   idSchema,
-  userSchema
+  userSchema,
+  userUpdateSchema
 }

@@ -1,6 +1,6 @@
 'use strict'
 
-const { checkSchema, validationResult } = require('express-validator/check')
+const { checkSchema, validationResult } = require('express-validator')
 const { RequestDTO, ResultDTO } = require('../models')
 const { BaseController } = require('../controllers')
 
