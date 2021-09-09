@@ -1,5 +1,6 @@
 'use strict'
 
+const { isMongoId } = require('validator')
 const loginSchema = {
   username: {
     in: ['body'],
@@ -112,9 +113,17 @@ const idSchema = {
   id: {
     in: ['params', 'query'],
     optional: true,
-    isString: true,
-    errorMessage: 'Bad ID',
-    isMongoId: true
+    custom: {
+      options: (value, { req }) => {
+        if (Array.isArray(value)) {
+          return value.every(id => isMongoId(id) && req.user.id !== id)
+        }
+
+        return isMongoId(value) && req.user.id !== value
+      }
+    },
+    errorMessage: 'Bad ID'
+
   }
 }
 
