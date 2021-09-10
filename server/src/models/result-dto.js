@@ -10,6 +10,11 @@
  * @property {object[]} [errors] - query errors
  */
 
+const msgMap = {
+  'jwt expired': 'Token expired!',
+  'jwt malformed': 'Token required!'
+}
+
 /**
  * Data transfer object between levels within the system
  *
@@ -19,9 +24,8 @@
 class ResultDto {
   /**
    * @param {RequestDTO} [reqDto]
-   * @param {ValidationError[]} errors
    */
-  constructor (reqDto, errors) {
+  constructor (reqDto) {
     /** @type {number} - http status code */
     this._status = 500
     /** @type {boolean} - successful request or not */
@@ -31,20 +35,18 @@ class ResultDto {
     /** @type {string} - req id */
     this.reqId = reqDto?.reqId || 'test'
     /** @type {object[]} errors - query errors */
-    this.errors = errors || []
-
-    if (errors?.length) {
-      this.status = 400
-    }
+    this._errors = []
 
     /** @type {object[]} query cookies */
     this.cookies = []
   }
 
+  get errors () {
+    return this._errors
+  }
+
   set success (value) {
-    if (value) {
-      this.status = 200
-    }
+    this.status = 200
     this._success = value
   }
 
@@ -86,18 +88,30 @@ class ResultDto {
 
   /**
    *
-   * @param {string|Error} error
-   * @param {number} [status=400]
+   * @param {string|Error|Error[]} error
+   * @param {number} [status=500]
    * @param {string} [type='Error']
    * @returns {ResultDTO}
    */
-  addError (error, status = 500, type = 'Error') {
-    this.status = status
-    if (typeof error === 'string') {
-      this.errors.push({ message: error, type })
-    } else {
-      this.errors.push({ error, message: error.message, type: error.name })
+  addError (error, status, type = 'Error') {
+    if (!Array.isArray(error)) {
+      if (typeof error === 'string') {
+        error = [{ message: error, status, type }]
+      } else {
+        error = [error]
+      }
     }
+
+    for (const err of error) {
+      this.status = typeof err.code === 'number'
+        ? err.code
+        : err.status
+
+      const message = msgMap[err.message || err.msg] || err.message || err.msg
+
+      this._errors.push({ error: !process.env.PRODUCTION ? err : undefined, message: message, type: err.name || err.type })
+    }
+
     return this
   }
 

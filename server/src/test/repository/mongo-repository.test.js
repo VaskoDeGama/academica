@@ -3,7 +3,7 @@ const DataBase = require('../../infrastructure/database')
 const config = require('config')
 const { MongoMemoryServer } = require('mongodb-memory-server')
 const { User } = require('../../models/')
-const { mockUsers, mockUsersLength, roles } = require('../models/mock-data')
+const { mockUsers, mockUsersLength } = require('../models/mock-data')
 const { MongoRepository } = require('../../repositories')
 const { appLogger } = require('../../utils/logger')
 const mongoose = require('mongoose')
@@ -149,5 +149,11 @@ describe('mongo repository', () => {
 
     expect(res.role).toBe('teacher')
     expect(res.students[0].username).toBeDefined()
+  })
+
+  it('checkId', async () => {
+    const result = repository.checkId({ id: 'string' })
+
+    expect(result).toEqual({ _id: 'string' })
   })
 })

@@ -14,8 +14,11 @@ const validate = function (validationSchema) {
         const reqDTO = new RequestDTO(req)
         const resultDTO = new ResultDTO(reqDTO)
 
-        Object.entries(errors.mapped()).forEach(([field, { msg }]) => {
-          resultDTO.addError(`${msg}`, 400, 'ValidationError')
+        Object.values(errors.mapped()).forEach(error => {
+          error.status = 400
+          error.type = 'ValidationError'
+          error.stack = new Error().stack
+          resultDTO.addError(error)
         })
         BaseController.setResponse({ req, res, resultDTO })
         return res.end()

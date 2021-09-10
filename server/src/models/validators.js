@@ -114,12 +114,12 @@ const idSchema = {
     in: ['params', 'query'],
     optional: true,
     custom: {
-      options: (value, { req }) => {
+      options: (value) => {
         if (Array.isArray(value)) {
-          return value.every(id => isMongoId(id) && req.user.id !== id)
+          return value.every(id => isMongoId(id))
         }
 
-        return isMongoId(value) && req.user.id !== value
+        return isMongoId(value)
       }
     },
     errorMessage: 'Bad ID'

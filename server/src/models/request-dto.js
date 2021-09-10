@@ -31,7 +31,7 @@ class RequestDto {
    */
   constructor (req) {
     /** @type {string} - req id */
-    this.reqId = httpContext.get('traceId') || 'test'
+    this.reqId = httpContext.get('traceId')
     /** @type {boolean} - req has query? */
     this.hasQuery = !isEmpty(req.query)
     /** @type {boolean} - req has params? */
@@ -47,9 +47,9 @@ class RequestDto {
     /** @type {object} - req body */
     this.body = req.body
     /** @type {string} - req ip */
-    this.ipAddress = req.ip || '127.0.0.1'
+    this.ipAddress = req.ip
     /** @type {object} - req cookies */
-    this.cookies = req.cookies || {}
+    this.cookies = req.cookies
     /** @type {object} - req user */
     this.user = req.user || {}
     /** @type {DiContainer} */

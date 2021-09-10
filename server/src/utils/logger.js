@@ -8,10 +8,6 @@ configure(config.logger)
 
 const appLogger = getLogger('Server')
 const requestLogger = getLogger('Request')
-const traceLogger = connectLogger(getLogger('Request'), {
-  level: 'INFO',
-  format: (req, res, format) => httpFormatter(req, res, format)
-})
 
 /**
  *
@@ -26,8 +22,14 @@ function httpFormatter (req, res, format) {
   return format(`#${traceId}: :method :url | processed for: ${Date.now() - startTime}ms | ${JSON.stringify(req.body)}`)
 }
 
+const traceLogger = connectLogger(getLogger('Request'), {
+  level: 'INFO',
+  format: httpFormatter
+})
+
 module.exports = {
   appLogger,
   requestLogger,
-  traceLogger
+  traceLogger,
+  httpFormatter
 }

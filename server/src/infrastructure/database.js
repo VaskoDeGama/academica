@@ -25,11 +25,6 @@ class Database {
       useUnifiedTopology: true
     }
 
-    this.mongoose.connection.on('error', (err) => {
-      this.log.error(`Error! DB Connection failed. Error: ${err}`)
-      return err
-    })
-
     this.mongoose.connection.once('connected', () => {
       this.log.info('Connection to MongoDB established')
     })
@@ -48,19 +43,27 @@ class Database {
 
   /**
    * @param {object} config
-   * @returns {Mongoose}
+   * @returns {mongoose}
    */
   async connect (config) {
     this.options.dbName = config.name
-    await mongoose.connect(config.url, this.options)
+    try {
+      await mongoose.connect(config.url, this.options)
+    } catch (e) {
+      this.log.error(`Error! DB Connection failed. Error: ${e}`)
+      return false
+    }
+
     this.db = this.mongoose.connection.db
 
+    /* istanbul ignore next */
     if (process.env.SEEDING) {
       this.log.info('Start seed db...')
       await this.dropCollections(['users', 'tokens'])
       await User.create(mockUsers)
       this.log.info('Seed db succeed!')
     }
+    return this
   }
 
   /**
