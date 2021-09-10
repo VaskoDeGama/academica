@@ -28,16 +28,17 @@ class UserService {
    * @param {string} role
    * @param {string} userId
    * @param {User} userForCheck
+   * @param {boolean} excludeSelf
    * @returns {boolean}
    */
-  isOwner (role, userId, userForCheck) {
+  isOwner (role, userId, userForCheck, excludeSelf = false) {
     try {
       switch (role) {
         case Roles.student: {
-          return userForCheck.id === userId
+          return !excludeSelf && userForCheck.id === userId
         }
         case Roles.teacher: {
-          return userForCheck?.id === userId || userForCheck?.teacher?.toString() === userId || userForCheck?.teacher?.id === userId
+          return (!excludeSelf && userForCheck.id === userId) || userForCheck?.teacher?.toString() === userId || userForCheck?.teacher?.id === userId
         }
         case Roles.admin: {
           return true
@@ -146,9 +147,22 @@ class UserService {
     let result = {}
     try {
       const { hasParams, params, hasQuery, query, user } = reqDTO
+      if (hasParams && params.id === user.id) {
+        return resDTO.addError('Bad ID', 400)
+      }
+
+      if (hasQuery) {
+        if (Array.isArray(query.id) && query.id.some(id => id === user.id)) {
+          return resDTO.addError('Bad ID', 400)
+        } else if (query.id === user.id) {
+          return resDTO.addError('Bad ID', 400)
+        }
+      }
+      const ids = []
+
+      const userForDelete = await this.userRepositroy.findByIds(ids)
 
       if (hasParams) {
-        const userForDelete = await this.userRepositroy.findById(params.id)
         if (this.isOwner(user.role, user.id, userForDelete)) {
           result = await this.userRepositroy.removeById(params.id)
         }
@@ -158,6 +172,11 @@ class UserService {
 
         if (usersForDelete.length === users.length) {
           result = await this.userRepositroy.removeByIds(query.id)
+        }
+      } else if (hasQuery) {
+        const userForDelete = await this.userRepositroy.findById(query.id)
+        if (this.isOwner(user.role, user.id, userForDelete)) {
+          result = await this.userRepositroy.removeById(query.id)
         }
       }
 
@@ -238,19 +257,20 @@ class UserService {
     const resDTO = new ResultDTO(reqDTO)
     try {
       const { hasParams, params, body, user } = reqDTO
+
+      if (!this.checkUpdate(body, user.mutableFields)) {
+        return resDTO.addError('Bad request', 400)
+      }
+
       if (hasParams) {
         const userForUpdate = await this.userRepositroy.findById(params.id)
 
         if (userForUpdate && this.isOwner(user.role, user.id, userForUpdate)) {
-          if (this.checkUpdate(body, user.mutableFields)) {
-            const result = await this.userRepositroy.update(userForUpdate, body)
+          const result = await this.userRepositroy.findAndUpdate({ id: params.id }, body)
 
-            if (result.acknowledged && result.modifiedCount === 1) {
-              resDTO.data = userForUpdate.id
-              return resDTO
-            }
-          } else {
-            return resDTO.addError('Bad request', 400)
+          if (result.id === userForUpdate.id) {
+            resDTO.data = result.id
+            return resDTO
           }
         }
       }

@@ -387,10 +387,56 @@ describe('Auth routes', () => {
 
     const token = auth.body.data.token
 
-    await request
+    const resp = await request
       .put(`/api/users/${student._id.toString()}`)
       .send({ balance: 2000 })
       .set('Authorization', 'Bearer ' + token)
+
+    console.log(resp.body)
+
+    const { body } = await request
+      .get(`/api/users/${student._id.toString()}`)
+      .set('Authorization', 'Bearer ' + token)
       .expect(200)
+
+    expect(body.data.id).toBe(student._id.toString())
+    expect(body.data.balance).toBe(2000)
+  })
+
+  it('student  can update password', async () => {
+    const student = mockUsers.find(user => user.role === 'student')
+
+    const auth = await request
+      .post('/api/login')
+      .send({
+        username: student.username,
+        password: student.password
+      })
+
+    const token = auth.body.data.token
+    student.password = 'newPassword'
+
+    await request
+      .put(`/api/users/${student._id.toString()}`)
+      .send({ password: student.password })
+      .set('Authorization', 'Bearer ' + token)
+      .expect(200)
+
+    const { body: bodyWithToken } = await request
+      .post('/api/login')
+      .send({
+        username: student.username,
+        password: student.password
+      })
+      .expect(200)
+
+    const newToken = bodyWithToken.data.token
+
+    const { body } = await request
+      .get(`/api/users/${student._id.toString()}`)
+      .set('Authorization', 'Bearer ' + newToken)
+      .expect(200)
+
+    console.log(body)
   })
 })

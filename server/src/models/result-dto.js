@@ -105,7 +105,7 @@ class ResultDto {
     for (const err of error) {
       this.status = typeof err.code === 'number'
         ? err.code
-        : err.status
+        : err.status || 500
 
       const message = msgMap[err.message || err.msg] || err.message || err.msg
 

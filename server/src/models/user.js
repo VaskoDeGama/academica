@@ -58,6 +58,14 @@ schema.set('toJSON', {
   virtuals: true,
   versionKey: false,
   transform: function (doc, ret) {
+    if (ret.role === Roles.student) {
+      delete ret.students
+    }
+
+    if (ret.role === Roles.teacher) {
+      delete ret.teacher
+    }
+
     delete ret._id
     delete ret.password
   }
@@ -65,15 +73,24 @@ schema.set('toJSON', {
 
 schema.pre('save', async function (next) {
   if (!this.isModified('password')) {
-    return next()
-  }
-  try {
+    next()
+  } else {
     const salt = await bcrypt.genSalt(10)
     this.password = await bcrypt.hash(this.password, salt)
-    return next()
-  } catch (err) {
-    return next(err)
+    next()
   }
+})
+
+schema.pre('findOneAndUpdate', async function (next) {
+  const update = { ...this.getUpdate() }
+
+  if (update.password) {
+    const salt = await bcrypt.genSalt(10)
+    update.password = await bcrypt.hash(update.password, salt)
+    this.setUpdate(update)
+  }
+
+  next()
 })
 
 schema.methods.validatePassword = async function validatePassword (data) {

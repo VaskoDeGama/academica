@@ -1,4 +1,6 @@
 'use strict'
+/* istanbul ignore file */
+
 const config = require('config')
 const App = require('./infrastructure/app')
 const signals = require('./utils/signals')
