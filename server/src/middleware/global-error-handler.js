@@ -8,12 +8,14 @@ const globalErrorHandler = function (error, req, res, next) {
   const reqDTO = new RequestDTO(req)
   const resultDTO = new ResultDTO(reqDTO)
 
-  if (Reflect.has(error, 'code') || Reflect.has(error, 'status')) {
-    resultDTO.addError(error)
-    BaseController.setResponse({ req, res, resultDTO })
-  } else {
-    logger.error(error)
-    BaseController.setResponse({ req, res, code: 500 })
+  if (error) {
+    if (Reflect.has(error, 'code') || Reflect.has(error, 'status')) {
+      resultDTO.addError(error)
+      BaseController.setResponse({ req, res, resultDTO })
+    } else {
+      logger.error(error)
+      BaseController.setResponse({ req, res, code: 500 })
+    }
   }
 
   next()

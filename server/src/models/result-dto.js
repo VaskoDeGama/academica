@@ -37,6 +37,8 @@ class ResultDto {
     /** @type {object[]} errors - query errors */
     this._errors = []
 
+    this._statusAlredySet = false
+
     /** @type {object[]} query cookies */
     this.cookies = []
   }
@@ -51,7 +53,12 @@ class ResultDto {
   }
 
   set status (value) {
+    if (this._statusAlredySet) {
+      return
+    }
+
     this._status = value
+    this._statusAlredySet = true
   }
 
   set data (value) {
@@ -109,7 +116,7 @@ class ResultDto {
 
       const message = msgMap[err.message || err.msg] || err.message || err.msg
 
-      this._errors.push({ error: !process.env.PRODUCTION ? err : undefined, message: message, type: err.name || err.type })
+      this._errors.push({ error: !process.env.PRODUCTION ? err : undefined, message: message, type: err.name || err.type || 'Error' })
     }
 
     return this

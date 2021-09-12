@@ -392,8 +392,6 @@ describe('Auth routes', () => {
       .send({ balance: 2000 })
       .set('Authorization', 'Bearer ' + token)
 
-    console.log(resp.body)
-
     const { body } = await request
       .get(`/api/users/${student._id.toString()}`)
       .set('Authorization', 'Bearer ' + token)
@@ -432,11 +430,43 @@ describe('Auth routes', () => {
 
     const newToken = bodyWithToken.data.token
 
-    const { body } = await request
+    await request
       .get(`/api/users/${student._id.toString()}`)
       .set('Authorization', 'Bearer ' + newToken)
       .expect(200)
+  })
 
-    console.log(body)
+  it('student can update password same password', async () => {
+    const student = mockUsers.find(user => user.role === 'student')
+
+    const auth = await request
+      .post('/api/login')
+      .send({
+        username: student.username,
+        password: student.password
+      })
+
+    const token = auth.body.data.token
+
+    await request
+      .put(`/api/users/${student._id.toString()}`)
+      .send({ password: student.password })
+      .set('Authorization', 'Bearer ' + token)
+      .expect(200)
+
+    const { body: bodyWithToken } = await request
+      .post('/api/login')
+      .send({
+        username: student.username,
+        password: student.password
+      })
+      .expect(200)
+
+    const newToken = bodyWithToken.data.token
+
+    await request
+      .get(`/api/users/${student._id.toString()}`)
+      .set('Authorization', 'Bearer ' + newToken)
+      .expect(200)
   })
 })

@@ -31,7 +31,7 @@ describe('IsEmpty', () => {
     expect(isEmpty({ a: '' })).toBeFalsy()
   })
   it('false if [1]', () => {
-    expect(isEmpty({ a: '' })).toBeFalsy()
+    expect(isEmpty([1])).toBeFalsy()
   })
   it('false if new Map(a: {})', () => {
     const map = new Map()
@@ -45,5 +45,9 @@ describe('IsEmpty', () => {
   it('undefined', () => {
     const set = undefined
     expect(isEmpty(set)).toBeTruthy()
+  })
+  it('not empty object', () => {
+    const set = { a: {} }
+    expect(isEmpty(set)).toBeFalsy()
   })
 })
