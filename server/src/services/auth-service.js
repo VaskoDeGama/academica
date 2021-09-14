@@ -50,12 +50,12 @@ class AuthService {
     const refreshToken = await this.generateRefreshToken(user, reqDTO.ipAddress)
     const accessToken = this.generateJwtToken(user, refreshToken.id)
 
-    resDTO.data = {
-      token: accessToken,
-      user: this.basicDetails(user)
-    }
+    resDTO.data = this.basicDetails(user)
 
-    return resDTO.addCookie('refresh', refreshToken.token, { httpOnly: true, expires: new Date(Date.now() + config.server.refreshTokenExp) })
+    resDTO.addCookie('access', accessToken, { httpOnly: true, expires: new Date(Date.now() + config.server.tokenExp) })
+    resDTO.addCookie('refresh', refreshToken.token, { httpOnly: true, expires: new Date(Date.now() + config.server.refreshTokenExp) })
+
+    return resDTO
   }
 
   /**
@@ -65,32 +65,54 @@ class AuthService {
   async refreshToken (reqDTO) {
     const resDTO = new ResultDTO(reqDTO)
 
-    const { refresh: token } = reqDTO.cookies
+    const { refresh: refreshToken } = reqDTO.cookies
+    const accessTokenData = this.decodeJWT(reqDTO.accessToken)
 
-    if (!token) {
-      return resDTO.addError('Token required!', 400)
+    if (!refreshToken) {
+      return resDTO.addError('Refresh token required!', 400)
+    }
+
+    if (!accessTokenData) {
+      return resDTO.addError('Access token required!', 400)
     }
 
     try {
-      const refreshToken = await this.getRefreshToken(token)
-      const { user } = refreshToken
+      const oldRefreshToken = await this.getRefreshToken(refreshToken)
+      const { user } = oldRefreshToken
 
       const newRefreshToken = await this.generateRefreshToken(user, reqDTO.ipAddress)
-      await this.revoke(token, refreshToken.token, reqDTO.ipAddress)
+      await this.revoke(refreshToken, newRefreshToken.token, reqDTO.ipAddress)
 
       const cache = reqDTO.ioc.get(Types.cache)
-      const { id, jti, exp } = reqDTO.user
-      await this.blackList(cache, id, jti, exp)
+      const { id, jti, exp } = accessTokenData
 
-      const accessToken = this.generateJwtToken(user, newRefreshToken.id)
-      resDTO.data = {
-        token: accessToken
+      if ((exp * 1000) - Date.now() > 0) {
+        await this.blackList(cache, id, jti, exp)
       }
 
-      return resDTO.addCookie('refresh', newRefreshToken.token, { httpOnly: true, expires: new Date(Date.now() + config.server.refreshTokenExp) })
+      const accessToken = this.generateJwtToken(user, newRefreshToken.id)
+      resDTO.addCookie('access', accessToken, { httpOnly: true, expires: new Date(Date.now() + config.server.tokenExp) })
+      resDTO.addCookie('refresh', newRefreshToken.token, { httpOnly: true, expires: new Date(Date.now() + config.server.refreshTokenExp) })
+      resDTO.success = true
+      return resDTO
     } catch (e) {
       return resDTO.addError('Invalid token', 401)
     }
+  }
+
+  /**
+   *
+   * @param {string} token
+   * @returns {object}
+   */
+  decodeJWT (token = '') {
+    if (!token.length) {
+      return
+    }
+
+    const encodeData = token.split('.')[1]
+    const json = Buffer.from(encodeData, 'base64').toString()
+    return JSON.parse(json)
   }
 
   /**
@@ -99,27 +121,23 @@ class AuthService {
    */
   async revokeToken (reqDTO) {
     const resDTO = new ResultDTO(reqDTO)
-    const token = reqDTO.cookies.refresh || reqDTO.body.refresh
+    const refreshToken = reqDTO.cookies.refresh || reqDTO.body.refresh
     const ipAddress = reqDTO.ipAddress
 
-    if (!token) {
+    if (!refreshToken) {
       return resDTO.addError('Token required', 400)
     }
 
-    if (!reqDTO.user.ownsToken(token) && reqDTO.user.role !== Roles.admin) {
+    if (!reqDTO.user.ownsToken(refreshToken) && reqDTO.user.role !== Roles.admin) {
       return resDTO.addError('Unauthorized', 401)
     }
 
-    await this.revoke(token, null, ipAddress)
+    await this.revoke(refreshToken, null, ipAddress)
 
     const cache = reqDTO.ioc.get(Types.cache)
     const { id, jti, exp } = reqDTO.user
     await this.blackList(cache, id, jti, exp)
-
-    resDTO.data = {
-      message: 'Token revoked'
-    }
-
+    resDTO.success = true
     return resDTO
   }
 
@@ -130,9 +148,7 @@ class AuthService {
   async getAllTokens (reqDTO) {
     const resDTO = new ResultDTO(reqDTO)
 
-    const id = reqDTO.user.id || reqDTO.body.id || reqDTO.params.id
-
-    const tokens = await this.tokenRepository.findByQuery({ user: id })
+    const tokens = await this.tokenRepository.findByQuery({ user: reqDTO.user.id })
 
     resDTO.data = {
       count: tokens.length,

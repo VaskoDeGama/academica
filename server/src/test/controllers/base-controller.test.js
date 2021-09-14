@@ -481,4 +481,23 @@ describe('BaseController', () => {
       expect(result.toOBJ()).toStrictEqual(test.expect)
     }
   })
+
+  it('constructor setRoutes', () => {
+    class Controller extends BaseController {
+      constructor () {
+        super()
+        this.routes = [
+          {
+            path: '/login',
+            method: 'OPTIONS',
+            handler: () => {},
+            localMiddleware: []
+          }
+        ]
+        this.setRoutes()
+      }
+    }
+
+    expect(() => new Controller()).toThrowError('Not registered method! OPTIONS')
+  })
 })

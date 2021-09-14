@@ -17,6 +17,7 @@ const isEmpty = require('./../utils/is-empty')
  * @property {object} cookies - req ip
  * @property {object} user - req user
  * @property {DiContainer} ioc - req ioc
+ * @property {string} accessToken - req auth token
  */
 
 /**
@@ -54,6 +55,8 @@ class RequestDto {
     this.user = req.user || {}
     /** @type {DiContainer} */
     this.ioc = req?.app?.get('ioc')
+    /** @type {string} - auth token */
+    this.accessToken = req?.headers?.authorization?.replace('Bearer ', '')
   }
 }
 

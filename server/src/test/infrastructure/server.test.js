@@ -3,6 +3,7 @@ const ExpressServer = require('../../infrastructure/server')
 const config = require('config')
 
 const { appLogger } = require('../../utils/logger')
+const getCookies = require('../../utils/get-cookies')
 
 describe('Server', () => {
   let server = null
@@ -42,6 +43,8 @@ describe('Server', () => {
       .expect(404)
       .expect('Content-Type', /json/)
 
+    const cookies = getCookies(response)
     expect(response.body.message).toBe('Route not found')
+    expect(cookies).toEqual({ })
   })
 })
