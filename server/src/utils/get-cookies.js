@@ -34,9 +34,7 @@ const getCookies = (response) => {
   const rawCookies = setCookie.map(parseCookie)
   const cookies = {}
   for (const { name, value } of rawCookies) {
-    cookies[name] = {
-      value
-    }
+    cookies[name] = value
   }
 
   return cookies

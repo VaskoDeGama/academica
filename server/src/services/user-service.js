@@ -16,11 +16,7 @@ class UserService {
    * @returns {User[]}
    */
   getOnlyOwned (role, userId, users = []) {
-    try {
-      return users.filter(user => this.isOwner(role, userId, user))
-    } catch (e) {
-      throw new Error(`getOwned failed: ${e.message}`)
-    }
+    return users.filter(user => this.isOwner(role, userId, user))
   }
 
   /**
@@ -32,23 +28,16 @@ class UserService {
    * @returns {boolean}
    */
   isOwner (role, userId, userForCheck, excludeSelf = false) {
-    try {
-      switch (role) {
-        case Roles.student: {
-          return !excludeSelf && userForCheck.id === userId
-        }
-        case Roles.teacher: {
-          return (!excludeSelf && userForCheck.id === userId) || userForCheck?.teacher?.toString() === userId || userForCheck?.teacher?.id === userId
-        }
-        case Roles.admin: {
-          return true
-        }
-        default: {
-          return false
-        }
+    switch (role) {
+      case Roles.student: {
+        return !excludeSelf && userForCheck.id === userId
       }
-    } catch (e) {
-      throw new Error(`getOwned failed: ${e.message}`)
+      case Roles.teacher: {
+        return (!excludeSelf && userForCheck.id === userId) || userForCheck?.teacher?.toString() === userId || userForCheck?.teacher?.id === userId
+      }
+      case Roles.admin: {
+        return true
+      }
     }
   }
 
@@ -92,7 +81,7 @@ class UserService {
 
         return resDTO
       } else {
-        return resDTO.addError('Resource not found', 404)
+        return resDTO.addError('Resource not found', 404, 'RequestError')
       }
     } catch (e) {
       return resDTO.addError(e)
@@ -131,7 +120,7 @@ class UserService {
         }
       }
 
-      return resDTO.addError('Resource not found', 404)
+      return resDTO.addError('Resource not found', 404, 'RequestError')
     } catch (error) {
       return resDTO.addError(error)
     }
@@ -148,14 +137,14 @@ class UserService {
     try {
       const { hasParams, params, hasQuery, query, user } = reqDTO
       if (hasParams && params.id === user.id) {
-        return resDTO.addError('Bad ID', 400)
+        return resDTO.addError('Bad ID', 400, 'RequestError')
       }
 
       if (hasQuery) {
         if (Array.isArray(query.id) && query.id.some(id => id === user.id)) {
-          return resDTO.addError('Bad ID', 400)
+          return resDTO.addError('Bad ID', 400, 'RequestError')
         } else if (query.id === user.id) {
-          return resDTO.addError('Bad ID', 400)
+          return resDTO.addError('Bad ID', 400, 'RequestError')
         }
       }
       const ids = []
@@ -185,7 +174,7 @@ class UserService {
         return resDTO
       }
 
-      return resDTO.addError('Resource not found', 404)
+      return resDTO.addError('Resource not found', 404, 'RequestError')
     } catch (error) {
       return resDTO.addError(error)
     }
@@ -220,11 +209,7 @@ class UserService {
       resDTO.status = 201
       return resDTO
     } catch (error) {
-      switch (error.code) {
-        default: {
-          return resDTO.addError(error)
-        }
-      }
+      return resDTO.addError(error)
     }
   }
 
@@ -259,7 +244,7 @@ class UserService {
       const { hasParams, params, body, user } = reqDTO
 
       if (!this.checkUpdate(body, user.mutableFields)) {
-        return resDTO.addError('Bad request', 400)
+        return resDTO.addError('Bad request', 400, 'RequestError')
       }
 
       if (hasParams) {
@@ -275,7 +260,7 @@ class UserService {
         }
       }
 
-      return resDTO.addError('Users not found', 404)
+      return resDTO.addError('Resource not found', 404, 'RequestError')
     } catch (error) {
       return resDTO.addError(error)
     }

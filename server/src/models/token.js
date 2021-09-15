@@ -37,7 +37,7 @@ schema.set('toJSON', {
   }
 })
 
-schema.index({ createdAt: 1 }, { expireAfterSeconds: (config?.server?.refreshTokenExp || 30 * 60 * 1000) / 1000 })
+schema.index({ createdAt: 1 }, { expireAfterSeconds: config?.server?.refreshTokenExp / 1000 })
 
 const Token = model('Token', schema)
 module.exports = { Token, tokenScheme }

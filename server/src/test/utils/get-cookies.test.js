@@ -22,9 +22,7 @@ describe('Get cookies', () => {
       }
     }
     expect(getCookies(resp)).toEqual({
-      '__Secure-ID': {
-        value: '123'
-      }
+      '__Secure-ID': '123'
     })
   })
 
@@ -35,9 +33,7 @@ describe('Get cookies', () => {
       }
     }
     expect(getCookies(resp)).toEqual({
-      foo: {
-        value: 'bar'
-      }
+      foo: 'bar'
     })
   })
 })

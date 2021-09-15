@@ -58,7 +58,7 @@ describe('Auth routes', () => {
 
     await request
       .get('/api/users')
-      .set('Authorization', 'Bearer ' + access.value)
+      .set('Authorization', 'Bearer ' + access)
       .expect(200)
   })
 
@@ -77,7 +77,7 @@ describe('Auth routes', () => {
 
     await request
       .get(`/api/users/${studentId}`)
-      .set('Authorization', 'Bearer ' + access.value)
+      .set('Authorization', 'Bearer ' + access)
       .expect(200)
   })
 
@@ -95,7 +95,7 @@ describe('Auth routes', () => {
 
     await request
       .get(`/api/users/${teacher._id.toString()}`)
-      .set('Authorization', 'Bearer ' + access.value)
+      .set('Authorization', 'Bearer ' + access)
       .expect(200)
   })
 
@@ -158,13 +158,13 @@ describe('Auth routes', () => {
 
     const response = await request
       .get('/api/tokens')
-      .set('Authorization', 'Bearer ' + access.value)
+      .set('Authorization', 'Bearer ' + access)
       .expect(200)
 
     expect(response.body.success).toBeTruthy()
     expect(response.body.status).toBe(200)
     expect(response.body.data.count).toBe(1)
-    expect(response.body.data.tokens[0].token).toBe(refresh.value)
+    expect(response.body.data.tokens[0].token).toBe(refresh)
   })
 
   it('token expiry', async () => {
@@ -182,7 +182,7 @@ describe('Auth routes', () => {
     const { body } = await request
       .get('/api/tokens')
       .set('Authorization', 'Bearer ' + token)
-      .set('Cookie', [`refresh=${refresh.value}`])
+      .set('Cookie', [`refresh=${refresh}`])
       .expect(401)
 
     expect(body.errors[0].message).toBe('Token expired!')
@@ -200,7 +200,7 @@ describe('Auth routes', () => {
 
     const resp = await request
       .get('/api/refresh')
-      .set('Authorization', 'Bearer ' + access.value)
+      .set('Authorization', 'Bearer ' + access)
       .expect(400)
 
     expect(resp.body.errors[0].message).toBe('Refresh token required!')
@@ -218,8 +218,8 @@ describe('Auth routes', () => {
 
     const response = await request
       .get('/api/refresh')
-      .set('Authorization', 'Bearer ' + access.value)
-      .set('Cookie', [`refresh=${refresh.value}`])
+      .set('Authorization', 'Bearer ' + access)
+      .set('Cookie', [`refresh=${refresh}`])
 
     expect(response.body.success).toBeTruthy()
     expect(response.body.status).toBe(200)
@@ -230,14 +230,14 @@ describe('Auth routes', () => {
 
     await request
       .get('/api/tokens')
-      .set('Authorization', 'Bearer ' + access.value)
-      .set('Cookie', [`refresh=${refresh.value}`])
+      .set('Authorization', 'Bearer ' + access)
+      .set('Cookie', [`refresh=${refresh}`])
       .expect(401)
 
     await request
       .get('/api/refresh')
-      .set('Authorization', 'Bearer ' + newAccess.value)
-      .set('Cookie', [`refresh=${newRefresh.value}`])
+      .set('Authorization', 'Bearer ' + newAccess)
+      .set('Cookie', [`refresh=${newRefresh}`])
       .expect(200)
   })
 
@@ -254,7 +254,7 @@ describe('Auth routes', () => {
     await request
       .post('/api/users/')
       .send({})
-      .set('Authorization', 'Bearer ' + access.value)
+      .set('Authorization', 'Bearer ' + access)
       .expect(403)
   })
 
@@ -270,7 +270,7 @@ describe('Auth routes', () => {
 
     await request
       .get(`/api/users/${mockUsers[21]._id.toString()}`)
-      .set('Authorization', 'Bearer ' + access.value)
+      .set('Authorization', 'Bearer ' + access)
       .expect(404)
   })
 
@@ -286,7 +286,7 @@ describe('Auth routes', () => {
 
     await request
       .get(`/api/users/${mockUsers[22]._id.toString()}`)
-      .set('Authorization', 'Bearer ' + access.value)
+      .set('Authorization', 'Bearer ' + access)
       .expect(200)
   })
 
@@ -305,7 +305,7 @@ describe('Auth routes', () => {
 
     const { body } = await request
       .get('/api/users')
-      .set('Authorization', 'Bearer ' + access.value)
+      .set('Authorization', 'Bearer ' + access)
       .expect(200)
 
     expect(body.data.users.length).toBe(users.length)
@@ -326,7 +326,7 @@ describe('Auth routes', () => {
 
     await request
       .get(`/api/users/${student._id.toString()}`)
-      .set('Authorization', 'Bearer ' + access.value)
+      .set('Authorization', 'Bearer ' + access)
       .expect(404)
   })
 
@@ -344,7 +344,7 @@ describe('Auth routes', () => {
 
     await request
       .get('/api/users')
-      .set('Authorization', 'Bearer ' + access.value)
+      .set('Authorization', 'Bearer ' + access)
       .expect(403)
   })
 
@@ -362,7 +362,7 @@ describe('Auth routes', () => {
 
     const { body } = await request
       .get('/api/users')
-      .set('Authorization', 'Bearer ' + access.value)
+      .set('Authorization', 'Bearer ' + access)
       .expect(200)
 
     expect(body.data.count).toBe(45)
@@ -383,7 +383,7 @@ describe('Auth routes', () => {
     await request
       .put(`/api/users/${student._id.toString()}`)
       .send({ balance: 2000 })
-      .set('Authorization', 'Bearer ' + access.value)
+      .set('Authorization', 'Bearer ' + access)
       .expect(400)
   })
 
@@ -403,11 +403,11 @@ describe('Auth routes', () => {
     await request
       .put(`/api/users/${student._id.toString()}`)
       .send({ balance: 2000 })
-      .set('Authorization', 'Bearer ' + access.value)
+      .set('Authorization', 'Bearer ' + access)
 
     const { body } = await request
       .get(`/api/users/${student._id.toString()}`)
-      .set('Authorization', 'Bearer ' + access.value)
+      .set('Authorization', 'Bearer ' + access)
       .expect(200)
 
     expect(body.data.id).toBe(student._id.toString())
@@ -430,7 +430,7 @@ describe('Auth routes', () => {
     await request
       .put(`/api/users/${student._id.toString()}`)
       .send({ password: student.password })
-      .set('Authorization', 'Bearer ' + access.value)
+      .set('Authorization', 'Bearer ' + access)
       .expect(200)
 
     const resp = await request
@@ -445,7 +445,7 @@ describe('Auth routes', () => {
 
     await request
       .get(`/api/users/${student._id.toString()}`)
-      .set('Authorization', 'Bearer ' + newAccess.value)
+      .set('Authorization', 'Bearer ' + newAccess)
       .expect(200)
   })
 
@@ -464,7 +464,7 @@ describe('Auth routes', () => {
     await request
       .put(`/api/users/${student._id.toString()}`)
       .send({ password: student.password })
-      .set('Authorization', 'Bearer ' + access.value)
+      .set('Authorization', 'Bearer ' + access)
       .expect(200)
 
     const resp = await request
@@ -479,7 +479,7 @@ describe('Auth routes', () => {
 
     await request
       .get(`/api/users/${student._id.toString()}`)
-      .set('Authorization', 'Bearer ' + newAccess.value)
+      .set('Authorization', 'Bearer ' + newAccess)
       .expect(200)
   })
 
@@ -497,7 +497,7 @@ describe('Auth routes', () => {
 
     await request
       .get('/api/logout')
-      .set('Authorization', 'Bearer ' + access.value)
+      .set('Authorization', 'Bearer ' + access)
       .expect(400)
   })
 
@@ -515,7 +515,7 @@ describe('Auth routes', () => {
 
     await request
       .get('/api/logout')
-      .set('Authorization', 'Bearer ' + access.value)
+      .set('Authorization', 'Bearer ' + access)
       .expect(400)
   })
 
@@ -533,8 +533,8 @@ describe('Auth routes', () => {
 
     await request
       .get('/api/logout')
-      .set('Cookie', [`refresh=${refresh.value}`])
-      .set('Authorization', 'Bearer ' + access.value)
+      .set('Cookie', [`refresh=${refresh}`])
+      .set('Authorization', 'Bearer ' + access)
       .expect(200)
   })
 
@@ -552,8 +552,8 @@ describe('Auth routes', () => {
 
     await request
       .get('/api/logout')
-      .set('Cookie', [`refresh=${refresh.value + ' 12312'}`])
-      .set('Authorization', 'Bearer ' + access.value)
+      .set('Cookie', [`refresh=${refresh + ' 12312'}`])
+      .set('Authorization', 'Bearer ' + access)
       .expect(401)
   })
 
@@ -571,7 +571,7 @@ describe('Auth routes', () => {
 
     await request
       .get('/api/logout')
-      .set('Authorization', 'Bearer ' + access.value)
+      .set('Authorization', 'Bearer ' + access)
       .expect(400)
   })
 
@@ -589,8 +589,8 @@ describe('Auth routes', () => {
 
     await request
       .get('/api/refresh')
-      .set('Cookie', [`refresh=${refresh.value}`])
-      // .set('Authorization', 'Bearer ' + access.value)
+      .set('Cookie', [`refresh=${refresh}`])
+      // .set('Authorization', 'Bearer ' + access)
       .expect(400)
   })
 
@@ -608,16 +608,16 @@ describe('Auth routes', () => {
 
     const resp = await request
       .get('/api/refresh')
-      .set('Cookie', [`refresh=${refresh.value}`])
-      .set('Authorization', 'Bearer ' + access.value)
+      .set('Cookie', [`refresh=${refresh}`])
+      .set('Authorization', 'Bearer ' + access)
       .expect(200)
 
     const { access: newAccess } = getCookies(resp)
 
     await request
       .get('/api/refresh')
-      .set('Cookie', [`refresh=${refresh.value}`])
-      .set('Authorization', 'Bearer ' + newAccess.value)
+      .set('Cookie', [`refresh=${refresh}`])
+      .set('Authorization', 'Bearer ' + newAccess)
       .expect(401)
   })
 })
