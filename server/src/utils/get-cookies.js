@@ -1,22 +1,26 @@
 'use strict'
 
 /**
- * @param {string} cookie
+ * @param {any} str
+ * @returns {boolean}
+ */
+function isNonEmptyString (str) {
+  return typeof str === 'string' && !!str.trim()
+}
+
+/**
+ * @param {string} str
  * @returns {{name: string, value: string, path: string, expire: Date, flags: string[]}}
  */
-const parseCookie = (cookie) => {
-  const [nameValue, pathRaw, expiresRaw, ...flags] = cookie.match(/([^;]+)/g)
+const parseCookie = (str) => {
+  const parts = str.split(';').filter(isNonEmptyString)
+  const nameValue = parts.shift()
 
   const [name, value] = nameValue.split('=')
-  const [, path] = pathRaw.split('=')
-  const [, rawDate] = expiresRaw.split('=')
-  const expire = new Date(rawDate).getTime()
+
   return {
     name,
-    value,
-    path,
-    expire,
-    flags: flags.map(s => s?.trim())
+    value
   }
 }
 
@@ -29,12 +33,9 @@ const getCookies = (response) => {
   const setCookie = response.headers['set-cookie'] || []
   const rawCookies = setCookie.map(parseCookie)
   const cookies = {}
-  for (const { name, value, path, expire, flags } of rawCookies) {
+  for (const { name, value } of rawCookies) {
     cookies[name] = {
-      value,
-      path,
-      expire,
-      flags
+      value
     }
   }
 
