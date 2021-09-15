@@ -2,13 +2,15 @@ const supertest = require('supertest')
 const ExpressServer = require('../../infrastructure/server')
 const config = require('config')
 
-const { appLogger } = require('../../utils/logger')
-const getCookies = require('../../utils/get-cookies')
+const logger = {
+  error: jest.fn().mockImplementation((text) => text),
+  info: jest.fn().mockImplementation((text) => text)
+}
 
 describe('Server', () => {
   let server = null
   beforeAll(async () => {
-    server = new ExpressServer(appLogger)
+    server = new ExpressServer(logger)
     await server.start(config.server)
   })
 
@@ -35,6 +37,7 @@ describe('Server', () => {
     expect(response.body.data.isOnline).toBeTruthy()
     expect(response.body.data.timing).toBeLessThan(10)
     expect(response.body.data.dbStatus).toBe('disconnected')
+    expect(response.body.data.cacheStatus).toBe('disconnected')
   })
 
   it('bad route', async () => {
@@ -43,8 +46,6 @@ describe('Server', () => {
       .expect(404)
       .expect('Content-Type', /json/)
 
-    const cookies = getCookies(response)
     expect(response.body.message).toBe('Route not found')
-    expect(cookies).toEqual({ })
   })
 })

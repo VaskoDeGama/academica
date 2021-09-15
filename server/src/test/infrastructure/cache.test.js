@@ -1,32 +1,41 @@
 'use strict'
 
 const Cache = require('../../infrastructure/cache')
+const delay = require('../../utils/delay')
 const mockRedis = require('redis-mock')
 const config = require('config')
-const delay = require('../../utils/delay')
-const { appLogger } = require('../../utils/logger')
+
+const logger = {
+  error: jest.fn().mockImplementation((text) => text),
+  info: jest.fn().mockImplementation((text) => text)
+}
 
 describe('Cache', () => {
   let cache = null
   beforeAll(async () => {
-    cache = new Cache(appLogger)
+    cache = new Cache(logger)
     cache.redis = mockRedis
-    await cache.connect(config.cache)
-  })
-
-  afterAll(async () => {
-    await cache.close()
   })
 
   afterEach(async () => {
-    await new Promise(resolve => cache.client.flushdb(resolve))
+    await new Promise(resolve => cache?.client?.flushdb(resolve) || resolve())
+    await cache.close()
   })
 
-  it('server defined', () => {
+  it('cache defined', () => {
     expect(cache).toBeDefined()
   })
 
+  it('connect test', async () => {
+    await cache.connect(config.cache)
+
+    expect(logger.info.mock.results[0].value).toEqual('Connection to Redis established')
+    expect(cache.client.connected).toBeTruthy()
+  })
+
   it('base', async () => {
+    await cache.connect(config.cache)
+
     await new Promise(resolve => {
       cache.client.set('key', 'value', () => resolve())
     })
@@ -42,6 +51,8 @@ describe('Cache', () => {
   })
 
   it('set', async () => {
+    await cache.connect(config.cache)
+
     await cache.set('test key', 'test value')
 
     const value = await new Promise((resolve, reject) => {
@@ -54,6 +65,8 @@ describe('Cache', () => {
   })
 
   it('get', async () => {
+    await cache.connect(config.cache)
+
     await new Promise(resolve => {
       cache.client.set('test key 2', 'test value 2', () => resolve())
     })
@@ -64,6 +77,8 @@ describe('Cache', () => {
   })
 
   it('ser with expiry', async () => {
+    await cache.connect(config.cache)
+
     await cache.set('test key 3', 'value 3', 1)
     const value = await cache.get('test key 3')
     await delay(1500)

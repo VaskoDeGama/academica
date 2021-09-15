@@ -25,7 +25,7 @@ class Cache {
       })
       this.client.on('connect', () => {
         this.log.info('Connection to Redis established')
-        resolve()
+        resolve(this)
       })
     })
   }
@@ -88,6 +88,14 @@ class Cache {
         })
       })
     }
+  }
+
+  /**
+   *
+   * @returns {boolean} - connected status
+   */
+  ping () {
+    return this.client?.connected
   }
 }
 
