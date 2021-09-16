@@ -51,7 +51,7 @@ class MongoRepository {
    * @returns {Promise<object>}
    */
   async save (doc, options = {}) {
-    const user = new this.Model(doc)
+    const user = new this.Model(this.checkId(doc))
     return user.save(options)
   }
 

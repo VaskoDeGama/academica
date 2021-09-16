@@ -6,6 +6,7 @@ const { User, Roles } = require('../../models')
 const { mockUsers } = require('../models/mock-data')
 const App = require('../../infrastructure/app')
 const getCookies = require('../../utils/get-cookies')
+const mongoose = require('mongoose')
 
 describe('User routes', () => {
   let mongoServer = null
@@ -45,7 +46,6 @@ describe('User routes', () => {
 
   describe('students', () => {
     let accessToken = null
-    let refreshToken = null
     let selfId = null
 
     beforeEach(async () => {
@@ -59,9 +59,8 @@ describe('User routes', () => {
           password
         })
 
-      const { access, refresh } = getCookies(auth)
+      const { access } = getCookies(auth)
       accessToken = access
-      refreshToken = refresh
     })
 
     it('get without token', async () => {
@@ -79,6 +78,16 @@ describe('User routes', () => {
     it('get all receive 403', async () => {
       const { body } = await request
         .get('/api/users')
+        .set('Authorization', 'Bearer ' + accessToken)
+        .expect(403)
+
+      expect(body.success).toBeFalsy()
+    })
+
+    it('create user 403', async () => {
+      const { body } = await request
+        .post('/api/users')
+        .send({ username: 'test username', password: 'kekevalid', email: 'testEmail@mail.ru' })
         .set('Authorization', 'Bearer ' + accessToken)
         .expect(403)
 
@@ -157,7 +166,6 @@ describe('User routes', () => {
 
   describe('teacher', () => {
     let accessToken = null
-    let refreshToken = null
     let selfId = null
 
     beforeEach(async () => {
@@ -171,9 +179,8 @@ describe('User routes', () => {
           password
         })
 
-      const { access, refresh } = getCookies(auth)
+      const { access } = getCookies(auth)
       accessToken = access
-      refreshToken = refresh
     })
 
     it('get without token', async () => {
@@ -231,6 +238,66 @@ describe('User routes', () => {
       expect(body.success).toBeTruthy()
       expect(body.status).toBe(200)
       expect(body.data).toBeDefined()
+    })
+
+    it('get by bad id 400', async () => {
+      const { body } = await request
+        .get('/api/users/vary bad id')
+        .set('Authorization', 'Bearer ' + accessToken)
+        .expect(400)
+
+      expect(body.success).toBeFalsy()
+      expect(body.status).toBe(400)
+      const error = body.errors[0]
+      expect(error.message).toBe('Bad ID')
+      expect(error.type).toBe('ValidationError')
+    })
+
+    it('get by bad ids 400', async () => {
+      const { body } = await request
+        .get(`/api/users?id=123123&id=${selfId}`)
+        .set('Authorization', 'Bearer ' + accessToken)
+        .expect(400)
+
+      expect(body.success).toBeFalsy()
+      expect(body.status).toBe(400)
+      const error = body.errors[0]
+      expect(error.message).toBe('Bad ID')
+      expect(error.type).toBe('ValidationError')
+    })
+
+    it('get by bad ids', async () => {
+      const [id1, id2] = mockUsers.filter(u => u.role === Roles.student && u.teacher.toString() === selfId).slice(0, 2).map(u => u._id.toString())
+
+      const { body } = await request
+        .get(`/api/users?id=${id1}&id=${id2}`)
+        .set('Authorization', 'Bearer ' + accessToken)
+        .expect(200)
+
+      expect(body.success).toBeTruthy()
+      expect(body.status).toBe(200)
+      expect(body.data.count).toBe(2)
+    })
+
+    it('get by bad query', async () => {
+      const { body } = await request
+        .get('/api/users?role=teacher')
+        .set('Authorization', 'Bearer ' + accessToken)
+        .expect(200)
+
+      expect(body.success).toBeTruthy()
+      expect(body.status).toBe(200)
+      expect(body.data.count).toBe(1)
+    })
+
+    it('get by bad query 2', async () => {
+      const { body } = await request
+        .get(`/api/users?role=student&id=${selfId}`)
+        .set('Authorization', 'Bearer ' + accessToken)
+        .expect(404)
+
+      expect(body.success).toBeFalsy()
+      expect(body.status).toBe(404)
     })
 
     it('update self', async () => {
@@ -299,20 +366,187 @@ describe('User routes', () => {
       expect(body.success).toBeFalsy()
     })
 
-    // it('remove self student 200', async () => {
-    //   // TODO
-    //   const selfStudent = mockUsers.find(s => s.role === Roles.student && s.teacher.toString() === selfId)._id.toString()
-    //
-    //   const student = await User.findById(selfStudent)
-    //   const { body } = await request
-    //     .delete(`/api/users/${selfStudent}`)
-    //     .set('Authorization', 'Bearer ' + accessToken)
-    //     .expect(200)
-    //
-    //   const afterDelete = await User.findById(selfStudent)
-    //   console.log(body)
-    //   expect(body.success).toBeTruthy()
-    //   expect(afterDelete).toBe(null)
-    // })
+    it('remove self student 200', async () => {
+      const selfStudent = mockUsers.find(s => s.role === Roles.student && s.teacher.toString() === selfId)._id.toString()
+
+      const student = await User.findById(selfStudent)
+
+      expect(student.teacher.toString()).toBe(selfId)
+
+      const { body } = await request
+        .delete(`/api/users/${selfStudent}`)
+        .set('Authorization', 'Bearer ' + accessToken)
+        .expect(200)
+
+      const afterDelete = await User.findById(selfStudent)
+      expect(body.success).toBeTruthy()
+      expect(afterDelete).toBe(null)
+    })
+
+    it('remove two self students 200', async () => {
+      const users = await User.find({ role: Roles.student, teacher: selfId })
+      const [id1, id2] = users.slice(0, 2).map(u => u.id)
+
+      const { body } = await request
+        .delete(`/api/users?id=${id1}&id=${id2}`)
+        .set('Authorization', 'Bearer ' + accessToken)
+        .expect(200)
+
+      const id1After = await User.findById(id1)
+      const id2After = await User.findById(id2)
+      expect(body.success).toBeTruthy()
+      expect(id1After).toBe(null)
+      expect(id2After).toBe(null)
+    })
+
+    it('remove one student', async () => {
+      const users = await User.find({ role: Roles.student, teacher: selfId })
+      const [id1] = users.slice(0, 1).map(u => u.id)
+
+      const { body } = await request
+        .delete(`/api/users?id=${id1}`)
+        .set('Authorization', 'Bearer ' + accessToken)
+        .expect(200)
+
+      const id1After = await User.findById(id1)
+      expect(body.success).toBeTruthy()
+      expect(id1After).toBe(null)
+    })
+
+    it('remove not self student 400', async () => {
+      const selfStudent = mockUsers.find(s => s.role === Roles.student && s.teacher.toString() !== selfId)._id.toString()
+
+      const student = await User.findById(selfStudent)
+
+      expect(student.teacher.toString()).not.toBe(selfId)
+
+      const { body } = await request
+        .delete(`/api/users/${selfStudent}`)
+        .set('Authorization', 'Bearer ' + accessToken)
+        .expect(400)
+
+      const afterDelete = await User.findById(selfStudent)
+      expect(body.success).toBeFalsy()
+      expect(afterDelete).toEqual(student)
+    })
+
+    it('create user', async () => {
+      const newStudentId = new mongoose.Types.ObjectId().toString()
+
+      const student = {
+        id: newStudentId,
+        username: 'TestStudent',
+        password: 'TestStudentPassword',
+        skype: 'FooBarSkype',
+        email: 'foo.bar.email@mail.ru',
+        balance: 0,
+        lastName: 'Foo',
+        firstName: 'Bar',
+        role: Roles.student
+      }
+
+      const { body } = await request
+        .post('/api/users')
+        .send(student)
+        .set('Authorization', 'Bearer ' + accessToken)
+        .expect(201)
+
+      const afterCreate = await User.findById(newStudentId)
+      expect(body.data).toBe(afterCreate.id)
+      expect(body.data).toBe(newStudentId)
+      expect(student.username).toBe(afterCreate.username)
+      expect(student.lastName).toBe(afterCreate.lastName)
+      expect(student.balance).toBe(afterCreate.balance)
+      expect(afterCreate.teacher.toString()).toBe(selfId)
+    })
+
+    it('create existed username', async () => {
+      const newStudentId = new mongoose.Types.ObjectId().toString()
+      const existedStudent = mockUsers.find(s => s.role === Roles.student)
+
+      const student = {
+        id: newStudentId,
+        username: existedStudent.username,
+        password: 'TestStudentPassword',
+        skype: 'FooBarSkype',
+        email: 'foo.bar.email@mail.ru',
+        balance: 0,
+        lastName: 'Foo',
+        firstName: 'Bar',
+        role: Roles.student
+      }
+
+      const { body } = await request
+        .post('/api/users')
+        .send(student)
+        .set('Authorization', 'Bearer ' + accessToken)
+        .expect(409)
+
+      const afterCreate = await User.findById(newStudentId)
+      const error = body.errors[0]
+      expect(error.message).toBe('Same user already exists.')
+      expect(error.type).toBe('RequestError')
+      expect(afterCreate).toEqual(null)
+    })
+
+    it('create existed email', async () => {
+      const newStudentId = new mongoose.Types.ObjectId().toString()
+      const [existedStudent] = await User.find({ role: Roles.student })
+      const student = {
+        id: newStudentId,
+        username: 'testUsername',
+        password: 'TestStudentPassword',
+        skype: 'FooBarSkype',
+        email: existedStudent.email,
+        balance: 0,
+        lastName: 'Foo',
+        firstName: 'Bar',
+        role: Roles.student
+      }
+
+      const { body } = await request
+        .post('/api/users')
+        .send(student)
+        .set('Authorization', 'Bearer ' + accessToken)
+        .expect(409)
+
+      const afterCreate = await User.findById(newStudentId)
+      const error = body.errors[0]
+      expect(error.message).toBe('Same user already exists.')
+      expect(error.type).toBe('RequestError')
+      expect(afterCreate).toEqual(null)
+    })
+
+    it('create validation error', async () => {
+      const newStudentId = new mongoose.Types.ObjectId().toString()
+
+      const student = {
+        id: newStudentId,
+        username: 'name',
+        skype: 'FooBarSkype',
+        balance: 'asdasd',
+        lastName: 'Foo',
+        firstName: 'Bar',
+        role: Roles.student
+      }
+
+      const { body } = await request
+        .post('/api/users')
+        .send(student)
+        .set('Authorization', 'Bearer ' + accessToken)
+        .expect(400)
+
+      const afterCreate = await User.findById(newStudentId)
+      expect(body.errors.length).toBe(4)
+      expect(body.errors[0].message).toBe('Username should be at least 6 chars long and less then 25 chars')
+      expect(body.errors[0].type).toBe('ValidationError')
+      expect(body.errors[1].message).toBe('Password is required')
+      expect(body.errors[1].type).toBe('ValidationError')
+      expect(body.errors[2].message).toBe('Email is not valid')
+      expect(body.errors[2].type).toBe('ValidationError')
+      expect(body.errors[3].message).toBe('Balance should be numeric')
+      expect(body.errors[3].type).toBe('ValidationError')
+      expect(afterCreate).toEqual(null)
+    })
   })
 })

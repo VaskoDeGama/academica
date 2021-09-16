@@ -63,6 +63,13 @@ const userSchema = {
     errorMessage: 'Email is not valid',
     isEmail: true,
     trim: true
+  },
+  balance: {
+    in: ['body'],
+    errorMessage: 'Balance should be numeric',
+    isNumeric: true,
+    optional: true,
+    toFloat: true
   }
 }
 

@@ -129,52 +129,57 @@ class UserService {
   /**
    *
    * @param {RequestDTO} reqDTO
+   * @param {boolean} [allowSelf=true] - if true allow self id
+   * @returns {string[]}
+   */
+  getIds (reqDTO, allowSelf = true) {
+    const { hasParams, params, hasQuery, query, user } = reqDTO
+
+    const ids = []
+
+    if (hasParams) {
+      ids.push(params.id)
+    }
+
+    if (hasQuery) {
+      const queryIds = query.id && Array.isArray(query.id) ? query.id : [query.id]
+      ids.push(...queryIds)
+    }
+
+    if (!allowSelf && ids.some(id => user.id === id)) {
+      return []
+    }
+
+    return ids
+  }
+
+  /**
+   *
+   * @param {RequestDTO} reqDTO
    * @returns {Promise<ResultDTO>}
    */
   async removeUser (reqDTO) {
     const resDTO = new ResultDTO(reqDTO)
-    let result = {}
+
     try {
-      const { hasParams, params, hasQuery, query, user } = reqDTO
-      if (hasParams && params.id === user.id) {
-        return resDTO.addError('Bad ID', 400, 'RequestError')
-      }
+      const ids = this.getIds(reqDTO, false)
 
-      if (hasQuery) {
-        if (Array.isArray(query.id) && query.id.some(id => id === user.id)) {
-          return resDTO.addError('Bad ID', 400, 'RequestError')
-        } else if (query.id === user.id) {
-          return resDTO.addError('Bad ID', 400, 'RequestError')
-        }
-      }
-      const ids = []
+      if (ids.length) {
+        const { id, role } = reqDTO.user
+        const usersForDelete = await this.userRepositroy.findByIds(ids)
+        const ownedUsers = this.getOnlyOwned(role, id, usersForDelete)
 
-      const userForDelete = await this.userRepositroy.findByIds(ids)
+        if (usersForDelete.length && ownedUsers.length && usersForDelete.length === ownedUsers.length) {
+          const result = await this.userRepositroy.removeByIds(ids)
 
-      if (hasParams) {
-        if (this.isOwner(user.role, user.id, userForDelete)) {
-          result = await this.userRepositroy.removeById(params.id)
-        }
-      } else if (hasQuery && Array.isArray(query.id)) {
-        const users = await this.userRepositroy.findByIds(query.id)
-        const usersForDelete = this.getOnlyOwned(user.role, user.id, users)
-
-        if (usersForDelete.length === users.length) {
-          result = await this.userRepositroy.removeByIds(query.id)
-        }
-      } else if (hasQuery) {
-        const userForDelete = await this.userRepositroy.findById(query.id)
-        if (this.isOwner(user.role, user.id, userForDelete)) {
-          result = await this.userRepositroy.removeById(query.id)
+          if (result && result.deletedCount) {
+            resDTO.data = result.deletedCount
+            return resDTO
+          }
         }
       }
 
-      if (result && result.deletedCount) {
-        resDTO.data = result.deletedCount
-        return resDTO
-      }
-
-      return resDTO.addError('Resource not found', 404, 'RequestError')
+      return resDTO.addError('Bad request', 400, 'RequestError')
     } catch (error) {
       return resDTO.addError(error)
     }
@@ -197,16 +202,32 @@ class UserService {
         ]
       })
       if (users.length) {
-        return resDTO.addError('Same user already exists.', 409)
+        return resDTO.addError('Same user already exists.', 409, 'RequestError')
       }
     } catch (e) {
       return resDTO.addError(e)
     }
 
+    const { role, id } = reqDTO.user
+
     try {
-      const result = await this.userRepositroy.save(reqDTO.body)
-      resDTO.data = result.id
+      const user = Object.assign({}, reqDTO.body)
+
+      const teacher = role === Roles.teacher ? await this.userRepositroy.findById(id) : null
+
+      if (teacher) {
+        user.teacher = id
+      }
+
+      const result = await this.userRepositroy.save(user)
+
+      if (teacher) {
+        teacher.students.push(result.id)
+        await this.userRepositroy.findAndUpdate({ id }, { students: teacher.students })
+      }
+
       resDTO.status = 201
+      resDTO.data = result.id
       return resDTO
     } catch (error) {
       return resDTO.addError(error)

@@ -32,10 +32,8 @@ function isEmpty (value) {
     return !value.length
   }
 
-  for (const key in value) {
-    if (hasOwnProperty.call(value, key)) {
-      return false
-    }
+  if (typeof value === 'object') {
+    return Reflect.ownKeys(value).every(key => !hasOwnProperty.call(value, key))
   }
 
   return true
