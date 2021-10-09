@@ -27,6 +27,7 @@
         "jsdoc/require-param-description": ["off"],
         "jsdoc/require-returns-description": ["off"],
         "jsdoc/no-undefined-types": ["off"],
-        "jest/expect-expect": ["off"]
+        "jest/expect-expect": ["off"],
+        "jsdoc/check-tag-names": ["error", { "definedTags": ["openapi", "swagger"] }]
     }
 }
