@@ -3,7 +3,6 @@
 const { configure, connectLogger, getLogger } = require('log4js')
 const httpContext = require('express-http-context')
 const config = require('config')
-const isEmpty = require('./is-empty')
 
 configure(config.logger)
 

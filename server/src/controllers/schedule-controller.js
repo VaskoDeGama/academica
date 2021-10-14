@@ -87,7 +87,8 @@ class ScheduleController extends BaseController {
   // GET
   async getSchedule (req, res, next) {
     const reqDTO = new RequestDTO(req)
-    // const scheduleService = reqDTO.ioc.get(Types.scheduleService)
+    const scheduleService = reqDTO.ioc.get(Types.scheduleService)
+    console.log(scheduleService?.toString())
     // const resultDTO =  await scheduleService.createSchedule(reqDTO)
     const resultDTO = new ResultDTO(reqDTO)
     resultDTO.data = 'getSchedule fn'

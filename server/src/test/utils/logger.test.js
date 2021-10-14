@@ -7,6 +7,6 @@ describe('logger', () => {
     const result = httpFormatter({}, {}, (x) => x)
     expect(result).toBeDefined()
     expect(typeof result).toBe('string')
-    expect(result).toBe('#undefined: :method :url | processed for: NaNms | undefined')
+    expect(result).toBe('#undefined: :method :url | processed for: NaNms | resStatus: undefined')
   })
 })
