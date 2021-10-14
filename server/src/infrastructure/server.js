@@ -9,9 +9,6 @@ const { middleware: httpContext } = require('express-http-context')
 const { setMetrics, globalErrorHandler, finalMiddleware } = require('../middleware')
 const { traceLogger } = require('../utils/logger')
 const { pingRouter, apiRouter } = require('../routes')
-const swaggerUi = require('swagger-ui-express')
-const swaggerJSDoc = require('swagger-jsdoc')
-const swaggerOptions = require('./docs')
 
 class Server {
   /**
@@ -37,13 +34,6 @@ class Server {
 
     this.app.use(pingRouter)
     this.app.use('/api', apiRouter)
-    if (!process.env.PRODUCTION) {
-      this.log.info('Generate swagger docs...')
-      const swaggerSpecs = swaggerJSDoc(swaggerOptions)
-      console.log(swaggerSpecs)
-      this.app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs))
-      this.log.info('Swagger ready')
-    }
 
     this.app.use(finalMiddleware)
     this.app.use(globalErrorHandler)

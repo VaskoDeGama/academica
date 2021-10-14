@@ -30,8 +30,6 @@
     "nodemon": "^2.0.12",
     "redis-mock": "^0.56.3",
     "supertest": "^6.1.6",
-    "swagger-jsdoc": "^6.1.0",
-    "swagger-ui-express": "^4.1.6",
     "webpack": "^5.52.0",
     "webpack-cli": "^4.8.0",
     "webpack-node-externals": "^3.0.0"
