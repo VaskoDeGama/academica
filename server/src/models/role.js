@@ -8,7 +8,7 @@
  * @property {boolean} create - can do create with resource
  * @property {boolean} delete - can do delete with resource
  * @property {boolean} update - can do update with resource
- * @property {string[]} mutableFields - list filed
+ * @property {string[]} mutableFields - list filed which can change
  */
 
 const Roles = {
@@ -27,6 +27,42 @@ PERMISSIONS[Roles.student] = [
     update: true,
     mutableFields: ['password', 'lastName', 'firstName', 'skype', 'email'],
     onlyOwned: true
+  },
+  {
+    resource: 'schedule',
+    read: true,
+    create: false,
+    delete: false,
+    update: false,
+    mutableFields: [],
+    onlyOwned: true
+  },
+  {
+    resource: 'window',
+    read: true,
+    create: false,
+    delete: false,
+    update: false,
+    mutableFields: [],
+    onlyOwned: true
+  },
+  {
+    resource: 'lesson',
+    read: true,
+    create: true,
+    delete: false,
+    update: false,
+    mutableFields: [],
+    onlyOwned: true
+  },
+  {
+    resource: 'comment',
+    read: true,
+    create: true,
+    delete: false,
+    update: false,
+    mutableFields: [],
+    onlyOwned: true
   }
 ]
 
@@ -39,12 +75,84 @@ PERMISSIONS[Roles.teacher] = [
     update: true,
     mutableFields: [],
     onlyOwned: true
+  },
+  {
+    resource: 'schedule',
+    read: true,
+    create: true,
+    delete: true,
+    update: false,
+    mutableFields: [],
+    onlyOwned: true
+  },
+  {
+    resource: 'window',
+    read: true,
+    create: true,
+    delete: true,
+    update: false,
+    mutableFields: [],
+    onlyOwned: true
+  },
+  {
+    resource: 'lesson',
+    read: true,
+    create: false,
+    delete: true,
+    update: true,
+    mutableFields: ['startTime', 'endTime'],
+    onlyOwned: true
+  },
+  {
+    resource: 'comment',
+    read: true,
+    create: true,
+    delete: true,
+    update: true,
+    mutableFields: ['isPrivate', 'message'],
+    onlyOwned: true
   }
 ]
 
 PERMISSIONS[Roles.admin] = [
   {
     resource: 'users',
+    read: true,
+    create: true,
+    delete: true,
+    update: true,
+    mutableFields: [],
+    onlyOwned: false
+  },
+  {
+    resource: 'schedule',
+    read: true,
+    create: true,
+    delete: true,
+    update: true,
+    mutableFields: [],
+    onlyOwned: false
+  },
+  {
+    resource: 'window',
+    read: true,
+    create: true,
+    delete: true,
+    update: true,
+    mutableFields: [],
+    onlyOwned: false
+  },
+  {
+    resource: 'lesson',
+    read: true,
+    create: true,
+    delete: true,
+    update: true,
+    mutableFields: [],
+    onlyOwned: false
+  },
+  {
+    resource: 'comment',
     read: true,
     create: true,
     delete: true,
