@@ -12,15 +12,22 @@ module.exports = {
   userScheme: Symbol('userScheme'),
   loginScheme: Symbol('loginScheme'),
   tokenScheme: Symbol('tokenScheme'),
+  scheduleSchema: Symbol('scheduleSchema'),
+  windowSchema: Symbol('windowSchema'),
+  lessonSchema: Symbol('lessonSchema'),
+  commentSchema: Symbol('commentSchema'),
 
   user: Symbol('user'),
   token: Symbol('token'),
   role: Symbol('role'),
+  schedule: Symbol('schedule'),
 
   userRepository: Symbol('userRepository'),
   tokenRepository: Symbol('tokenRepository'),
   roleRepository: Symbol('roleRepository'),
+  scheduleRepository: Symbol('scheduleRepository'),
 
   userService: Symbol('userService'),
-  authService: Symbol('authService')
+  authService: Symbol('authService'),
+  scheduleService: Symbol('scheduleService')
 }

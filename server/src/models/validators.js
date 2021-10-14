@@ -131,12 +131,88 @@ const idSchema = {
     },
     errorMessage: 'Bad ID'
 
+  },
+  scheduleId: {
+    in: ['params', 'query'],
+    optional: true,
+    custom: {
+      options: (value) => {
+        if (Array.isArray(value)) {
+          return value.every(id => isMongoId(id))
+        }
+
+        return isMongoId(value)
+      }
+    },
+    errorMessage: 'Bad ID'
+  },
+  commentId: {
+    in: ['params', 'query'],
+    optional: true,
+    custom: {
+      options: (value) => {
+        if (Array.isArray(value)) {
+          return value.every(id => isMongoId(id))
+        }
+
+        return isMongoId(value)
+      }
+    },
+    errorMessage: 'Bad ID'
+  },
+  lessonId: {
+    in: ['params', 'query'],
+    optional: true,
+    custom: {
+      options: (value) => {
+        if (Array.isArray(value)) {
+          return value.every(id => isMongoId(id))
+        }
+
+        return isMongoId(value)
+      }
+    },
+    errorMessage: 'Bad ID'
+  },
+  windowId: {
+    in: ['params', 'query'],
+    optional: true,
+    custom: {
+      options: (value) => {
+        if (Array.isArray(value)) {
+          return value.every(id => isMongoId(id))
+        }
+
+        return isMongoId(value)
+      }
+    },
+    errorMessage: 'Bad ID'
   }
+}
+
+const scheduleSchema = {
+
+}
+
+const windowSchema = {
+
+}
+
+const lessonSchema = {
+
+}
+
+const commentSchema = {
+
 }
 
 module.exports = {
   loginSchema,
   idSchema,
   userSchema,
-  userUpdateSchema
+  userUpdateSchema,
+  scheduleSchema,
+  windowSchema,
+  lessonSchema,
+  commentSchema
 }

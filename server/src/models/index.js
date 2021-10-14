@@ -1,6 +1,7 @@
 const { User } = require('./user')
 const { Token } = require('./token')
 const { Roles, PERMISSIONS } = require('./role')
+const { Schedule } = require('./schedule')
 const ResultDTO = require('./result-dto')
 const RequestDTO = require('./request-dto')
 const Methods = require('./methods')
@@ -15,6 +16,7 @@ module.exports = {
   RequestDTO,
   Roles,
   PERMISSIONS,
+  Schedule,
   Methods,
   Types,
   Actions,
