@@ -4,10 +4,6 @@ const { model, Schema } = require('mongoose')
 const mongoose = require('mongoose')
 
 const commentDefinition = {
-  date: {
-    type: Date,
-    required: true
-  },
   author: {
     type: mongoose.Types.ObjectId,
     ref: 'User',

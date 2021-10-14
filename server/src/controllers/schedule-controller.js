@@ -9,6 +9,7 @@ class ScheduleController extends BaseController {
   constructor (authorize, checkPermission, validate) {
     super()
     this.path = '/schedule'
+
     this.ALL = authorize([Roles.teacher, Roles.admin, Roles.student])
     this.NOT_STUDENT = authorize([Roles.teacher, Roles.admin])
 
