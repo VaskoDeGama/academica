@@ -3,6 +3,7 @@
 const { configure, connectLogger, getLogger } = require('log4js')
 const httpContext = require('express-http-context')
 const config = require('config')
+const isEmpty = require('./is-empty')
 
 configure(config.logger)
 
@@ -19,7 +20,7 @@ const requestLogger = getLogger('Request')
 function httpFormatter (req, res, format) {
   const startTime = httpContext.get('reqStartTime')
   const traceId = httpContext.get('traceId')
-  return format(`#${traceId}: :method :url | processed for: ${Date.now() - startTime}ms | ${JSON.stringify(req.body)}`)
+  return format(`#${traceId}: :method :url | processed for: ${Date.now() - startTime}ms | resStatus: ${res.statusCode}`)
 }
 
 const traceLogger = connectLogger(getLogger('Request'), {
