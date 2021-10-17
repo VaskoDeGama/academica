@@ -31,7 +31,7 @@ function init (ioc) {
 
   ioc.factory(Types.authService, AuthService, [Types.userRepository, Types.tokenRepository, Types.cache])
   ioc.factory(Types.userService, UserService, [Types.userRepository])
-  ioc.factory(Types.scheduleService, ScheduleService, [Types.scheduleRepository])
+  ioc.factory(Types.scheduleService, ScheduleService, [Types.userRepository, Types.scheduleRepository])
 }
 
 module.exports = init

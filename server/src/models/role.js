@@ -92,7 +92,7 @@ PERMISSIONS[Roles.teacher] = [
     delete: true,
     update: false,
     mutableFields: [],
-    onlyOwned: true
+    onlyOwned: false
   },
   {
     resource: 'lesson',
@@ -101,7 +101,7 @@ PERMISSIONS[Roles.teacher] = [
     delete: true,
     update: true,
     mutableFields: ['startTime', 'endTime'],
-    onlyOwned: true
+    onlyOwned: false
   },
   {
     resource: 'comment',
@@ -110,7 +110,7 @@ PERMISSIONS[Roles.teacher] = [
     delete: true,
     update: true,
     mutableFields: ['isPrivate', 'message'],
-    onlyOwned: true
+    onlyOwned: false
   }
 ]
 

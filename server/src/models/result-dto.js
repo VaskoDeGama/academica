@@ -110,7 +110,7 @@ class ResultDto {
     }
 
     for (const err of error) {
-      this.status = typeof err.code === 'number'
+      this.status = typeof err.code === 'number' && err.code >= 100 && err.code <= 600
         ? err.code
         : err.status || 500
 

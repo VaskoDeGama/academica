@@ -28,7 +28,7 @@ function setTime (timestamp = Date.now(), hours = 0, minutes = 0) {
   if (hours >= 0 && hours <= 59) {
     date.setMinutes(minutes)
   }
-  return date
+  return date.getTime()
 }
 module.exports = {
   getDay,
