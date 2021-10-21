@@ -11,31 +11,34 @@ class ScheduleService {
 
   /**
    *
-   * @param {string} role
-   * @param {string} userId
-   * @param {User[]} schedules
-   * @returns {User[]}
+   * @param {User} user
+   * @param {string} resourceName
+   * @param {Schedule[]} resource
+   * @returns {Schedule[]}
    */
-  getOnlyOwned (role, userId, schedules = []) {
-    return schedules.filter(schedule => this.isOwner(role, userId, schedule))
+  getOnlyOwned (user, resourceName, resource = []) {
+    const permissions = user.permissions.find(p => p.resource === resourceName)
+    switch (resourceName) {
+      case 'schedule':
+        return resource.filter(r => this.isScheduleOwner(user, permissions, r))
+    }
   }
 
   /**
    *
-   * @param {string} role
-   * @param {string} userId
+   * @param {User} user
+   * @param {object} permissions
    * @param {Schedule} schedule
    * @returns {boolean}
    */
-  isOwner (role, userId, schedule) {
+  isScheduleOwner (user, permissions, schedule) {
+    const { id, role, teacherId } = user
     switch (role) {
       case Roles.student: {
-        // TODO
-        return true
+        return schedule.teacher.id === teacherId
       }
       case Roles.teacher: {
-        // TODO
-        return true
+        return schedule.teacher.id === id
       }
       case Roles.admin: {
         return true
@@ -77,7 +80,7 @@ class ScheduleService {
         schedules.push(...await this.scheduleService.getAll(select, opt))
       }
 
-      const result = this.getOnlyOwned(user.role, user.id, schedules)
+      const result = this.getOnlyOwned(user, 'schedule', schedules)
 
       if (result.length) {
         resDTO.data = {

@@ -209,7 +209,12 @@ class AuthService {
    * @returns {string}
    */
   generateJwtToken (user, refreshId) {
-    return jwt.sign({ id: user.id, role: user.role }, config.server.secret, { expiresIn: config.server.tokenExp, jwtid: refreshId })
+    const payload = {
+      id: user.id,
+      role: user.role,
+      teacherId: user?.teacher ? user.teacher?.toString() : undefined
+    }
+    return jwt.sign(payload, config.server.secret, { expiresIn: config.server.tokenExp, jwtid: refreshId })
   }
 
   /**
