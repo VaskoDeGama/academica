@@ -128,7 +128,10 @@ class AuthService {
       return resDTO.addError('Token required', 400)
     }
 
-    if (!reqDTO.user.ownsToken(refreshToken) && reqDTO.user.role !== Roles.admin) {
+    const refreshTokens = await this.tokenRepository.findByQuery({ user: reqDTO.user.id })
+    const isOwnToken = !!refreshTokens.find(x => x.token === refreshToken)
+
+    if (!isOwnToken && reqDTO.user.role !== Roles.admin) {
       return resDTO.addError('Unauthorized', 401)
     }
 

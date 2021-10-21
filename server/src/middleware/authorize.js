@@ -5,7 +5,7 @@ const jwt = require('express-jwt')
 const { UnauthorizedError } = require('express-jwt')
 const { BaseController } = require('../controllers')
 const { secret } = config.server
-const { PERMISSIONS } = require('../models')
+const { PERMISSIONS, Roles } = require('../models')
 const Types = require('../models/types')
 
 const isRevokedCallback = async function (req, payload, done) {
@@ -42,13 +42,7 @@ const authorize = function (roles = []) {
         return res.end()
       }
 
-      const ioc = req.app.get('ioc')
-      const tokeRepository = ioc.get(Types.tokenRepository)
-
-      const refreshTokens = await tokeRepository.findByQuery({ user: req.user.id })
-
       req.user.permissions = PERMISSIONS[req.user.role]
-      req.user.ownsToken = token => !!refreshTokens.find(x => x.token === token)
       next()
     }
   ]
