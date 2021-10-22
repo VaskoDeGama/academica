@@ -52,7 +52,7 @@ class AuthService {
 
     resDTO.data = this.basicDetails(user)
 
-    resDTO.addCookie('access', accessToken, { httpOnly: true, expires: new Date(Date.now() + config.server.tokenExp) })
+    resDTO.addCookie('access', accessToken, { httpOnly: true, expires: new Date(Date.now() + config.server.tokenExp * 1000) })
     resDTO.addCookie('refresh', refreshToken.token, { httpOnly: true, expires: new Date(Date.now() + config.server.refreshTokenExp) })
 
     return resDTO
@@ -91,7 +91,7 @@ class AuthService {
       }
 
       const accessToken = this.generateJwtToken(user, newRefreshToken.id)
-      resDTO.addCookie('access', accessToken, { httpOnly: true, expires: new Date(Date.now() + config.server.tokenExp) })
+      resDTO.addCookie('access', accessToken, { httpOnly: true, expires: new Date(Date.now() + config.server.tokenExp * 1000) })
       resDTO.addCookie('refresh', newRefreshToken.token, { httpOnly: true, expires: new Date(Date.now() + config.server.refreshTokenExp) })
       resDTO.success = true
       return resDTO
