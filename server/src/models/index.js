@@ -1,7 +1,7 @@
 const { User } = require('./user')
 const { Token } = require('./token')
 const { Roles, PERMISSIONS } = require('./role')
-const { Schedule } = require('./schedule')
+const { Schedule, Comment, Lesson, Window } = require('./schedule')
 const ResultDTO = require('./result-dto')
 const RequestDTO = require('./request-dto')
 const Methods = require('./methods')
@@ -10,6 +10,9 @@ const Actions = require('./actions')
 const Validators = require('./validators')
 
 module.exports = {
+  Comment,
+  Lesson,
+  Window,
   User,
   Token,
   ResultDTO,

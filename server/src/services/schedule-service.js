@@ -4,9 +4,12 @@ const ResultDTO = require('../models/result-dto')
 const { Roles } = require('../models')
 
 class ScheduleService {
-  constructor (userService, scheduleService) {
-    this.userService = userService
-    this.scheduleService = scheduleService
+  constructor (userRepository, scheduleRepository, windowRepository, lessonRepository, commentRepository) {
+    this.userRepository = userRepository
+    this.scheduleRepository = scheduleRepository
+    this.windowRepository = windowRepository
+    this.lessonRepository = lessonRepository
+    this.commentRepository = commentRepository
   }
 
   /**
@@ -20,18 +23,20 @@ class ScheduleService {
     const permissions = user.permissions.find(p => p.resource === resourceName)
     switch (resourceName) {
       case 'schedule':
-        return resource.filter(r => this.isScheduleOwner(user, permissions, r))
+        return resource.filter(r => this.isScheduleOwner(user, r, permissions))
+      case 'comment':
+        return resource.filter(r => this.isCommentOwner(user, r, permissions))
     }
   }
 
   /**
    *
    * @param {User} user
-   * @param {object} permissions
    * @param {Schedule} schedule
+   * @param {object} permissions
    * @returns {boolean}
    */
-  isScheduleOwner (user, permissions, schedule) {
+  isScheduleOwner (user, schedule, permissions) {
     const { id, role, teacherId } = user
     switch (role) {
       case Roles.student: {
@@ -44,6 +49,17 @@ class ScheduleService {
         return true
       }
     }
+  }
+
+  /**
+   *
+   * @param {User} user
+   * @param {Comment} comment
+   * @param {object} permissions
+   * @returns {boolean}
+   */
+  isCommentOwner (user, comment, permissions) {
+    return user.role === Roles.admin || !comment.isPrivate || (comment.isPrivate && user.id === comment.author.id)
   }
 
   /**
@@ -61,18 +77,28 @@ class ScheduleService {
           select: 'firstName + lastName + skype'
         },
         {
-          path: 'windows.lessons.student',
-          select: 'firstName + lastName + skype'
+          path: 'windows',
+          populate: [
+            {
+              path: 'lessons',
+              select: '-comments',
+              populate: [
+                {
+                  path: 'student',
+                  select: 'firstName + lastName + skype'
+                }
+              ]
+            }
+          ]
         }
       ]
     }
 
     const select = {
-      'windows.lessons.comments': 0
     }
 
     try {
-      const schedules = await this.scheduleService.getAll(select, opt)
+      const schedules = await this.scheduleRepository.getAll(select, opt)
 
       const result = this.getOnlyOwned(reqDTO.user, 'schedule', schedules)
 

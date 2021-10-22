@@ -20,6 +20,7 @@ const commentDefinition = {
 }
 
 const commentSchema = new Schema(commentDefinition, { timestamps: true, id: true })
+const Comment = model('Comment', commentSchema)
 
 const lessonDefinition = {
   startTime: {
@@ -35,14 +36,10 @@ const lessonDefinition = {
     ref: 'User',
     required: true
   },
-  comments: [commentSchema]
+  comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }]
 }
-
 const lessonSchema = new Schema(lessonDefinition, { timestamps: true, id: true })
-
-lessonSchema.virtual('duration').get(function () {
-  return this.endTime - this.startTime
-})
+const Lesson = model('Lesson', lessonSchema)
 
 const windowDefinition = {
   startTime: {
@@ -53,14 +50,10 @@ const windowDefinition = {
     type: Date,
     required: true
   },
-  lessons: [lessonSchema]
+  lessons: [{ type: Schema.Types.ObjectId, ref: 'Lesson' }]
 }
-
 const windowSchema = new Schema(windowDefinition, { timestamps: true, id: true })
-
-windowSchema.virtual('duration').get(function () {
-  return this.endTime - this.startTime
-})
+const Window = model('Window', windowSchema)
 
 const scheduleDefinition = {
   date: {
@@ -88,7 +81,7 @@ const scheduleDefinition = {
     type: Number,
     default: 2 * 60 * 60 * 1000 // 120 min
   },
-  windows: [windowSchema]
+  windows: [{ type: Schema.Types.ObjectId, ref: 'Window' }]
 }
 
 const schema = new Schema(scheduleDefinition, { timestamps: true, id: true })
@@ -97,6 +90,9 @@ const Schedule = model('Schedule', schema)
 
 module.exports = {
   Schedule,
+  Window,
+  Lesson,
+  Comment,
   scheduleSchema: scheduleDefinition,
   windowSchema: windowDefinition,
   lessonSchema: lessonDefinition,

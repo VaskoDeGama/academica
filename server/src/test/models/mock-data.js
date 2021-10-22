@@ -175,9 +175,114 @@ const daysIds = [
   '6171960753945f96a820c310',
   '61719607a0251318a7a723e9'
 ]
+const scheduleIds = [
+  '6172ea75448c32a24d34bf13',
+  '6172ea75d0a87ebe2a3c3b98',
+  '6172ea75a2bef5997c86a9ac',
+  '6172ea757d46cbe584783198',
+  '6172ea7523e24e98d5858f47',
+  '6172ea757573843963efa46a',
+  '6172ea751c19ca1afa627cbf',
+  '6172ea75b5fa0414ef127a1e',
+  '6172ea75c5848bed1095970c',
+  '6172ea75a9b4fb55cd5169ff',
+  '6172ea75dd6eb8803a4ec1f3',
+  '6172ea757c9053df000bcd82',
+  '6172ea75dcf46b627670e4ba',
+  '6172ea75e4a4345f7c01c572',
+  '6172ea75929e8a2beb53d0c5',
+  '6172ea756ec47d9642662586',
+  '6172ea751cee67bafe1c34ca',
+  '6172ea75581f2a7c8f134c47',
+  '6172ea753c89401d011727b8',
+  '6172ea75b726f86430ac698c',
+  '6172ea75885a10f7091bd93c',
+  '6172ea75180c7ac50262ac67',
+  '6172ea75773bfd0c80a62774',
+  '6172ea751bea06065f5241c2',
+  '6172ea75cbb5b6f99ed01f2c',
+  '6172ea758ff5197708d09df8',
+  '6172ea753b5a7198b18a6084',
+  '6172ea7562dcb82e41e863fd',
+  '6172ea758cf39ee35365bbce',
+  '6172ea75559391c3ff5770e3',
+  '6172ea758a06daaa5db3182c',
+  '6172ea75f6d99a6ae20a8806',
+  '6172ea753969df001e86ac61',
+  '6172ea752f8c42b4a1d703bf',
+  '6172ea75e97affaf8b0d65c1',
+  '6172ea75e9ace9f5d1064ecb',
+  '6172ea751cd7d3a01d9ad1f3',
+  '6172ea756c22e0c321868140',
+  '6172ea75918d45b7cc8fa200',
+  '6172ea751c8e99a2399465f8',
+  '6172ea7571ec54deb6850d5a',
+  '6172ea75182160e689de8e31',
+  '6172ea7509731b3095524aef',
+  '6172ea750ff9ae1d35c9f96d',
+  '6172ea75df4a0910d5a2a60b',
+  '6172ea75fb6350561c634509',
+  '6172ea75a2aff647c37cf04c',
+  '6172ea7525f3403c9cf863bc',
+  '6172ea7593c4f59c130d6a34',
+  '6172ea7537aecd40198a8465',
+  '6172ea7540fe159c0446e813',
+  '6172ea7534c90523081638b4',
+  '6172ea750fd6d5a2ae621535',
+  '6172ea751be8747f02523c63',
+  '6172ea7550ac9d3b0b5eac8e',
+  '6172ea752940c79ad3d736bc',
+  '6172ea7573ecadcdc41ee99e',
+  '6172ea7583036b56c4722081',
+  '6172ea757aecd465f6917ccc',
+  '6172ea752501a85ef9d49f25',
+  '6172ea756c2b72786d21fc7e',
+  '6172ea7547be34aa011961a3',
+  '6172ea75670e4b52500284b7',
+  '6172ea756d44c39a523addf2',
+  '6172ea75d2a5023e256c4d6e',
+  '6172ea75a1733782e52d6eff',
+  '6172ea75f323ebea13c1ce49',
+  '6172ea75b82836003527a869',
+  '6172ea75b40c3b47167219cd',
+  '6172ea75bf159555337c2c68',
+  '6172ea75a3f6ad2a57f3c5b9',
+  '6172ea757042574a2479c4ab',
+  '6172ea75bca0d666c5010341',
+  '6172ea753ca1ff883d99c5ec',
+  '6172ea754dce67cc2075d31c',
+  '6172ea7552f4d1db5e657bce',
+  '6172ea750e3d7f27f0711c9b',
+  '6172ea75e6e9cf5ceb059cd7',
+  '6172ea75eb493d8c3a0f3b48',
+  '6172ea7544ed0f25bef689a9',
+  '6172ea752b4d1a94ec9f3c4e',
+  '6172ea75eef046e0b4eca29a',
+  '6172ea75315da20e1a523d75',
+  '6172ea7580e81b4ee620b2af',
+  '6172ea757a6c059650450028',
+  '6172ea7547dcec21a85fc26d',
+  '6172ea75a3bcd87e5bcada7b',
+  '6172ea75563bcee955f8bbfd',
+  '6172ea75918512e36bd778ce',
+  '6172ea759d5c5e2643124c9c',
+  '6172ea75a5ad9dabfff23b4e',
+  '6172ea7510b8194b196a916d',
+  '6172ea75e1ababbce6433b5d',
+  '6172ea75951c2d262a8b8b34',
+  '6172ea7585886be2e3059fd2',
+  '6172ea75ef5e78c812b3f558',
+  '6172ea754a04eb5c7740f969',
+  '6172ea758f94251aec26a670',
+  '6172ea759b5f427ad5a8aa13',
+  '6172ea7599510f9a39da382b'
+]
 
 const mockSchedule = []
-
+const mockWindows = []
+const mockLessons = []
+const mockComments = []
+const day = 24 * 60 * 60 * 1000
 /**
  * @param {ObjectId} teacherId
  * @param {number} daysCount
@@ -188,112 +293,22 @@ const mockSchedule = []
  * @param {number} maxLessonTimeByOneUser
  * @returns {object[]}
  */
-function generateDaysForTeacher (teacherId, daysCount, daysIds, basePrice, breakTime, minLessonTime, maxLessonTimeByOneUser) {
+function generateDaysForTeacher (
+  teacherId,
+  daysCount,
+  daysIds,
+  basePrice,
+  breakTime,
+  minLessonTime,
+  maxLessonTimeByOneUser
+) {
   const schedules = []
-  const day = 24 * 60 * 60 * 1000
 
   for (let i = 0; i <= daysCount; i += 1) {
     const _id = new mongoose.Types.ObjectId(daysIds[i])
     const date = getDay(Date.now() + ((i - (daysCount / 2)) * day))
     const teacher = teacherId
     const windows = []
-
-    // generate windows
-    const windowCountRnd = getRandomInt(0, 100)
-    const windowCount = windowCountRnd <= 33
-      ? 1
-      : windowCountRnd >= 66
-        ? 2
-        : 3
-
-    const workDayInHours = getRandomInt(14, 17)
-
-    for (let j = 0; j < windowCount; j += 1) {
-      const window = {
-        lessons: []
-      }
-      if (j === 0) {
-        const startH = getRandomInt(6, 10)
-        const startM = getRandomInt(0, 59)
-        const endH = startH + ~~(workDayInHours / windowCount)
-        const endM = getRandomInt(0, 59)
-        window.startTime = setTime(date, startH, startM)
-        window.endTime = setTime(date, endH, endM)
-        windows.push(window)
-      } else {
-        const [prevWindow] = windows.slice(-1)
-        const startH = prevWindow.endTime.getHours() + getRandomInt(1, 2)
-        const startM = getRandomInt(0, 59)
-        let endH = startH + ~~(workDayInHours / windowCount)
-
-        if (endH > 23) {
-          endH = 23
-        }
-
-        const endM = getRandomInt(0, 59)
-        window.startTime = setTime(date, startH, startM)
-        window.endTime = setTime(date, endH, endM)
-        windows.push(window)
-      }
-    }
-
-    const studentsByTeacher = students.filter(s => s.teacher === teacher)
-
-    // generate lessons
-    for (const window of windows) {
-      const lessonCountRnd = getRandomInt(0, 100)
-      const lessonCount = lessonCountRnd <= 33
-        ? 1
-        : lessonCountRnd >= 66
-          ? 2
-          : 3
-
-      for (let i = 0; i < lessonCount; i += 1) {
-        const lessonDuration = getRandomInt(minLessonTime, maxLessonTimeByOneUser)
-        const slots = getSlots(window, minLessonTime, breakTime)
-        const slot = slots.find(s => s.duration >= lessonDuration)
-
-        if (slot) {
-          const studentIndex = getRandomInt(0, studentsByTeacher.length - 1)
-
-          const lesson = {
-            student: studentsByTeacher[studentIndex]._id,
-            comments: []
-          }
-
-          studentsByTeacher.splice(studentIndex, 1)
-
-          const startH = getRandomInt(slot.startTime.getHours(), slot.endTime.getHours())
-          let startM = getRandomInt(0, 59)
-
-          if (startH === slot.startTime.getHours()) {
-            startM = slot.startTime.getMinutes()
-          }
-
-          lesson.startTime = setTime(date, startH, startM)
-          lesson.endTime = new Date(lesson.startTime?.getTime() + lessonDuration)
-
-          // generateComments
-          const commentsCount = getRandomInt(0, 10)
-
-          for (let j = 0; j < commentsCount; j += 1) {
-            const createTimestamp = date - getRandomInt(0, 3) * day
-            const isToday = date - createTimestamp > 24 * 60 * 60 * 1000
-            lesson.comments.push({
-              author: getRandomInt(0, 100) > 50 ? teacher : lesson.student,
-              message: getRandomText(getRandomInt(10, 50)),
-              isPrivate: getRandomInt(0, 100) > 50,
-              createdAt: setTime(
-                createTimestamp,
-                getRandomInt(0, 24 - (isToday ? lesson.startTime.getHours() : 0)),
-                getRandomInt(0, 59 - (isToday ? lesson.startTime.getMinutes() : 0))
-              )
-            })
-          }
-          window.lessons.push(lesson)
-        }
-      }
-    }
 
     schedules.push({
       _id,
@@ -330,7 +345,125 @@ mockSchedule.push(...generateDaysForTeacher(
   60 * 60 * 1000
 ))
 
+idIndex = 0
+for (const schedule of mockSchedule) {
+  const { date, teacher, minLessonTime, maxLessonTimeByOneUser, breakTime } = schedule
+  const windows = []
+  // generate windows
+  const windowCountRnd = getRandomInt(0, 100)
+  const windowCount = windowCountRnd <= 33
+    ? 1
+    : windowCountRnd >= 66
+      ? 2
+      : 3
+
+  const workDayInHours = getRandomInt(14, 17)
+
+  for (let j = 0; j < windowCount; j += 1) {
+    const window = {
+      _id: new mongoose.Types.ObjectId(scheduleIds[idIndex]),
+      lessons: []
+    }
+
+    idIndex += 1
+    if (j === 0) {
+      const startH = getRandomInt(6, 10)
+      const startM = getRandomInt(0, 59)
+      const endH = startH + ~~(workDayInHours / windowCount)
+      const endM = getRandomInt(0, 59)
+      window.startTime = setTime(date, startH, startM)
+      window.endTime = setTime(date, endH, endM)
+      windows.push(window)
+    } else {
+      const [prevWindow] = windows.slice(-1)
+      const startH = prevWindow.endTime.getHours() + getRandomInt(1, 2)
+      const startM = getRandomInt(0, 59)
+      let endH = startH + ~~(workDayInHours / windowCount)
+
+      if (endH > 23) {
+        endH = 23
+      }
+
+      const endM = getRandomInt(0, 59)
+      window.startTime = setTime(date, startH, startM)
+      window.endTime = setTime(date, endH, endM)
+      windows.push(window)
+    }
+  }
+
+  const studentsByTeacher = students.filter(s => s.teacher === teacher)
+
+  // generate lessons
+  for (const window of windows) {
+    const lessonCountRnd = getRandomInt(0, 100)
+    const lessonCount = lessonCountRnd <= 33
+      ? 1
+      : lessonCountRnd >= 66
+        ? 2
+        : 3
+
+    for (let i = 0; i < lessonCount; i += 1) {
+      const lessonDuration = getRandomInt(minLessonTime, maxLessonTimeByOneUser)
+      const slots = getSlots(window, minLessonTime, breakTime)
+      const slot = slots.find(s => s.duration >= lessonDuration)
+
+      if (slot) {
+        const studentIndex = getRandomInt(0, studentsByTeacher.length - 1)
+
+        const lesson = {
+          _id: new mongoose.Types.ObjectId(scheduleIds[idIndex]),
+          student: studentsByTeacher[studentIndex]._id,
+          comments: []
+        }
+        idIndex += 1
+
+        studentsByTeacher.splice(studentIndex, 1)
+
+        const startH = getRandomInt(slot.startTime.getHours(), slot.endTime.getHours())
+        let startM = getRandomInt(0, 59)
+
+        if (startH === slot.startTime.getHours()) {
+          startM = slot.startTime.getMinutes()
+        }
+
+        lesson.startTime = setTime(date, startH, startM)
+        lesson.endTime = new Date(lesson.startTime?.getTime() + lessonDuration)
+
+        // generateComments
+        const commentsCount = getRandomInt(0, 10)
+
+        for (let j = 0; j < commentsCount; j += 1) {
+          const createTimestamp = date - getRandomInt(0, 3) * day
+          const isToday = date - createTimestamp > 24 * 60 * 60 * 1000
+          const _id = new mongoose.Types.ObjectId(scheduleIds[idIndex])
+          idIndex += 1
+          lesson.comments.push(_id)
+          mockComments.push({
+            _id,
+            author: getRandomInt(0, 100) > 50 ? teacher : lesson.student,
+            message: getRandomText(getRandomInt(10, 50)),
+            isPrivate: getRandomInt(0, 100) > 50,
+            createdAt: setTime(
+              createTimestamp,
+              getRandomInt(0, 24 - (isToday ? lesson.startTime.getHours() : 0)),
+              getRandomInt(0, 59 - (isToday ? lesson.startTime.getMinutes() : 0))
+            )
+          })
+        }
+        window.lessons.push(lesson._id)
+        mockLessons.push(lesson)
+      }
+    }
+  }
+
+  mockWindows.push(...windows)
+  schedule.windows = windows.map(s => s._id)
+}
+
 module.exports = {
+  mockWindows,
+  mockComments,
+  mockLessons,
   mockUsers,
   mockUsersLength: mockUsers.length,
   mockTokens,

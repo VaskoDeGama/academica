@@ -21,11 +21,17 @@ module.exports = {
   token: Symbol('token'),
   role: Symbol('role'),
   schedule: Symbol('schedule'),
+  window: Symbol('window'),
+  lesson: Symbol('lesson'),
+  comment: Symbol('comment'),
 
   userRepository: Symbol('userRepository'),
   tokenRepository: Symbol('tokenRepository'),
   roleRepository: Symbol('roleRepository'),
   scheduleRepository: Symbol('scheduleRepository'),
+  windowRepository: Symbol('windowRepository'),
+  lessonRepository: Symbol('lessonRepository'),
+  commentRepository: Symbol('commentRepository'),
 
   userService: Symbol('userService'),
   authService: Symbol('authService'),

@@ -28,6 +28,9 @@ function init (ioc) {
   ioc.factory(Types.tokenRepository, MongoRepository, [Types.token])
   ioc.factory(Types.roleRepository, MongoRepository, [Types.role])
   ioc.factory(Types.scheduleRepository, MongoRepository, [Types.schedule])
+  ioc.factory(Types.windowRepository, MongoRepository, [Types.window])
+  ioc.factory(Types.lessonRepository, MongoRepository, [Types.lesson])
+  ioc.factory(Types.commentRepository, MongoRepository, [Types.comment])
 
   ioc.factory(Types.authService, AuthService, [Types.userRepository, Types.tokenRepository, Types.cache])
   ioc.factory(Types.userService, UserService, [Types.userRepository])
