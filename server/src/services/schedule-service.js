@@ -53,8 +53,6 @@ class ScheduleService {
    */
   async getAllSchedule (reqDTO) {
     const resDTO = new ResultDTO(reqDTO)
-    const { hasQuery, query, user } = reqDTO
-    const schedules = []
 
     const opt = {
       populate: [
@@ -74,13 +72,9 @@ class ScheduleService {
     }
 
     try {
-      if (hasQuery) {
-        schedules.push(...await this.scheduleService.findByQuery(query, select, opt))
-      } else {
-        schedules.push(...await this.scheduleService.getAll(select, opt))
-      }
+      const schedules = await this.scheduleService.getAll(select, opt)
 
-      const result = this.getOnlyOwned(user, 'schedule', schedules)
+      const result = this.getOnlyOwned(reqDTO.user, 'schedule', schedules)
 
       if (result.length) {
         resDTO.data = {
