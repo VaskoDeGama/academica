@@ -5,7 +5,7 @@ const jwt = require('express-jwt')
 const { UnauthorizedError } = require('express-jwt')
 const { BaseController } = require('../controllers')
 const { secret } = config.server
-const { PERMISSIONS, Roles } = require('../models')
+const { PERMISSIONS } = require('../models')
 const Types = require('../models/types')
 
 const isRevokedCallback = async function (req, payload, done) {
