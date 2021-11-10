@@ -44,10 +44,10 @@ class ScheduleService {
     const { id, role, teacherId } = user
     switch (role) {
       case Roles.student: {
-        return true
+        return lesson.student.id === id
       }
       case Roles.teacher: {
-        return true
+        return lesson.student.teacher.toString() === id
       }
       case Roles.admin: {
         return true
@@ -241,6 +241,33 @@ class ScheduleService {
       ]
     }
 
+    const commentPopulate = {
+      populate: [
+        {
+          path: 'author',
+          select: 'firstName + lastName + skype + teacher'
+        },
+        {
+          path: 'lesson',
+          select: '-comments',
+          populate: [
+            {
+              path: 'student',
+              select: 'firstName + lastName + skype + teacher'
+            },
+            {
+              path: 'window',
+              select: 'startTime + endTime'
+            },
+            {
+              path: 'comments',
+              select: '-lesson'
+            }
+          ]
+        }
+      ]
+    }
+
     try {
       const { scheduleId, windowId, lessonId, commentId } = reqDTO.params
 
@@ -261,6 +288,11 @@ class ScheduleService {
         if (lesson && this.isLessonOwner(reqDTO.user, lesson)) {
           lesson.comments = this.getOnlyOwned(reqDTO.user, 'comment', lesson.comments)
           result = lesson
+        }
+      } else if (commentId) {
+        const comment = await this.commentRepository.findById(commentId, select, commentPopulate)
+        if (comment && this.isCommentOwner(reqDTO.user, comment)) {
+          result = comment
         }
       }
 
