@@ -26,6 +26,30 @@ class ScheduleService {
         return resource.filter(r => this.isScheduleOwner(user, r, permissions))
       case 'comment':
         return resource.filter(r => this.isCommentOwner(user, r, permissions))
+      case 'window':
+        return resource.filter(r => this.isWindowOwner(user, r, permissions))
+    }
+  }
+
+  /**
+   *
+   * @param {User} user
+   * @param {Window} window
+   * @param {object} permissions
+   * @returns {boolean}
+   */
+  isWindowOwner (user, window, permissions) {
+    const { id, role, teacherId } = user
+    switch (role) {
+      case Roles.student: {
+        return window.schedule.teacher.id === teacherId
+      }
+      case Roles.teacher: {
+        return window.schedule.teacher.id === id
+      }
+      case Roles.admin: {
+        return true
+      }
     }
   }
 
@@ -151,6 +175,31 @@ class ScheduleService {
       ]
     }
 
+    const windowPopulate = {
+      populate: [
+        {
+          path: 'schedule',
+          select: 'teacher',
+          populate: [
+            {
+              path: 'teacher',
+              select: 'firstName + lastName + skype'
+            }
+          ]
+        },
+        {
+          path: 'lessons',
+          select: '-comments',
+          populate: [
+            {
+              path: 'student',
+              select: 'firstName + lastName + skype'
+            }
+          ]
+        }
+      ]
+    }
+
     try {
       const { scheduleId, windowId, lessonId, commentId } = reqDTO.params
 
@@ -159,6 +208,13 @@ class ScheduleService {
       if (scheduleId) {
         const schedule = await this.scheduleRepository.findById(scheduleId, select, schedulePopulate)
         if (schedule && this.isScheduleOwner(reqDTO.user, schedule)) {
+          result = schedule
+        }
+      }
+
+      if (windowId) {
+        const schedule = await this.windowRepository.findById(windowId, select, windowPopulate)
+        if (schedule && this.isWindowOwner(reqDTO.user, schedule)) {
           result = schedule
         }
       }

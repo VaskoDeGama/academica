@@ -5,7 +5,7 @@ const DataBase = require('../infrastructure/database')
 const Cache = require('../infrastructure/cache')
 const { MongoRepository } = require('../repositories')
 const { AuthService, UserService, ScheduleService } = require('../services')
-const { User, Token, Types, Role, Schedule } = require('../models')
+const { User, Token, Types, Role, Schedule, Window, Lesson, Comment } = require('../models')
 /**
  * @param {DiContainer} ioc
  */
@@ -19,6 +19,9 @@ function init (ioc) {
   ioc.register(Types.token, Token)
   ioc.register(Types.role, Role)
   ioc.register(Types.schedule, Schedule)
+  ioc.register(Types.window, Window)
+  ioc.register(Types.lesson, Lesson)
+  ioc.register(Types.comment, Comment)
 
   ioc.factory(Types.server, Server, [Types.logger, Types.container])
   ioc.factory(Types.db, DataBase, [Types.logger])
@@ -34,7 +37,7 @@ function init (ioc) {
 
   ioc.factory(Types.authService, AuthService, [Types.userRepository, Types.tokenRepository, Types.cache])
   ioc.factory(Types.userService, UserService, [Types.userRepository])
-  ioc.factory(Types.scheduleService, ScheduleService, [Types.userRepository, Types.scheduleRepository])
+  ioc.factory(Types.scheduleService, ScheduleService, [Types.userRepository, Types.scheduleRepository, Types.windowRepository, Types.lessonRepository, Types.commentRepository])
 }
 
 module.exports = init
