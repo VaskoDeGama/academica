@@ -16,8 +16,8 @@ class ScheduleService {
    *
    * @param {User} user
    * @param {string} resourceName
-   * @param {Schedule[]} resource
-   * @returns {Schedule[]}
+   * @param {object[]} resource
+   * @returns {object[]}
    */
   getOnlyOwned (user, resourceName, resource = []) {
     const permissions = user.permissions.find(p => p.resource === resourceName)
@@ -28,6 +28,30 @@ class ScheduleService {
         return resource.filter(r => this.isCommentOwner(user, r, permissions))
       case 'window':
         return resource.filter(r => this.isWindowOwner(user, r, permissions))
+      case 'lesson':
+        return resource.filter(r => this.isLessonOwner(user, r, permissions))
+    }
+  }
+
+  /**
+   *
+   * @param {User} user
+   * @param {Lesson} lesson
+   * @param {object} permissions
+   * @returns {boolean}
+   */
+  isLessonOwner (user, lesson, permissions) {
+    const { id, role, teacherId } = user
+    switch (role) {
+      case Roles.student: {
+        return true
+      }
+      case Roles.teacher: {
+        return true
+      }
+      case Roles.admin: {
+        return true
+      }
     }
   }
 
@@ -200,6 +224,23 @@ class ScheduleService {
       ]
     }
 
+    const lessonPopulate = {
+      populate: [
+        {
+          path: 'student',
+          select: 'firstName + lastName + skype + teacher'
+        },
+        {
+          path: 'window',
+          select: 'startTime + endTime'
+        },
+        {
+          path: 'comments',
+          select: '-lesson'
+        }
+      ]
+    }
+
     try {
       const { scheduleId, windowId, lessonId, commentId } = reqDTO.params
 
@@ -210,12 +251,16 @@ class ScheduleService {
         if (schedule && this.isScheduleOwner(reqDTO.user, schedule)) {
           result = schedule
         }
-      }
-
-      if (windowId) {
-        const schedule = await this.windowRepository.findById(windowId, select, windowPopulate)
-        if (schedule && this.isWindowOwner(reqDTO.user, schedule)) {
-          result = schedule
+      } else if (windowId) {
+        const window = await this.windowRepository.findById(windowId, select, windowPopulate)
+        if (window && this.isWindowOwner(reqDTO.user, window)) {
+          result = window
+        }
+      } else if (lessonId) {
+        const lesson = await this.lessonRepository.findById(lessonId, select, lessonPopulate)
+        if (lesson && this.isLessonOwner(reqDTO.user, lesson)) {
+          lesson.comments = this.getOnlyOwned(reqDTO.user, 'comment', lesson.comments)
+          result = lesson
         }
       }
 

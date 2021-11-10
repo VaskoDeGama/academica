@@ -3,7 +3,7 @@ const logger = require('./logger')
 
 module.exports = {
   server: {
-    port: 5000,
+    port: 5445,
     secret: process.env.SECRET_KEY,
     tokenExp: 10 * 60, // in seconds
     refreshTokenExp: 30 * 60 * 1000 // on ms
