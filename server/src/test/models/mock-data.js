@@ -361,6 +361,7 @@ for (const schedule of mockSchedule) {
 
   for (let j = 0; j < windowCount; j += 1) {
     const window = {
+      schedule: schedule._id,
       _id: new mongoose.Types.ObjectId(scheduleIds[idIndex]),
       lessons: []
     }
@@ -411,6 +412,7 @@ for (const schedule of mockSchedule) {
         const studentIndex = getRandomInt(0, studentsByTeacher.length - 1)
 
         const lesson = {
+          window: window._id,
           _id: new mongoose.Types.ObjectId(scheduleIds[idIndex]),
           student: studentsByTeacher[studentIndex]._id,
           comments: []
@@ -440,6 +442,7 @@ for (const schedule of mockSchedule) {
           lesson.comments.push(_id)
           mockComments.push({
             _id,
+            lesson: lesson._id,
             author: getRandomInt(0, 100) > 50 ? teacher : lesson.student,
             message: getRandomText(getRandomInt(10, 50)),
             isPrivate: getRandomInt(0, 100) > 50,

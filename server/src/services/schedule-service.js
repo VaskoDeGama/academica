@@ -116,6 +116,64 @@ class ScheduleService {
       return resDTO.addError(e)
     }
   }
+
+  /**
+   *
+   * @param {RequestDTO} reqDTO
+   * @returns {Promise<ResultDto>}
+   */
+  async getById (reqDTO) {
+    const resDTO = new ResultDTO(reqDTO)
+
+    const select = {}
+
+    const schedulePopulate = {
+      populate: [
+        {
+          path: 'teacher',
+          select: 'firstName + lastName + skype'
+        },
+        {
+          path: 'windows',
+          populate: [
+            {
+              path: 'lessons',
+              select: '-comments',
+              populate: [
+                {
+                  path: 'student',
+                  select: 'firstName + lastName + skype'
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+
+    try {
+      const { scheduleId, windowId, lessonId, commentId } = reqDTO.params
+
+      let result = null
+
+      if (scheduleId) {
+        const schedule = await this.scheduleRepository.findById(scheduleId, select, schedulePopulate)
+        if (schedule && this.isScheduleOwner(reqDTO.user, schedule)) {
+          result = schedule
+        }
+      }
+
+      if (result) {
+        resDTO.data = result
+
+        return resDTO
+      } else {
+        return resDTO.addError('Resource not found', 404, 'RequestError')
+      }
+    } catch (e) {
+      return resDTO.addError(e)
+    }
+  }
 }
 
 module.exports = ScheduleService

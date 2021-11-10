@@ -16,7 +16,8 @@ const commentDefinition = {
   isPrivate: {
     type: Boolean,
     default: true
-  }
+  },
+  lesson: { type: Schema.Types.ObjectId, ref: 'Lesson' }
 }
 
 const commentSchema = new Schema(commentDefinition, { timestamps: true, id: true })
@@ -36,6 +37,7 @@ const lessonDefinition = {
     ref: 'User',
     required: true
   },
+  window: { type: Schema.Types.ObjectId, ref: 'Window' },
   comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }]
 }
 const lessonSchema = new Schema(lessonDefinition, { timestamps: true, id: true })
@@ -50,6 +52,7 @@ const windowDefinition = {
     type: Date,
     required: true
   },
+  schedule: { type: Schema.Types.ObjectId, ref: 'Schedule' },
   lessons: [{ type: Schema.Types.ObjectId, ref: 'Lesson' }]
 }
 const windowSchema = new Schema(windowDefinition, { timestamps: true, id: true })

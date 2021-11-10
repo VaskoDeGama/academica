@@ -50,25 +50,25 @@ class ScheduleController extends BaseController {
       {
         path: '/:scheduleId',
         method: Methods.GET,
-        handler: this.getScheduleById,
+        handler: this.getById,
         localMiddleware: [this.ALL, this.SCHEDULE_READ, this.ID_VALIDATE]
       },
       {
-        path: '/:scheduleId/:windowId',
+        path: '/window/:windowId',
         method: Methods.GET,
-        handler: this.getWindowById,
+        handler: this.getById,
         localMiddleware: [this.ALL, this.WINDOW_READ, this.ID_VALIDATE]
       },
       {
-        path: '/:scheduleId/:windowId/:lessonId',
+        path: '/lesson/:lessonId',
         method: Methods.GET,
-        handler: this.getLessonById,
+        handler: this.getById,
         localMiddleware: [this.ALL, this.LESSON_READ, this.ID_VALIDATE]
       },
       {
-        path: '/:scheduleId/:windowId/:lessonId/:commentId',
+        path: '/comment/:commentId',
         method: Methods.GET,
-        handler: this.getCommentById,
+        handler: this.getById,
         localMiddleware: [this.ALL, this.COMMENT_READ, this.ID_VALIDATE]
       },
       // POST
@@ -165,42 +165,10 @@ class ScheduleController extends BaseController {
     next()
   }
 
-  async getScheduleById (req, res, next) {
+  async getById (req, res, next) {
     const reqDTO = new RequestDTO(req)
-    // const scheduleService = reqDTO.ioc.get(Types.scheduleService)
-    // const resultDTO =  await scheduleService.createSchedule(reqDTO)
-    const resultDTO = new ResultDTO(reqDTO)
-    resultDTO.data = 'getScheduleById fn'
-    this.setResp({ res, req, resultDTO })
-    next()
-  }
-
-  async getWindowById (req, res, next) {
-    const reqDTO = new RequestDTO(req)
-    // const scheduleService = reqDTO.ioc.get(Types.scheduleService)
-    // const resultDTO =  await scheduleService.createSchedule(reqDTO)
-    const resultDTO = new ResultDTO(reqDTO)
-    resultDTO.data = 'getWindowById fn'
-    this.setResp({ res, req, resultDTO })
-    next()
-  }
-
-  async getLessonById (req, res, next) {
-    const reqDTO = new RequestDTO(req)
-    // const scheduleService = reqDTO.ioc.get(Types.scheduleService)
-    // const resultDTO =  await scheduleService.createSchedule(reqDTO)
-    const resultDTO = new ResultDTO(reqDTO)
-    resultDTO.data = 'getLessonById fn'
-    this.setResp({ res, req, resultDTO })
-    next()
-  }
-
-  async getCommentById (req, res, next) {
-    const reqDTO = new RequestDTO(req)
-    // const scheduleService = reqDTO.ioc.get(Types.scheduleService)
-    // const resultDTO =  await scheduleService.createSchedule(reqDTO)
-    const resultDTO = new ResultDTO(reqDTO)
-    resultDTO.data = 'getCommentById fn'
+    const scheduleService = reqDTO.ioc.get(Types.scheduleService)
+    const resultDTO = await scheduleService.getById(reqDTO)
     this.setResp({ res, req, resultDTO })
     next()
   }
