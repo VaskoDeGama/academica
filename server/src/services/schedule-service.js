@@ -2,6 +2,7 @@
 
 const ResultDTO = require('../models/result-dto')
 const { Roles } = require('../models')
+const { allSchedulePopulate, schedulePopulate, windowPopulate, lessonPopulate, commentPopulate } = require('../models/populate')
 
 class ScheduleService {
   constructor (userRepository, scheduleRepository, windowRepository, lessonRepository, commentRepository) {
@@ -10,6 +11,13 @@ class ScheduleService {
     this.windowRepository = windowRepository
     this.lessonRepository = lessonRepository
     this.commentRepository = commentRepository
+
+    this.populateOptions = {
+      schedule: schedulePopulate,
+      window: windowPopulate,
+      lesson: lessonPopulate,
+      comment: commentPopulate
+    }
   }
 
   /**
@@ -41,13 +49,13 @@ class ScheduleService {
    * @returns {boolean}
    */
   isLessonOwner (user, lesson, permissions) {
-    const { id, role, teacherId } = user
+    const { id, role } = user
     switch (role) {
       case Roles.student: {
         return lesson.student.id === id
       }
       case Roles.teacher: {
-        return lesson.student.teacher.toString() === id
+        return lesson?.student?.teacher?.toString() === id
       }
       case Roles.admin: {
         return true
@@ -118,35 +126,11 @@ class ScheduleService {
   async getAllSchedule (reqDTO) {
     const resDTO = new ResultDTO(reqDTO)
 
-    const opt = {
-      populate: [
-        {
-          path: 'teacher',
-          select: 'firstName + lastName + skype'
-        },
-        {
-          path: 'windows',
-          populate: [
-            {
-              path: 'lessons',
-              select: '-comments',
-              populate: [
-                {
-                  path: 'student',
-                  select: 'firstName + lastName + skype'
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    }
-
     const select = {
     }
 
     try {
-      const schedules = await this.scheduleRepository.getAll(select, opt)
+      const schedules = await this.scheduleRepository.getAll(select, allSchedulePopulate)
 
       const result = this.getOnlyOwned(reqDTO.user, 'schedule', schedules)
 
@@ -167,106 +151,55 @@ class ScheduleService {
 
   /**
    *
-   * @param {RequestDTO} reqDTO
-   * @returns {Promise<ResultDto>}
+   * @param {string[]|string} ids
+   * @param {string} resourceName
+   * @param {User} user
+   * @returns {Promise<object[]>}
    */
-  async getById (reqDTO) {
-    const resDTO = new ResultDTO(reqDTO)
+  async getByIds (ids = [], resourceName = '', user) {
+    if (!Array.isArray(ids)) {
+      ids = [ids]
+    }
+
+    const repo = this.getRepo(resourceName)
+
+    if (!repo) {
+      throw new Error('Not found repository:', resourceName)
+    }
 
     const select = {}
 
-    const schedulePopulate = {
-      populate: [
-        {
-          path: 'teacher',
-          select: 'firstName + lastName + skype'
-        },
-        {
-          path: 'windows',
-          populate: [
-            {
-              path: 'lessons',
-              select: '-comments',
-              populate: [
-                {
-                  path: 'student',
-                  select: 'firstName + lastName + skype'
-                }
-              ]
-            }
-          ]
-        }
-      ]
+    const populate = this.populateOptions[resourceName]
+
+    if (!populate) {
+      throw new Error('Not found populateOptions for:', resourceName)
     }
 
-    const windowPopulate = {
-      populate: [
-        {
-          path: 'schedule',
-          select: 'teacher',
-          populate: [
-            {
-              path: 'teacher',
-              select: 'firstName + lastName + skype'
-            }
-          ]
-        },
-        {
-          path: 'lessons',
-          select: '-comments',
-          populate: [
-            {
-              path: 'student',
-              select: 'firstName + lastName + skype'
-            }
-          ]
-        }
-      ]
+    const resources = await repo.findByIds(ids, select, populate)
+
+    if (!resources?.length) {
+      return []
     }
 
-    const lessonPopulate = {
-      populate: [
-        {
-          path: 'student',
-          select: 'firstName + lastName + skype + teacher'
-        },
-        {
-          path: 'window',
-          select: 'startTime + endTime'
-        },
-        {
-          path: 'comments',
-          select: '-lesson'
-        }
-      ]
-    }
+    return this.getOnlyOwned(user, resourceName, resources)
+  }
 
-    const commentPopulate = {
-      populate: [
-        {
-          path: 'author',
-          select: 'firstName + lastName + skype + teacher'
-        },
-        {
-          path: 'lesson',
-          select: '-comments',
-          populate: [
-            {
-              path: 'student',
-              select: 'firstName + lastName + skype + teacher'
-            },
-            {
-              path: 'window',
-              select: 'startTime + endTime'
-            },
-            {
-              path: 'comments',
-              select: '-lesson'
-            }
-          ]
-        }
-      ]
-    }
+  /**
+   *
+   * @param {string} resourceName
+   * @returns {MongoRepository}
+   */
+  getRepo (resourceName = '') {
+    return this[`${resourceName}Repository`]
+  }
+
+  /**
+   *
+   * @param {RequestDTO} reqDTO
+   * @returns {Promise<ResultDto>}
+   */
+  async get (reqDTO) {
+    const resDTO = new ResultDTO(reqDTO)
 
     try {
       const { scheduleId, windowId, lessonId, commentId } = reqDTO.params
@@ -274,26 +207,17 @@ class ScheduleService {
       let result = null
 
       if (scheduleId) {
-        const schedule = await this.scheduleRepository.findById(scheduleId, select, schedulePopulate)
-        if (schedule && this.isScheduleOwner(reqDTO.user, schedule)) {
-          result = schedule
-        }
+        [result] = await this.getByIds(scheduleId, 'schedule', reqDTO.user)
       } else if (windowId) {
-        const window = await this.windowRepository.findById(windowId, select, windowPopulate)
-        if (window && this.isWindowOwner(reqDTO.user, window)) {
-          result = window
-        }
+        [result] = await this.getByIds(windowId, 'window', reqDTO.user)
       } else if (lessonId) {
-        const lesson = await this.lessonRepository.findById(lessonId, select, lessonPopulate)
-        if (lesson && this.isLessonOwner(reqDTO.user, lesson)) {
+        const [lesson] = await this.getByIds(lessonId, 'lesson', reqDTO.user)
+        if (lesson) {
           lesson.comments = this.getOnlyOwned(reqDTO.user, 'comment', lesson.comments)
           result = lesson
         }
       } else if (commentId) {
-        const comment = await this.commentRepository.findById(commentId, select, commentPopulate)
-        if (comment && this.isCommentOwner(reqDTO.user, comment)) {
-          result = comment
-        }
+        [result] = await this.getByIds(commentId, 'comment', reqDTO.user)
       }
 
       if (result) {
@@ -306,6 +230,41 @@ class ScheduleService {
     } catch (e) {
       return resDTO.addError(e)
     }
+  }
+
+  /**
+   *
+   * @param {RequestDTO} reqDTO
+   * @returns {Promise<ResultDTO>}
+   */
+  async delete (reqDTO) {
+    const resDTO = new ResultDTO(reqDTO)
+
+    try {
+      const result = null
+
+      // TODO
+
+      if (result) {
+        resDTO.data = result
+
+        return resDTO
+      } else {
+        return resDTO.addError('Resource not found', 404, 'RequestError')
+      }
+    } catch (e) {
+      return resDTO.addError(e)
+    }
+  }
+
+  /**
+   *
+   * @param {string[]} id
+   * @param {string} resourceName
+   * @returns {object}
+   */
+  deleteByIds (id = [], resourceName = '') {
+    return {}
   }
 }
 

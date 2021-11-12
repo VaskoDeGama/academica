@@ -44,7 +44,7 @@ class ScheduleController extends BaseController {
       {
         path: '',
         method: Methods.GET,
-        handler: this.getSchedule,
+        handler: this.getSchedules,
         localMiddleware: [this.ALL, this.ID_VALIDATE]
       },
       {
@@ -125,25 +125,25 @@ class ScheduleController extends BaseController {
       {
         path: '/:scheduleId',
         method: Methods.DELETE,
-        handler: this.deleteSchedule,
+        handler: this.deleteById,
         localMiddleware: [this.NOT_STUDENT, this.SCHEDULE_DELETE, this.ID_VALIDATE]
       },
       {
         path: '/:scheduleId/:windowId',
         method: Methods.DELETE,
-        handler: this.deleteWindow,
+        handler: this.deleteById,
         localMiddleware: [this.NOT_STUDENT, this.WINDOW_DELETE, this.ID_VALIDATE]
       },
       {
         path: '/:scheduleId/:windowId/:lessonId',
         method: Methods.DELETE,
-        handler: this.deleteLesson,
+        handler: this.deleteById,
         localMiddleware: [this.ALL, this.LESSON_DELETE, this.ID_VALIDATE]
       },
       {
         path: '/:scheduleId/:windowId/:lessonId/:commentId',
         method: Methods.DELETE,
-        handler: this.deleteComment,
+        handler: this.deleteById,
         localMiddleware: [this.ALL, this.COMMENT_DELETE, this.ID_VALIDATE]
       }
     ]
@@ -157,7 +157,7 @@ class ScheduleController extends BaseController {
   }
 
   // GET
-  async getSchedule (req, res, next) {
+  async getSchedules (req, res, next) {
     const reqDTO = new RequestDTO(req)
     const scheduleService = reqDTO.ioc.get(Types.scheduleService)
     const resultDTO = await scheduleService.getAllSchedule(reqDTO)
@@ -168,7 +168,7 @@ class ScheduleController extends BaseController {
   async getById (req, res, next) {
     const reqDTO = new RequestDTO(req)
     const scheduleService = reqDTO.ioc.get(Types.scheduleService)
-    const resultDTO = await scheduleService.getById(reqDTO)
+    const resultDTO = await scheduleService.get(reqDTO)
     this.setResp({ res, req, resultDTO })
     next()
   }
@@ -256,42 +256,11 @@ class ScheduleController extends BaseController {
   }
 
   // DELETE
-  async deleteSchedule (req, res, next) {
-    const reqDTO = new RequestDTO(req)
-    // const scheduleService = reqDTO.ioc.get(Types.scheduleService)
-    // const resultDTO =  await scheduleService.createSchedule(reqDTO)
-    const resultDTO = new ResultDTO(reqDTO)
-    resultDTO.data = 'deleteSchedule fn'
-    this.setResp({ res, req, resultDTO })
-    next()
-  }
 
-  async deleteWindow (req, res, next) {
+  async deleteById (req, res, next) {
     const reqDTO = new RequestDTO(req)
-    // const scheduleService = reqDTO.ioc.get(Types.scheduleService)
-    // const resultDTO =  await scheduleService.createSchedule(reqDTO)
-    const resultDTO = new ResultDTO(reqDTO)
-    resultDTO.data = 'deleteWindow fn'
-    this.setResp({ res, req, resultDTO })
-    next()
-  }
-
-  async deleteLesson (req, res, next) {
-    const reqDTO = new RequestDTO(req)
-    // const scheduleService = reqDTO.ioc.get(Types.scheduleService)
-    // const resultDTO =  await scheduleService.createSchedule(reqDTO)
-    const resultDTO = new ResultDTO(reqDTO)
-    resultDTO.data = 'deleteLesson fn'
-    this.setResp({ res, req, resultDTO })
-    next()
-  }
-
-  async deleteComment (req, res, next) {
-    const reqDTO = new RequestDTO(req)
-    // const scheduleService = reqDTO.ioc.get(Types.scheduleService)
-    // const resultDTO =  await scheduleService.createSchedule(reqDTO)
-    const resultDTO = new ResultDTO(reqDTO)
-    resultDTO.data = 'deleteComment fn'
+    const scheduleService = reqDTO.ioc.get(Types.scheduleService)
+    const resultDTO = await scheduleService.delete(reqDTO)
     this.setResp({ res, req, resultDTO })
     next()
   }
